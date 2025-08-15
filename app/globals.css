@@ -1,147 +1,335 @@
+@import 'tailwindcss';
+
 @font-face {
-    font-family: 'PPRader';
-    src: url('/fonts/rader/PPRader-Regular.ttf') format('truetype');
-    font-weight: 400;
-    font-style: normal;
-    font-display: swap;
+  font-family: 'PPRader';
+  src: url('/fonts/rader/PPRader-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
-    font-family: 'PPRader';
-    src: url('/fonts/rader/PPRader-Italic.ttf') format('truetype');
-    font-weight: 400;
-    font-style: italic;
-    font-display: swap;
+  font-family: 'PPRader';
+  src: url('/fonts/rader/PPRader-Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
 }
 
 @font-face {
-    font-family: 'PPRader';
-    src: url('/fonts/rader/PPRader-Bold.ttf') format('truetype');
-    font-weight: 700;
-    font-style: normal;
-    font-display: swap;
+  font-family: 'PPRader';
+  src: url('/fonts/rader/PPRader-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
-    font-family: 'PPRader';
-    src: url('/fonts/rader/PPRader-BoldItalic.ttf') format('truetype');
-    font-weight: 700;
-    font-style: italic;
-    font-display: swap;
+  font-family: 'PPRader';
+  src: url('/fonts/rader/PPRader-BoldItalic.ttf') format('truetype');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* ==== SATOSHI ==== */
+@font-face {
+  font-family: 'Satoshi';
+  src: url('/fonts/satoshi/Satoshi-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Satoshi';
+  src: url('/fonts/satoshi/Satoshi-Italic.otf') format('opentype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Satoshi';
+  src: url('/fonts/satoshi/Satoshi-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Satoshi';
+  src: url('/fonts/satoshi/Satoshi-BoldItalic.otf') format('opentype');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Satoshi';
+  src: url('/fonts/satoshi/Satoshi-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ==== SUPPLY MONO ==== */
+@font-face {
+  font-family: 'Supply Mono';
+  src: url('/fonts/supply-mono/PPSupplyMono-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Supply Mono';
+  src: url('/fonts/supply-mono/PPSupplyMono-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Supply Mono';
+  src: url('/fonts/supply-mono/PPSupplyMono-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Supply Mono';
+  src: url('/fonts/supply-mono/PPSupplyMono-UltraLight.ttf') format('truetype');
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
 }
 
 /* ... et ainsi de suite pour Medium, Thin, Hairline */
 
 :root {
-    --bg: #edf1e8;
-    --bg2: #d7dbd2;
-    --fg: #141414;
-    --accent1: #ed6a5a;
-    --accent2: #f4f1bb;
-    --accent3: #9bc1bc;
-    --accent4: #5d576b;
+  --bg: #edf1e8;
+  --bg2: #d7dbd2;
+  --fg: #141414;
+  --accent1: #ed6a5a;
+  --accent2: #f4f1bb;
+  --accent3: #9bc1bc;
+  --accent4: #5d576b;
+  --accent5: #b6a6fe;
+  --lh-095: 0.95;
+  --track-tightish: -0.01em;
 }
 
-* {
+/* ==== Base (typography globale) ==== */
+@layer base {
+  * {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--fg);
+  }
+
+  a {
+    text-decoration: none;
+    color: var(--fg);
+    cursor: pointer;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: 'PPRader', system-ui, sans-serif;
+    text-transform: uppercase;
+    font-style: italic;
+    line-height: var(--lh-095);
+    letter-spacing: var(--track-tightish);
+    font-weight: 700;
+  }
+  h1 {
+    font-size: 5rem;
+  }
+  h2 {
+    font-size: 4rem;
+  }
+  h3 {
+    font-size: 2rem;
+  }
+}
+
+/* ==== Utilities (sans toucher à tailwind.config) ==== */
+@layer utilities {
+  /* couleurs via variables */
+  .bg-bg {
+    background-color: var(--bg);
+  }
+  .bg-bg2 {
+    background-color: var(--bg2);
+  }
+  .bg-fg {
+    background-color: var(--fg);
+  }
+  .text-fg {
+    color: var(--fg);
+  }
+  .bg-accent1 {
+    background-color: var(--accent1);
+  }
+  .bg-accent2 {
+    background-color: var(--accent2);
+  }
+  .bg-accent3 {
+    background-color: var(--accent3);
+  }
+  .bg-accent4 {
+    background-color: var(--accent4);
+  }
+  .bg-accent5 {
+    background-color: var(--accent5);
+  }
+  .text-accent1 {
+    color: var(--accent1);
+  }
+  .text-accent2 {
+    color: var(--accent2);
+  }
+  .text-accent3 {
+    color: var(--accent3);
+  }
+  .text-accent4 {
+    color: var(--accent4);
+  }
+  .text-accent5 {
+    color: var(--accent5);
+  }
+
+  /* font helpers */
+  .font-rader {
+    font-family: 'PPRader', system-ui, sans-serif;
+  }
+
+  .font-supplymono {
+    font-family: 'Supply Mono', monospace;
+  }
+  .font-pprader {
+    font-family: 'PPRader', system-ui, sans-serif;
+  }
+
+  .leading-095 {
+    line-height: var(--lh-095);
+  }
+  .tracking-tightish {
+    letter-spacing: var(--track-tightish);
+  }
+
+  /* shadow recto "badge" (équivalent -8px 8px 0 #000) */
+  .shadow-badge {
+    box-shadow: -8px 8px 0 #000;
+  }
+
+  /* Capsule logo : conteneur + pseudo-shadow, coins nets même avec gros traits */
+  .badge {
+    position: relative;
+    border-radius: 13px; /* même rayon partout */
+    background: #fff;
+    border: 4px solid #000;
+  }
+  .badge::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 13px; /* identique au parent */
+    box-shadow: -8px 8px 0 #000; /* ombre externe indépendante */
+    pointer-events: none;
+  }
 }
 
 body {
-    background-color: var(--bg);
-    color: var(--fg);
-}
-
-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+  background-color: var(--bg);
+  color: var(--fg);
 }
 
 h1,
 h2,
 h3 {
-    text-transform: uppercase;
-    font-family: 'PPRader';
-    font-style: italic;
-    line-height: 0.95;
+  text-transform: uppercase;
+  font-family: 'PPRader';
+  font-style: italic;
+  line-height: 0.95;
 }
 
 h1 {
-    font-size: 5rem;
+  font-size: 5rem;
 }
 
 h2 {
-    font-size: 4rem;
+  font-size: 4rem;
 }
 
 h3 {
-    font-size: 2rem;
+  font-size: 2rem;
 }
 
 a {
-    text-decoration: none;
-    color: var(--fg);
+  text-decoration: none;
+  cursor: pointer;
+  color: var(--fg);
 }
 
-p,
+/* p,
 p.ss {
-    font-family: 'formula-narrow';
-    font-size: 1.25rem;
-    font-weight: 600;
-    line-height: 1.125;
+  font-family: 'Satoshi';
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.125;
 }
 
 p.mn {
-    text-transform: uppercase;
-    font-family: 'supply-mono';
-    font-size: 0.875rem;
-    font-weight: 500;
-    line-height: 1.125;
-}
+  text-transform: uppercase;
+  font-family: 'Supply Mono';
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.125;
+} */
 
 html.lenis {
-    height: auto;
+  height: auto;
 }
 
 .lenis.lenis-smooth {
-    scroll-behavior: auto;
+  scroll-behavior: auto;
 }
 
 .lenis.lenis-smooth [data-lenis-prevent] {
-    overscroll-behavior: contain;
+  overscroll-behavior: contain;
 }
 
 .lenis.lenis-stopped {
-    overflow: hidden;
+  overflow: hidden;
 }
 
 .lenis.lenis-scrolling iframe {
-    pointer-events: none;
+  pointer-events: none;
 }
 
 ::view-transition-old(root),
 ::view-transition-new(root) {
-    animation: none !important;
+  animation: none !important;
 }
 
 ::view-transition-group(root) {
-    z-index: auto !important;
+  z-index: auto !important;
 }
 
 ::view-transition-image-pair(root) {
-    isolation: isolate;
-    will-change: transform, opacity, clip-path;
-    z-index: 1;
+  isolation: isolate;
+  will-change: transform, opacity, clip-path;
+  z-index: 1;
 }
 
 ::view-transition-new(root) {
-    z-index: 10000;
-    animation: none !important;
+  z-index: 10000;
+  animation: none !important;
 }
 
 ::view-transition-old(root) {
-    z-index: 1;
-    animation: none !important;
+  z-index: 1;
+  animation: none !important;
 }
