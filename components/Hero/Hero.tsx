@@ -5,6 +5,12 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
 import './Hero.css'
+import {
+  GithubLogoIcon,
+  InstagramLogoIcon,
+  LinkedinLogoIcon,
+  XLogoIcon,
+} from '@phosphor-icons/react'
 
 export default function Hero() {
   const heroImgWrapperRef = useRef<HTMLDivElement | null>(null) // target
@@ -67,14 +73,35 @@ export default function Hero() {
           </div>
         </div>
         <div className='hero-footer'>
-          <div className='hero-footer-symbols'>
-            <img src='/images/global/symbols.png' alt='symbols' />
+          <div className='hero-footer-symbols flex flex-row gap-2 '>
+            <a href='https://github.com/layfredrc' target='_blank' rel='noopener noreferrer'>
+              <GithubLogoIcon size={32} />
+            </a>
+            <a href='https://x.com/layfredrc_' target='_blank' rel='noopener noreferrer'>
+              <XLogoIcon size={32} />
+            </a>
+            <a
+              href='https://www.linkedin.com/in/frederic-lay/'
+              target='_blank'
+              rel='noopener noreferrer'
+            >
+              <LinkedinLogoIcon size={32} />
+            </a>
+            <a
+              href='https://www.instagram.com/layfredrc_/'
+              target='_blank'
+              rel='noopener noreferrer'
+            >
+              <InstagramLogoIcon size={32} />
+            </a>
           </div>
           <div className='hero-footer-scroll-down'>
-            <p className='mn'>Pixels by Otis / 2025</p>
+            <a href='https://bento.me/layfredrc' target='_blank' rel='noopener noreferrer'>
+              <p className='font-supplymono'>@layfredrc / 2025</p>
+            </a>
           </div>
-          <div className='hero-footer-tags'>
-            <p className='mn'>Portfolio Mode: ON</p>
+          <div className='hero-footer-tags '>
+            <p className='font-supplymono'>SCROLL DOWN ↓</p>
           </div>
         </div>
       </section>
