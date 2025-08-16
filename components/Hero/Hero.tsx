@@ -13,8 +13,6 @@ import {
 } from '@phosphor-icons/react'
 
 export default function Hero() {
-  const heroImgWrapperRef = useRef<HTMLDivElement | null>(null) // target
-  const heroImgHolderRef = useRef<HTMLElement | null>(null) // trigger
   const imgRef = useRef<HTMLImageElement | null>(null)
 
   let scrollTriggerInstance: globalThis.ScrollTrigger | null = null
@@ -46,7 +44,6 @@ export default function Hero() {
       trigger: '.hero-img-holder',
       start: 'top bottom',
       end: 'top top',
-      markers: true,
       onUpdate: (self) => {
         const progress = self.progress
         gsap.set('.hero-img', {
@@ -106,8 +103,8 @@ export default function Hero() {
         </div>
       </section>
 
-      <section className='hero-img-holder' ref={heroImgHolderRef}>
-        <div className='hero-img' ref={heroImgWrapperRef}>
+      <section className='hero-img-holder'>
+        <div className='hero-img'>
           <img src={imagePaths[0]} alt='' ref={imgRef} />
         </div>
       </section>
