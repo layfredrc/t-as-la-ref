@@ -1,0 +1,190 @@
+.meme-vortex {
+  position: relative;
+  height: 100svh;
+  width: 100vw;
+  overflow: hidden;
+  margin-top: 3rem;
+  inline-size: 100%;
+  overflow-x: hidden;
+}
+.cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 99999;
+  pointer-events: none;
+}
+
+.cursor img {
+  width: 60px;
+  height: 60px;
+  z-index: 10000;
+}
+
+.gallery {
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  background: #000;
+  transform-style: preserve-3d;
+  perspective: 2000px;
+}
+
+.block {
+  position: absolute;
+  width: 200px;
+  height: 120px;
+  background: #c0c0c0;
+  transform-style: preserve-3d;
+  transform: translateZ(1750px);
+}
+
+.block-1 {
+  top: 30%;
+  left: 55%;
+  background: url('https://c.tenor.com/21815GBBccoAAAAC/tenor.gif') no-repeat 50% 50%;
+  background-size: cover;
+}
+
+.block-2 {
+  top: 20%;
+  left: 25%;
+  background: url('https://media1.tenor.com/m/xDyPA9tx-pAAAAAd/cavapeter-peter.gif') no-repeat 50%
+    50%;
+  background-size: cover;
+}
+
+.block-3 {
+  top: 50%;
+  left: 10%;
+  background: url('https://media1.tenor.com/m/bRIZQF6zQb4AAAAC/kaaris-or-noir.gif') no-repeat 50%
+    50%;
+  background-size: cover;
+}
+
+.block-4 {
+  top: 60%;
+  left: 40%;
+  background: url('https://media1.tenor.com/m/6SxpB0xDCz0AAAAd/oh-putain-laurent-laurent.gif')
+    no-repeat 50% 50%;
+  background-size: cover;
+}
+
+.block-5 {
+  top: 30%;
+  left: 30%;
+  background: url('https://media1.tenor.com/m/ASGuOCPGrKEAAAAd/kekw-kek.gif') no-repeat 50% 50%;
+  background-size: cover;
+}
+
+.block-6 {
+  top: 60%;
+  left: 60%;
+  background: url('https://media1.tenor.com/m/tznGQ_YQGzIAAAAd/angry-tracksuit.gif') no-repeat 50%
+    50%;
+  background-size: cover;
+}
+
+.block-7 {
+  top: 20%;
+  left: 50%;
+  background: url('https://media1.tenor.com/m/Z42Fo4WKPrQAAAAC/dog-driving.gif') no-repeat 50% 50%;
+  background-size: cover;
+}
+
+.block-8 {
+  top: 60%;
+  left: 10%;
+  background: url('https://plus.unsplash.com/premium_photo-1672510002580-23fcab4dfbce?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80')
+    no-repeat 50% 50%;
+  background-size: cover;
+}
+
+.block-9 {
+  top: 20%;
+  left: 40%;
+  background: url('https://media1.tenor.com/m/wb_rblUTxVAAAAAd/boat-kid-aura-farming-pacu-jalur.gif')
+    no-repeat 50% 50%;
+  background-size: cover;
+}
+
+.block-10 {
+  top: 40%;
+  left: 60%;
+  background: url('https://media1.tenor.com/m/4-odaCiEXeUAAAAd/dancing-coffin-coffin-dance.gif')
+    no-repeat 50% 50%;
+  background-size: cover;
+}
+
+.block-11 {
+  top: 60%;
+  left: 25%;
+  background: url('https://media1.tenor.com/m/vgQ373N5YtsAAAAC/speed-ishowspeed.gif') no-repeat 50%
+    50%;
+  background-size: cover;
+}
+
+.block-12 {
+  top: 30%;
+  left: 50%;
+  background: url('https://media1.tenor.com/m/ftLcQ8mFR3AAAAAd/aiscream-love-live-aiscream-ruby.gif')
+    no-repeat 50% 50%;
+  background-size: cover;
+}
+.block-13 {
+  top: 60%;
+  left: 25%;
+  background: url('https://media1.tenor.com/m/PGjYziyQqkoAAAAd/fried-chicken-chicken.gif') no-repeat
+    50% 50%;
+  background-size: cover;
+}
+.block-14 {
+  top: 25%;
+  left: 25%;
+  background: url('https://media1.tenor.com/m/Vo7DmpYoYCgAAAAd/future.gif') no-repeat 50% 50%;
+  background-size: cover;
+}
+.block-15 {
+  top: 50%;
+  left: 10%;
+  background: url('https://media1.tenor.com/m/wC1SbgEZLVcAAAAd/training-day.gif') no-repeat 50% 50%;
+  background-size: cover;
+}
+.block-16 {
+  top: 60%;
+  left: 40%;
+  background: url('https://media1.tenor.com/m/Y847f62IGbEAAAAd/feliz-cumplea%C3%B1os.gif') no-repeat
+    50% 50%;
+  background-size: cover;
+}
+
+.header {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  width: 80vw;
+}
+
+.header h1 {
+  text-transform: uppercase;
+  font-weight: 00;
+  font-size: 12vw;
+  text-align: center;
+  line-height: 1;
+  pointer-events: none;
+  /* Accent Violet */
+  background: linear-gradient(117.03deg, #3672f8 0%, #b01eff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.header p {
+  color: white;
+  font-family: 'Supply mono';
+  font-size: 32px;
+  text-align: center;
+  margin-top: 2rem;
+}
