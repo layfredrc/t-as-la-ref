@@ -30,7 +30,10 @@ export default function Navbar() {
             </Link>
           </div>
           <ul className='flex flex-row items-center gap-5 z-10'>
-            <Link href='/feed' className='mr-2 bg-fg text-white border-1 px-4 py-2 rounded-lg'>
+            <Link
+              href='/feed'
+              className='mr-2 bg-fg text-white border-1 px-4 py-2 rounded-lg border-black'
+            >
               <li className='font-supplymono  text-white'>Explorer les refs</li>
             </Link>
             <Link

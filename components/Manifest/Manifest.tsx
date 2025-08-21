@@ -39,7 +39,7 @@ const Manifest = () => {
         const pinTrigger = ScrollTrigger.create({
           trigger: service,
           start: 'top 45%',
-          endTrigger: '.contact-cta',
+          endTrigger: '.meme-vortex',
           end: 'top 90%',
           pin: true,
           pinSpacing: false,
@@ -52,7 +52,7 @@ const Manifest = () => {
           scrollTrigger: {
             trigger: service,
             start: 'top 45%',
-            endTrigger: '.contact-cta',
+            endTrigger: '.meme-vortex',
             end: 'top 90%',
             scrub: true,
           },
@@ -122,18 +122,6 @@ const Manifest = () => {
             <div className='service-card-img'>
               <img src='/images/services/service-4.jpg' alt='Experience Design' />
             </div>
-          </div>
-        </div>
-      </section>
-
-      <section className='contact-cta'>
-        <div className='contact-button'>
-          <a href='/contact'></a>
-          <div className='contact-text-small'>
-            <p>Collabs, or cosmic brainstorms welcome</p>
-          </div>
-          <div className='contact-text-large'>
-            <h1>Hit Me Up</h1>
           </div>
         </div>
       </section>

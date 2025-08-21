@@ -125,6 +125,7 @@
   body {
     background: var(--bg);
     color: var(--fg);
+    overflow-x: hidden;
   }
 
   a {
@@ -270,7 +271,6 @@ h3 {
 a {
   text-decoration: none;
   cursor: pointer;
-  color: var(--fg);
 }
 
 /* p,
