@@ -18,14 +18,14 @@ export default function Hero() {
   let scrollTriggerInstance: globalThis.ScrollTrigger | null = null
 
   const imagePaths = useMemo(
-    () => Array.from({ length: 13 }, (_, i) => `/images/hero/img${i + 1}.jpg`),
+    () => Array.from({ length: 20 }, (_, i) => `/images/hero/img${i + 1}.jpg`),
     [],
   )
 
   // slideshow
   useGSAP(() => {
     let currentImageIndex = 1
-    const totalImages = 13
+    const totalImages = 20
 
     setInterval(() => {
       currentImageIndex = currentImageIndex >= totalImages ? 1 : currentImageIndex + 1

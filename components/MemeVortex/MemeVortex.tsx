@@ -98,7 +98,7 @@ const MemeVortex = () => {
 
       <div className='content'>
         <div className='header'>
-          <h1>Welcome to the internet</h1>
+          <h1>T'as la ref ?</h1>
           <p>La mémoire collective du chaos numérique</p>
         </div>
       </div>
@@ -123,7 +123,7 @@ const MemeVortex = () => {
           <div className='block block-16' />
         </div>
       </div>
-      <div className='absolute bottom-[20%] flex left-1/2 -translate-x-1/2 items-center text-white justify-center font-supplymono rounded-xl'>
+      <div className='absolute bottom-[15%] flex left-1/2 -translate-x-1/2 items-center text-white justify-center font-supplymono rounded-xl'>
         <GlowingEffect
           spread={40}
           glow={true}

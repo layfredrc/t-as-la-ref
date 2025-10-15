@@ -1,3 +1,4 @@
+import AnimatedCopy from '@/components/AnimatedCopy'
 import Hero from '@/components/Hero/Hero'
 import Manifest from '@/components/Manifest/Manifest'
 import MemeVortex from '@/components/MemeVortex/MemeVortex'

@@ -1,5 +1,5 @@
 @import 'tailwindcss';
-@import "tw-animate-css";
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -448,4 +448,28 @@ html.lenis {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.hero img,
+.banner-img img {
+  border-radius: 1rem;
+}
+
+.about,
+.outro {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+}
+
+.about h3 {
+  width: 65%;
+  margin: 0 auto 1.5rem auto;
+}
+
+.about p {
+  width: 35%;
+  margin: 0 auto;
 }

@@ -3,6 +3,8 @@ import './Manifest.css'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
+import AnimatedCopy from '../AnimatedCopy'
+import StickyCards from '../StickyCards/StickyCards'
 
 const Manifest = () => {
   let scrollTriggerInstances: (ScrollTrigger | undefined)[] = []
@@ -70,61 +72,35 @@ const Manifest = () => {
     <section className='manifest'>
       <section className='services-header'>
         <div className='services-header-content'>
-          <div className='services-profile-icon'>
-            <img src='/images/services-header/portrait.jpeg' alt='Otis Valen Portrait' />
-          </div>
-          <p>Your ideas. My toolbox.</p>
+          <p>Enrichissons ensemble notre patrimoine du chaos numérique.</p>
           <div className='services-header-title'>
-            <h1>Pixel wizardry</h1>
-            <h1>served fresh</h1>
+            <AnimatedCopy colorInitial='#FFFFFF' colorAccent='#e20010' colorFinal='#000091'>
+              <h1>
+                La France, <br /> Pays du divertissement.
+              </h1>
+            </AnimatedCopy>
           </div>
+          {/* <section className='about'>
+            <div className='header2'>
+              <h3>A new chapter in engineered systems</h3>
+            </div>
+            <div className='copy'>
+              <AnimatedCopy>
+                <p>
+                  In an era defined by precision and speed, innovation reshapes the foundation of
+                  modern industry. Every component is built with intent, every system designed to
+                  perform at scale. This is more than machinery— it is the architecture of progress,
+                  setting new benchmarks for how we build, move, and connect.
+                </p>
+              </AnimatedCopy>
+            </div>
+          </section> */}
           <div className='services-header-arrow-icon'>
             <h1>&#8595;</h1>
           </div>
         </div>
       </section>
-      <section className='services'>
-        <div className='service-card' id='service-card-1'>
-          <div className='service-card-inner'>
-            <div className='service-card-content'>
-              <h1>Visual DNA</h1>
-            </div>
-            <div className='service-card-img'>
-              <img src='/images/services/service-1.jpg' alt='Experience Design' />
-            </div>
-          </div>
-        </div>
-        <div className='service-card' id='service-card-2'>
-          <div className='service-card-inner'>
-            <div className='service-card-content'>
-              <h1>Brand Alchemy</h1>
-            </div>
-            <div className='service-card-img'>
-              <img src='/images/services/service-2.jpg' alt='Experience Design' />
-            </div>
-          </div>
-        </div>
-        <div className='service-card' id='service-card-3'>
-          <div className='service-card-inner'>
-            <div className='service-card-content'>
-              <h1>Feel First Design</h1>
-            </div>
-            <div className='service-card-img'>
-              <img src='/images/services/service-3.jpg' alt='Experience Design' />
-            </div>
-          </div>
-        </div>
-        <div className='service-card' id='service-card-4'>
-          <div className='service-card-inner'>
-            <div className='service-card-content'>
-              <h1>Human Clicks</h1>
-            </div>
-            <div className='service-card-img'>
-              <img src='/images/services/service-4.jpg' alt='Experience Design' />
-            </div>
-          </div>
-        </div>
-      </section>
+      <StickyCards />
     </section>
   )
 }
