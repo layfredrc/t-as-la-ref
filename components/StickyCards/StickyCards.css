@@ -1,0 +1,98 @@
+.sticky-cards {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.sticky-card {
+  position: relative;
+  width: 100%;
+  height: 100svh;
+  background-color: var(--fg);
+  color: #ffffff;
+  padding: 1.5rem;
+  border-top-left-radius: 2em;
+  border-top-right-radius: 2em;
+  display: flex;
+  gap: 3rem;
+  will-change: transform;
+}
+
+.sticky-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  opacity: var(--after-opacity, 0);
+  transition: opacity 0.1s ease;
+  pointer-events: none;
+  border-top-left-radius: 2em;
+  border-top-right-radius: 2em;
+  z-index: 2;
+}
+
+.sticky-card-index {
+  flex: 2;
+}
+
+.sticky-card-content {
+  flex: 4;
+  padding-top: 1.5rem;
+}
+
+.sticky-card-content-wrapper {
+  width: 75%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.sticky-card-header {
+  width: 100%;
+  font-size: 3rem;
+}
+
+.sticky-card-img img {
+  aspect-ratio: 5/3;
+}
+
+.sticky-card-copy {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.sticky-card-copy-title {
+  flex: 2;
+}
+
+.sticky-card-copy-description {
+  flex: 4;
+}
+
+.sticky-card-copy-title p {
+  text-transform: uppercase;
+  font-weight: 650;
+}
+
+@media (max-width: 1000px) {
+  .sticky-card {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .sticky-card-content-wrapper {
+    width: 100%;
+  }
+
+  .sticky-card-copy {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .sticky-card-index {
+    flex: 1;
+  }
+}
