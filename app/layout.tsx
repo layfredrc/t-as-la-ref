@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 import ClientLayout from '@/client-layout'
+import { Toaster } from 'sonner'
 
 export const metadata: Metadata = {
   title: "T'as la ref ?",
@@ -16,6 +17,7 @@ export default function RootLayout({
   return (
     <html lang='en'>
       <body>
+        <Toaster />
         <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
