@@ -93,7 +93,7 @@ export function InputOTPForm({ email }: InputOTPFormProps) {
           )}
         />
 
-        <Button type='submit'>Submit</Button>
+        <Button type='submit'>Connexion</Button>
       </form>
     </Form>
   )
