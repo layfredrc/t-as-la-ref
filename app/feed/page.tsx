@@ -2,6 +2,7 @@
 import { createClient } from '@/utils/supabase/client'
 import { useRouter } from 'next/navigation'
 import React from 'react'
+import { toast } from 'sonner'
 
 const page = () => {
   const router = useRouter()
@@ -9,6 +10,7 @@ const page = () => {
     const supabase = createClient()
     await supabase.auth.signOut()
     router.push('/')
+    toast.success('Vous êtes déconnecté.')
   }
   return (
     <div>

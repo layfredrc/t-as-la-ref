@@ -21,7 +21,7 @@ import { createClient } from '@/utils/supabase/client'
 
 const FormSchema = z.object({
   pin: z.string().min(6, {
-    message: 'Your one-time password must be 6 characters.',
+    message: 'Votre code OTP à 6 chiffres.',
   }),
 })
 
@@ -41,7 +41,7 @@ export function InputOTPForm({ email }: InputOTPFormProps) {
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
     if (!email) {
-      toast.error('Email is missing. Please try logging in again.')
+      toast.error('Email non saisi, veuillez réessayer.')
       router.push('/login')
       return
     }
@@ -56,7 +56,7 @@ export function InputOTPForm({ email }: InputOTPFormProps) {
     if (error) {
       toast.error(error.message || 'Invalid OTP.')
     } else {
-      toast.success('Logged in!')
+      toast.success('Vous êtes connecté !')
       router.push('/feed')
     }
   }
