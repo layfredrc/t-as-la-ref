@@ -12,11 +12,11 @@ export default async function Home() {
   console.log(email, cookieStore)
 
   return (
-    <>
+    <div className='page'>
       <Navbar />
       <Hero />
       <Manifest />
       <MemeVortex />
-    </>
+    </div>
   )
 }
