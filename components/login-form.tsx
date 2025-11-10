@@ -5,19 +5,21 @@ import { Button } from '@/components/ui/button'
 import { Field, FieldDescription, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { DialogContent, DialogDescription, DialogHeader } from './ui/dialog'
-import { signInWithGoogle, signInWithOTP } from '@/app/action'
+import { signInWithGoogle } from '@/app/action'
 import { DialogTitle } from '@radix-ui/react-dialog'
 import Image from 'next/image'
 import { useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { InputOTPForm } from './InputOTPForm'
 import { toast } from 'sonner'
+import { Loader2 } from 'lucide-react'
 
 export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
   const [email, setEmail] = useState('')
   const [step, setStep] = useState<'EMAIL' | 'OTP_SENT'>('EMAIL')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [cooldown, setCooldown] = useState(0)
 
   const supabase = createClient()
 
@@ -36,6 +38,16 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
     } else {
       setStep('OTP_SENT')
       toast.info('Un code à été envoyé par e-mail.')
+      setCooldown(60)
+      const interval = setInterval(() => {
+        setCooldown((prev) => {
+          if (prev <= 1) {
+            clearInterval(interval)
+            return 0
+          }
+          return prev - 1
+        })
+      }, 1000)
     }
   }
 
@@ -82,8 +94,17 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
           </Field>
           {error && <FieldDescription className='text-red-500'>{error}</FieldDescription>}
           <Field>
-            <Button type='submit' formAction={handleSendOtp}>
-              {loading ? 'Envoi...' : 'Recevoir un code'}
+            <Button type='button' onClick={handleSendOtp} disabled={loading || cooldown > 0}>
+              {loading ? (
+                'Envoi...'
+              ) : cooldown > 0 ? (
+                <div className='flex items-center gap-2'>
+                  <Loader2 className='h-4 w-4 animate-spin' />
+                  Renvoyer dans {cooldown}s
+                </div>
+              ) : (
+                'Recevoir un code'
+              )}
             </Button>
           </Field>
         </FieldGroup>

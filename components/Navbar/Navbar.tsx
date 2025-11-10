@@ -4,8 +4,6 @@ import { Dialog, DialogTrigger } from '../ui/dialog'
 import Image from 'next/image'
 import Link from 'next/link'
 import { LoginForm } from '../login-form'
-import { createClient } from '@/utils/supabase/client'
-import { useRouter } from 'next/navigation'
 
 export default function Navbar() {
   return (

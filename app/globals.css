@@ -282,24 +282,24 @@ body {
   color: var(--fg);
 }
 
-h1,
-h2,
-h3 {
+.page h1,
+.page h2,
+.page h3 {
   text-transform: uppercase;
   font-family: 'PPRader';
   font-style: italic;
   line-height: 0.95;
 }
 
-h1 {
+.page h1 {
   font-size: 5rem;
 }
 
-h2 {
+.page h2 {
   font-size: 4rem;
 }
 
-h3 {
+.page h3 {
   font-size: 2rem;
 }
 
