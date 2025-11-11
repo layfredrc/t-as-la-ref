@@ -43,7 +43,7 @@ export default function Navbar() {
                 asChild
                 className='bg-accent5 px-4 py-2 border-1 rounded-lg  hover:translate-y-1  transition-all ease-in delay-100'
               >
-                <li className='font-supplymono uppercase'>LOGIN</li>
+                <li className='font-supplymono'>Connexion</li>
               </DialogTrigger>
               <LoginForm />
             </Dialog>

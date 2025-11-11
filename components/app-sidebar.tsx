@@ -34,39 +34,11 @@ const staticData = {
       url: '#',
       icon: CirclePlus,
       isActive: true,
-      items: [
-        {
-          title: 'History',
-          url: '#',
-        },
-        {
-          title: 'Starred',
-          url: '#',
-        },
-        {
-          title: 'Settings',
-          url: '#',
-        },
-      ],
     },
     {
       title: 'En ce moment',
       url: '#',
       icon: TrendingUp,
-      items: [
-        {
-          title: 'Genesis',
-          url: '#',
-        },
-        {
-          title: 'Explorer',
-          url: '#',
-        },
-        {
-          title: 'Quantum',
-          url: '#',
-        },
-      ],
     },
     {
       title: 'Découvrir',
@@ -95,24 +67,6 @@ const staticData = {
       title: 'Ranking',
       url: '#',
       icon: Trophy,
-      items: [
-        {
-          title: 'General',
-          url: '#',
-        },
-        {
-          title: 'Team',
-          url: '#',
-        },
-        {
-          title: 'Billing',
-          url: '#',
-        },
-        {
-          title: 'Limits',
-          url: '#',
-        },
-      ],
     },
   ],
   navSecondary: [
@@ -224,28 +178,30 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <Search className='absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4' />
           <Input type='text' placeholder='Trouver une ref' className='pl-9 bg-white' />
         </div>
+        {!profile && (
+          <div className='relative mt-4'>
+            <Dialog>
+              <DialogTrigger
+                asChild
+                className='ml-4 bg-accent5 px-4 py-2 order-2 border-black rounded-[8px]
+            shadow-[-4px_4px_0_#000] w-[60%] cursor-pointer hover:translate-y-1  transition-all ease-in delay-100'
+              >
+                <div className='font-supplymono text-fg text-center'>Connexion</div>
+              </DialogTrigger>
+              <LoginForm />
+            </Dialog>
+          </div>
+        )}
         <NavMain items={staticData.navMain} />
         <NavSecondary items={staticData.navSecondary} className='mt-auto' />
       </SidebarContent>
       <SidebarFooter>
-        {loadingProfile ? (
+        {loadingProfile && (
           <div className='p-4'>
             <Skeleton className='h-10 w-full rounded-xl' />
           </div>
-        ) : profile ? (
-          <NavUser user={userForNav} />
-        ) : (
-          <Dialog>
-            <DialogTrigger
-              asChild
-              className='bg-accent5 px-4 py-2 order-2 border-black rounded-[8px]
-            shadow-[-4px_4px_0_#000] w-[60%] cursor-pointer hover:translate-y-1  transition-all ease-in delay-100'
-            >
-              <div className='font-supplymono uppercase text-fg text-center'>LOGIN</div>
-            </DialogTrigger>
-            <LoginForm />
-          </Dialog>
         )}
+        {profile && <NavUser user={userForNav} />}
       </SidebarFooter>
     </Sidebar>
   )
