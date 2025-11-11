@@ -79,8 +79,10 @@ export async function signInWithOTP(formData: FormData) {
 
 export async function signInWithGoogle() {
   const supabase = await createClient()
-  const nextHeaders = await headers()
-  const origin = nextHeaders.get('origin') ?? process.env.NEXT_PUBLIC_SITE_URL! // définis cette env en prod
+  console.log(process.env.NODE_ENV)
+  const isLocalEnv = process.env.NODE_ENV === 'development'
+  const origin = isLocalEnv ? 'http://localhost:3000' : process.env.NEXT_PUBLIC_SITE_URL! // définis cette env en prod
+  console.log({ origin })
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
@@ -93,5 +95,6 @@ export async function signInWithGoogle() {
   if (error) {
     redirect('/error')
   }
+  console.log({ data })
   redirect(data.url)
 }
