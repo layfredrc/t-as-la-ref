@@ -3,11 +3,7 @@
 import OnboardingGuard from '@/components/OnboardingGuard'
 
 const page = () => {
-  return (
-    <>
-      <OnboardingGuard />
-    </>
-  )
+  return <OnboardingGuard />
 }
 
 export default page

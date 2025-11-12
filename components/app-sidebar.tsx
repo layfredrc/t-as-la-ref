@@ -16,11 +16,11 @@ import {
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
 import Image from 'next/image'
-import { createClient } from '@/utils/supabase/client'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Dialog, DialogTrigger } from './ui/dialog'
 import { LoginForm } from './login-form'
 import { Input } from './ui/input'
+import { useUserProfile } from '@/queryOptions/getUserProfile'
 
 const staticData = {
   user: {
@@ -90,57 +90,13 @@ type Profile = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const [profile, setProfile] = useState<Profile | null>(null)
-  const [loadingProfile, setLoadingProfile] = useState(false)
+  const { data: userProfile, isLoading } = useUserProfile()
 
-  useEffect(() => {
-    let mounted = true
-    const supabase = createClient()
-
-    const fetchProfile = async () => {
-      setLoadingProfile(true)
-      try {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser()
-
-        if (!user || !user.id) {
-          setProfile(null)
-          return
-        }
-
-        const { data, error } = await supabase
-          .from('users')
-          .select('username, profile_picture, email')
-          .eq('id', user.id)
-          .single()
-
-        if (error) {
-          // If the row doesn't exist or RLS blocks it, just keep null profile
-          console.debug('supabase fetch profile error', error)
-          if (mounted) setProfile(null)
-        } else if (mounted) {
-          setProfile(data || null)
-        }
-      } catch (err) {
-        console.error('failed to fetch profile', err)
-      } finally {
-        if (mounted) setLoadingProfile(false)
-      }
-    }
-
-    fetchProfile()
-
-    return () => {
-      mounted = false
-    }
-  }, [])
-
-  // build the user object to pass to NavUser: prefer profile data, fall back to staticData
+  // build the user object to pass to NavUser: prefer userProfile data, fall back to staticData
   const userForNav = {
-    name: profile?.username || staticData.user.name,
-    email: profile?.email,
-    avatar: profile?.profile_picture || staticData.user.avatar,
+    name: userProfile?.username || staticData.user.name,
+    email: userProfile?.email,
+    avatar: userProfile?.profile_picture || staticData.user.avatar,
   }
 
   return (
@@ -178,7 +134,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <Search className='absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4' />
           <Input type='text' placeholder='Trouver une ref' className='pl-9 bg-white' />
         </div>
-        {!profile && (
+        {!userProfile && (
           <div className='relative mt-4'>
             <Dialog>
               <DialogTrigger
@@ -196,12 +152,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavSecondary items={staticData.navSecondary} className='mt-auto' />
       </SidebarContent>
       <SidebarFooter>
-        {loadingProfile && (
+        {isLoading && (
           <div className='p-4'>
             <Skeleton className='h-10 w-full rounded-xl' />
           </div>
         )}
-        {profile && <NavUser user={userForNav} />}
+        {userProfile && <NavUser user={userForNav} />}
       </SidebarFooter>
     </Sidebar>
   )
