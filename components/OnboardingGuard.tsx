@@ -1,34 +1,36 @@
-import { useEffect, useState } from 'react'
-import { createClient } from '@/utils/supabase/client'
+'use client'
+
+import React, { useEffect, useState } from 'react'
 import ProfileSetupModal from './ProfileSetupModal'
-const OnboardingGuard = () => {
+import { useUserProfile } from '@/queryOptions/getUserProfile'
+import { useQueryClient } from '@tanstack/react-query'
+
+const OnboardingGuard: React.FC = () => {
   const [showModal, setShowModal] = useState(false)
-  const supabase = createClient()
+  const { data: userProfile, isLoading } = useUserProfile()
+  const queryClient = useQueryClient()
 
+  // Show modal only when the profile has been fetched and the username is missing
   useEffect(() => {
-    const checkProfile = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-      if (!user) return
+    if (isLoading) return
 
-      const { data, error } = await supabase
-        .from('users')
-        .select('username')
-        .eq('id', user.id)
-        .single()
-
-      console.log(data)
-
-      if (!data?.username && !data?.username) {
-        setShowModal(true)
-      }
+    // userProfile === null -> user not logged or no profile row; ignore (no modal)
+    // userProfile exists and has no username -> show modal
+    if (userProfile && !userProfile.username) {
+      setShowModal(true)
+    } else {
+      setShowModal(false)
     }
+  }, [isLoading, userProfile])
 
-    checkProfile()
-  }, [])
+  // Called when ProfileSetupModal completes (user saved username/avatar)
+  const handleComplete = async () => {
+    // invalidate so useUserProfile refetches and the whole UI updates
+    await queryClient.invalidateQueries({ queryKey: ['user-profile'] })
+    setShowModal(false)
+  }
 
-  return <>{showModal && <ProfileSetupModal onComplete={() => setShowModal(false)} />}</>
+  return <>{showModal && <ProfileSetupModal onComplete={handleComplete} />}</>
 }
 
 export default OnboardingGuard

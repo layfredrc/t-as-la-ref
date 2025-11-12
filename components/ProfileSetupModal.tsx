@@ -1,10 +1,12 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { toast } from 'sonner'
+import { Field, FieldLabel } from './ui/field'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 export default function ProfileSetupModal({ onComplete }: { onComplete: () => void }) {
   const [username, setUsername] = useState('')
@@ -33,25 +35,60 @@ export default function ProfileSetupModal({ onComplete }: { onComplete: () => vo
     }
   }
 
+  const isValidUsername = (value: string) => /^[a-zA-Z0-9_]{2,20}$/.test(value)
+
+  const queryClient = useQueryClient()
+
+  const updateUserMutation = useMutation({
+    mutationFn: async () => {
+      if (!isValidUsername(username)) {
+        throw new Error(
+          "Nom d'utilisateur invalide. Lettres, chiffres et _ uniquement, 2-20 caractères.",
+        )
+      }
+
+      const { data: existingUser } = await supabase
+        .from('users')
+        .select('*')
+        .eq('username', username)
+        .maybeSingle()
+
+      if (existingUser) {
+        throw new Error('Ce nom d’utilisateur est déjà pris.')
+      }
+
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      if (!user) throw new Error('Utilisateur introuvable.')
+
+      const { error } = await supabase
+        .from('users')
+        .update({
+          username,
+          ...(avatarUrl !== '/default-avatar.png' && { profile_picture: avatarUrl }),
+        })
+        .eq('id', user.id)
+
+      if (error) {
+        throw new Error('Erreur de mise à jour du profil.')
+      }
+
+      return true
+    },
+    onSuccess: async () => {
+      toast.info('Votre profil a été complété !')
+      await queryClient.invalidateQueries({ queryKey: ['user-profile'] })
+      onComplete()
+    },
+    onError: (error: any) => {
+      console.log({ error })
+      toast.error(error.message)
+    },
+  })
+
   const handleSubmit = async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-    if (!user) return
-
-    const { error } = await supabase
-      .from('users')
-      .update({
-        username,
-        ...(avatarUrl !== '/default-avatar.png' && { profile_picture: avatarUrl }),
-      })
-      .eq('id', user.id)
-
-    if (error) {
-      toast.error('Une erreur est survenue, veuillez reessayer.')
-    }
-    toast.info('Votre profil à été complété !')
-    onComplete()
+    updateUserMutation.mutate()
   }
 
   return (
@@ -63,8 +100,12 @@ export default function ProfileSetupModal({ onComplete }: { onComplete: () => vo
 
         {/* Ligne avatar + bouton */}
         <div className='flex items-center gap-4 mb-6'>
-          <Avatar className='h-16 w-16 rounded-lg'>
-            <AvatarImage src={!!avatarUrl ? avatarUrl : username} alt={username} />
+          <Avatar className='h-24 w-24 rounded-full'>
+            <AvatarImage
+              src={!!avatarUrl ? avatarUrl : username}
+              alt={username}
+              className='object-cover object-center'
+            />
             <AvatarFallback className='rounded-lg'>REF</AvatarFallback>
           </Avatar>
           <div>
@@ -82,17 +123,24 @@ export default function ProfileSetupModal({ onComplete }: { onComplete: () => vo
         </div>
 
         {/* Input username */}
-        <div className='flex flex-col gap-3'>
+        <Field className='flex flex-col gap-3'>
+          <FieldLabel htmlFor='email'>Nom d'utilisateur</FieldLabel>
           <Input
             placeholder="Nom d'utilisateur"
             value={username}
             accept='image/png, image/jpeg, image/jpg, image/webp'
             onChange={(e) => setUsername(e.target.value)}
           />
-          <Button onClick={handleSubmit} disabled={!username}>
-            Enregistrer
+          {!isValidUsername(username) && username.length > 0 && (
+            <p className='text-sm text-red-500'>
+              Les noms d'utilisateur ne peuvent contenir que des lettres, des chiffres, des traits
+              de soulignement et des points. Avec (2 - 20) caractères.
+            </p>
+          )}
+          <Button onClick={handleSubmit} disabled={!username || updateUserMutation.isPending}>
+            {updateUserMutation.isPending ? 'Enregistrement...' : 'Enregistrer'}
           </Button>
-        </div>
+        </Field>
       </DialogContent>
     </Dialog>
   )
