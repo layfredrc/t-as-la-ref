@@ -174,7 +174,6 @@
   h3 {
     font-family: 'PPRader', system-ui, sans-serif;
     text-transform: uppercase;
-    font-style: italic;
     line-height: var(--lh-095);
     letter-spacing: var(--track-tightish);
     font-weight: 700;
