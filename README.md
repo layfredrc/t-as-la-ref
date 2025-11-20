@@ -1,5 +1,17 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Tweet/X embed preview
+
+- `components/TweetEmbed/TweetEmbed.tsx` exposes a reusable client component that turns a Twitter/X URL into the official embed. It loads the widget script lazily, shows a loader, and surfaces clear error messages for invalid, private, or missing tweets.
+- `components/TweetEmbed/TweetEmbedField.tsx` provides a ready-made field with the label "Coller le lien du post" and live preview handling. The page `app/embed/page.tsx` renders this field so you can test the flow end to end.
+
+Manual checks:
+
+1. Paste a valid, public tweet URL (e.g., `https://x.com/TwitterDev/status/560070183650213889`) and verify the embed renders.
+2. Paste a non-Twitter/X URL to see the validation error.
+3. Paste a private or removed tweet URL to trigger the "Ce tweet ne peut pas être affiché" message.
+4. Observe the loader while the widget script initializes.
+
 ## Getting Started
 
 First, run the development server:
