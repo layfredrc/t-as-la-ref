@@ -34,10 +34,17 @@ const parseSpotifyUrl = (rawUrl?: string): { type: SpotifyType; id: string } | n
     if (!SPOTIFY_HOSTNAMES.has(url.hostname)) return null
 
     const segments = url.pathname.split('/').filter(Boolean)
-    const type = segments[0] as SpotifyType | undefined
-    const idWithQuery = segments[1]
 
-    if (!type || !SPOTIFY_TYPES.includes(type)) return null
+    // Spotify URLs may include locale or "embed" prefixes (e.g. /intl-fr/track/{id} or /embed/track/{id}).
+    const typeIndex = segments.findIndex((segment): segment is SpotifyType =>
+      (SPOTIFY_TYPES as readonly string[]).includes(segment)
+    )
+
+    if (typeIndex === -1) return null
+
+    const type = segments[typeIndex]
+    const idWithQuery = segments[typeIndex + 1]
+
     if (!idWithQuery) return null
 
     const id = idWithQuery.split('?')[0]
