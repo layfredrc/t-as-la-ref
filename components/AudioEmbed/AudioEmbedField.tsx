@@ -21,7 +21,12 @@ type AudioEmbedFieldProps = {
   defaultUrl?: string
   defaultNote?: string
   defaultTags?: string[]
-  onSubmit?: (payload: { url: string; platform: SupportedPlatform | null; note: string; tags: string[] }) => void
+  onSubmit?: (payload: {
+    url: string
+    platform: SupportedPlatform | null
+    note: string
+    tags: string[]
+  }) => void
 }
 
 const detectPlatformFromUrl = (rawUrl: string): SupportedPlatform | null => {
@@ -90,8 +95,8 @@ export const AudioEmbedField = ({
       <CardHeader>
         <CardTitle>Coller le lien du morceau / playlist</CardTitle>
         <CardDescription>
-          Collez une URL Spotify ou SoundCloud (morceau, playlist, album). Nous générons automatiquement le widget officiel
-          pour prévisualiser la ref avant de la publier.
+          Collez une URL Spotify ou SoundCloud (morceau, playlist, album). Nous générons
+          automatiquement le widget officiel pour prévisualiser la ref avant de la publier.
         </CardDescription>
       </CardHeader>
 
@@ -112,7 +117,9 @@ export const AudioEmbedField = ({
                 Prévisualiser
               </Button>
             </div>
-            <p className='text-xs text-muted-foreground'>Les liens publics Spotify/SoundCloud sont acceptés.</p>
+            <p className='text-xs text-muted-foreground'>
+              Les liens publics Spotify/SoundCloud sont acceptés.
+            </p>
           </div>
 
           <div className='flex flex-col gap-2'>
@@ -141,7 +148,12 @@ export const AudioEmbedField = ({
                     className='pl-9'
                   />
                 </div>
-                <Button type='button' variant='secondary' className='sm:w-40' onClick={handleTagAdd}>
+                <Button
+                  type='button'
+                  variant='secondary'
+                  className='sm:w-40'
+                  onClick={handleTagAdd}
+                >
                   Ajouter le tag
                 </Button>
               </div>
@@ -151,7 +163,11 @@ export const AudioEmbedField = ({
                   {tags.map((tag) => (
                     <Badge key={tag} variant='secondary' className='gap-2'>
                       #{tag}
-                      <button type='button' className='text-xs text-muted-foreground hover:text-foreground' onClick={() => handleTagRemove(tag)}>
+                      <button
+                        type='button'
+                        className='text-xs text-muted-foreground hover:text-foreground'
+                        onClick={() => handleTagRemove(tag)}
+                      >
                         ✕
                       </button>
                     </Badge>
