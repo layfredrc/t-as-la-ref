@@ -1,6 +1,7 @@
 import { AudioEmbedField } from '@/components/AudioEmbed/AudioEmbedField'
 import { TweetEmbedField } from '@/components/TweetEmbed/TweetEmbedField'
 import { VideoEmbedField } from '@/components/VideoPlayer/VideoEmbedField'
+import { MetaEmbedField } from '@/components/MetaEmbed/MetaEmbed'
 
 export default function EmbedPage() {
   return (
@@ -10,15 +11,16 @@ export default function EmbedPage() {
           <p className='text-sm font-medium text-muted-foreground uppercase tracking-wide'>Prévisualisation des refs</p>
           <h1 className='text-3xl font-semibold leading-tight'>Tweets, vidéos et tracks en un copier/coller</h1>
           <p className='text-muted-foreground'>
-            Collez l&apos;URL officielle (TikTok, YouTube, lien vidéo, tweet, Spotify, SoundCloud) et nous affichons
-            automatiquement le widget embarqué pour que la ref soit visible immédiatement dans le feed.
+            Collez l&apos;URL officielle (TikTok, YouTube, vidéo, tweet, Spotify, SoundCloud, Instagram, Facebook) et nous
+            affichons automatiquement le widget embarqué pour que la ref soit visible immédiatement dans le feed.
           </p>
         </header>
 
-        <div className='grid gap-6 lg:grid-cols-2 xl:grid-cols-3'>
+        <div className='grid gap-6 lg:grid-cols-2 xl:grid-cols-4'>
           <TweetEmbedField className='h-full' />
           <VideoEmbedField className='h-full' />
           <AudioEmbedField className='h-full' />
+          <MetaEmbedField className='h-full' />
         </div>
       </div>
     </main>
