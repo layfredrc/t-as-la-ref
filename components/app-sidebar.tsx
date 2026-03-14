@@ -31,7 +31,7 @@ const staticData = {
   navMain: [
     {
       title: 'Ajouter une ref',
-      url: '#',
+      url: '/ajouter',
       icon: CirclePlus,
       isActive: true,
     },

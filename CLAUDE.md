@@ -120,14 +120,9 @@ CREATE TABLE comments (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Profils (extension auth.users — déjà existante, vérifier avant de recréer)
-CREATE TABLE profiles (
-  id         UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-  username   TEXT UNIQUE NOT NULL,
-  avatar_url TEXT,
-  bio        TEXT,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
+-- Profils (table existante dans le projet : `users`, pas `profiles`)
+-- NE PAS recréer — cette table existe déjà sous le nom `users`
+-- Champs : id, username, profile_picture, email, created_at
 ```
 
 ---
