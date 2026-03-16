@@ -2,6 +2,21 @@ import type { MediaType } from './utils/detectMediaType'
 
 export type { MediaType }
 
+export type MediaSourceType =
+  | 'video'
+  | 'tweet'
+  | 'audio'
+  | 'expression'
+  | 'location'
+  | 'image'
+  | 'outfit'
+
+export type UserProfile = {
+  username: string
+  profile_picture: string
+  email: string
+}
+
 export interface Tag {
   id: string
   label: string
@@ -53,6 +68,7 @@ export interface CreateRefBody {
 // Local form state across the multi-step flow
 export interface AddRefFormData {
   // Step 1
+  mediaSource: MediaSourceType | null
   media_url: string
   media_type: MediaType | null
   // Step 2

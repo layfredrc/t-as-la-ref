@@ -4,8 +4,11 @@ import { Dialog, DialogTrigger } from '../ui/dialog'
 import Image from 'next/image'
 import Link from 'next/link'
 import { LoginForm } from '../login-form'
+import { useUserProfile } from '@/queryOptions/getUserProfile'
 
 export default function Navbar() {
+  const { data: userProfile } = useUserProfile()
+
   return (
     <nav className='fixed inset-x-0 top-0 z-[10000] pointer-events-auto'>
       <div className='w-[100vw] p-6 z-10'>
@@ -38,15 +41,17 @@ export default function Navbar() {
             >
               <li className='font-supplymono  text-white'>Explorer les refs</li>
             </Link>
-            <Dialog>
-              <DialogTrigger
-                asChild
-                className='bg-accent5 px-4 py-2 border-1 rounded-lg  hover:translate-y-1  transition-all ease-in delay-100'
-              >
-                <li className='font-supplymono'>Connexion</li>
-              </DialogTrigger>
-              <LoginForm />
-            </Dialog>
+            {!userProfile && (
+              <Dialog>
+                <DialogTrigger
+                  asChild
+                  className='bg-accent5 px-4 py-2 border-1 rounded-lg  hover:translate-y-1  transition-all ease-in delay-100'
+                >
+                  <li className='font-supplymono'>Connexion</li>
+                </DialogTrigger>
+                <LoginForm />
+              </Dialog>
+            )}
           </ul>
         </div>
       </div>

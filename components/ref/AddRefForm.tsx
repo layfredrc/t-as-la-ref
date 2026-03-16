@@ -9,6 +9,7 @@ import type { AddRefFormData } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
 const INITIAL_FORM_DATA: AddRefFormData = {
+  mediaSource: null,
   media_url: '',
   media_type: null,
   titre: '',
@@ -49,8 +50,8 @@ export function AddRefForm() {
               <div
                 className={cn(
                   'flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold transition-colors',
-                  isCompleted && 'bg-purple-500 text-white',
-                  isActive && 'bg-purple-500/20 border border-purple-500 text-purple-400',
+                  isCompleted && 'bg-stepper text-white',
+                  isActive && 'bg-stepper/20 border border-stepper text-stepper',
                   !isCompleted && !isActive && 'bg-muted text-muted-foreground',
                 )}
               >
@@ -65,7 +66,7 @@ export function AddRefForm() {
                 {label}
               </span>
               {index < STEPS.length - 1 && (
-                <div className={cn('h-px w-6 mx-1', isCompleted ? 'bg-purple-500' : 'bg-border')} />
+                <div className={cn('h-px w-6 mx-1', isCompleted ? 'bg-stepper' : 'bg-border')} />
               )}
             </div>
           )

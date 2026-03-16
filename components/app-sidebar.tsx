@@ -1,7 +1,6 @@
 'use client'
 
 import * as React from 'react'
-import { useEffect, useState } from 'react'
 import { BookOpen, CirclePlus, LifeBuoy, Search, Send, TrendingUp, Trophy } from 'lucide-react'
 import { NavMain } from '@/components/nav-main'
 import { NavSecondary } from '@/components/nav-secondary'
@@ -21,6 +20,7 @@ import { Dialog, DialogTrigger } from './ui/dialog'
 import { LoginForm } from './login-form'
 import { Input } from './ui/input'
 import { useUserProfile } from '@/queryOptions/getUserProfile'
+import Link from 'next/link'
 
 const staticData = {
   user: {
@@ -31,9 +31,8 @@ const staticData = {
   navMain: [
     {
       title: 'Ajouter une ref',
-      url: '/ajouter',
+      url: '/add',
       icon: CirclePlus,
-      isActive: true,
     },
     {
       title: 'En ce moment',
@@ -105,7 +104,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size='lg' asChild>
-              <a href='#'>
+              <Link href='/feed'>
                 <div
                   className='
             flex items-center justify-center
@@ -124,7 +123,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     priority
                   />
                 </div>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

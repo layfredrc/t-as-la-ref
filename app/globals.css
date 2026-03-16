@@ -113,6 +113,7 @@
   --accent3: #9bc1bc;
   --accent4: #5d576b;
   --accent5: #b6a6fe;
+  --stepper: #635BB6;
   --lh-095: 0.95;
   --track-tightish: -0.01em;
   --radius: 0.625rem;
@@ -233,6 +234,20 @@
   }
   .text-accent5 {
     color: var(--accent5);
+  }
+
+  /* stepper */
+  .bg-stepper {
+    background-color: var(--stepper);
+  }
+  .text-stepper {
+    color: var(--stepper);
+  }
+  .border-stepper {
+    border-color: var(--stepper);
+  }
+  .bg-stepper\/20 {
+    background-color: color-mix(in srgb, var(--stepper) 20%, transparent);
   }
 
   /* font helpers */
@@ -471,4 +486,18 @@ html.lenis {
 .about p {
   width: 35%;
   margin: 0 auto;
+}
+
+/* ─── MediaSourcePicker — travelling border ─────────────────────────────── */
+@property --msp-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+@keyframes msp-spin {
+  to { --msp-angle: 360deg; }
+}
+@keyframes msp-card-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }

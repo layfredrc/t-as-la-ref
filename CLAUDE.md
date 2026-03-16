@@ -14,15 +14,16 @@ Le contenu est généré par les utilisateurs — pas par des éditeurs.
 
 ## Stack
 
-| Couche | Techno |
-|---|---|
-| Framework | Next.js 14+ App Router |
-| Styling | Tailwind CSS + ShadCN UI |
-| Data fetching | TanStack Query |
+| Couche                 | Techno                                                 |
+| ---------------------- | ------------------------------------------------------ |
+| Framework              | Next.js 14+ App Router                                 |
+| Styling                | Tailwind CSS + ShadCN UI                               |
+| Data fetching          | TanStack Query                                         |
 | Base de données + Auth | Supabase (tout — refs, tags, likes, comments, profils) |
-| Déploiement | Vercel |
+| Déploiement            | Vercel                                                 |
 
 **Règles :**
+
 - App Router uniquement (`app/`), jamais le Pages Router
 - Server Components par défaut — `"use client"` seulement si nécessaire
 - Supabase côté serveur : `createServerClient` (`@supabase/ssr`)
@@ -131,46 +132,47 @@ CREATE TABLE comments (
 
 ### type_ref — Ce que c'est
 
-| slug | label | emoji |
-|---|---|---|
-| scene-culte | Scène culte | 🎬 |
-| phrase-punchline | Phrase / Punchline | 🗣️ |
-| reaction | Réaction / Expression | 👀 |
-| challenge-viral | Challenge viral | 🕺 |
-| objet-vetement-lieu | Objet / Vêtement / Lieu | 🧢 |
-| son-musique | Son / Musique | 🔊 |
-| format-meme | Format de meme | 🤣 |
-| evenement | Événement | 🌍 |
+| slug                | label                   | emoji |
+| ------------------- | ----------------------- | ----- |
+| scene-culte         | Scène culte             | 🎬    |
+| phrase-punchline    | Phrase / Punchline      | 🗣️    |
+| reaction            | Réaction / Expression   | 👀    |
+| challenge-viral     | Challenge viral         | 🕺    |
+| objet-vetement-lieu | Objet / Vêtement / Lieu | 🧢    |
+| son-musique         | Son / Musique           | 🔊    |
+| format-meme         | Format de meme          | 🤣    |
+| evenement           | Événement               | 🌍    |
 
 ### origine — D'où ça vient
 
-| slug | label | emoji |
-|---|---|---|
-| frenchcore | FrenchCore | 🇫🇷 |
-| us-anglophone | US / Anglophone | 🇺🇸 |
-| jp-anime | JP / Anime | 🇯🇵 |
-| gaming | Gaming | 🎮 |
-| sport | Sport | 🏀 |
-| rap-musique | Rap / Musique | 🎵 |
-| tv-medias | Télé / Médias | 📺 |
-| internet-pur | Internet pur | 🌐 |
-| irl-rue | IRL / Rue | 🏙️ |
+| slug          | label           | emoji |
+| ------------- | --------------- | ----- |
+| frenchcore    | FrenchCore      | 🇫🇷    |
+| us-anglophone | US / Anglophone | 🇺🇸    |
+| jp-anime      | JP / Anime      | 🇯🇵    |
+| gaming        | Gaming          | 🎮    |
+| sport         | Sport           | 🏀    |
+| rap-musique   | Rap / Musique   | 🎵    |
+| tv-medias     | Télé / Médias   | 📺    |
+| internet-pur  | Internet pur    | 🌐    |
+| irl-rue       | IRL / Rue       | 🏙️    |
 
 ### vibe — Qui capte
 
-| slug | label | emoji |
-|---|---|---|
-| ultra-niche | Ultra-niche | 🔐 |
-| gen-z | Gen Z | ⚡ |
-| millennial | Millennial | 📟 |
-| grand-public | Grand public | 📡 |
-| intergenerationnel | Intergénérationnel | 🌈 |
+| slug               | label              | emoji |
+| ------------------ | ------------------ | ----- |
+| ultra-niche        | Ultra-niche        | 🔐    |
+| gen-z              | Gen Z              | ⚡    |
+| millennial         | Millennial         | 📟    |
+| grand-public       | Grand public       | 📡    |
+| intergenerationnel | Intergénérationnel | 🌈    |
 
 ---
 
 ## Flow d'ajout — Specs
 
 ### Parcours
+
 ```
 Clic "Ajouter" → guard auth (/login si non connecté) → /ajouter
   Step 1 : Média    — URL + détection auto + embed preview
@@ -181,6 +183,7 @@ Clic "Ajouter" → guard auth (/login si non connecté) → /ajouter
 ```
 
 ### Step 1 — Média
+
 - Champ URL unique, autofocus, paste-friendly
 - Détection `media_type` via regex sur l'URL (voir `detectMediaType.ts`)
 - Badge coloré du réseau détecté : YouTube 🔴 / TikTok 🖤 / Twitter/X ⚫ / Instagram 🟣
@@ -188,6 +191,7 @@ Clic "Ajouter" → guard auth (/login si non connecté) → /ajouter
 - Erreur fun si URL non reconnue : "On capte pas la ref..."
 
 ### Step 2 — La ref
+
 - **Titre** : input, 60 chars max, compteur live
 - **Type de ref** : grid de cards emoji, sélection unique, obligatoire
 - **Origine** : grid de cards emoji, sélection unique, obligatoire
@@ -196,16 +200,19 @@ Clic "Ajouter" → guard auth (/login si non connecté) → /ajouter
 - Le réseau de circulation EST DÉTECTÉ AUTOMATIQUEMENT depuis l'URL step 1 — ne pas le demander
 
 ### Step 3 — Dérivés (skip possible)
+
 - Max 3 URLs additionnelles
 - Preview thumbnail pour chaque URL valide
 - Bouton "Passer" très visible, sans friction
 
 ### Preview finale
+
 - Rendu exact de la `RefCard` telle qu'elle apparaît dans le feed
 - Récap des 3 tags sélectionnés (pills)
 - Bouton "Publier la ref 🚀"
 
 ### API POST /api/refs/create
+
 ```typescript
 // Body
 {
@@ -232,17 +239,19 @@ Clic "Ajouter" → guard auth (/login si non connecté) → /ajouter
 ## Utilitaires
 
 ### `lib/utils/detectMediaType.ts`
+
 ```typescript
 const patterns: Record<string, RegExp> = {
-  youtube:   /youtube\.com\/watch|youtu\.be\//,
-  tiktok:    /tiktok\.com\/@.+\/video/,
-  twitter:   /twitter\.com\/.+\/status|x\.com\/.+\/status/,
+  youtube: /youtube\.com\/watch|youtu\.be\//,
+  tiktok: /tiktok\.com\/@.+\/video/,
+  twitter: /twitter\.com\/.+\/status|x\.com\/.+\/status/,
   instagram: /instagram\.com\/(p|reel|tv)\//,
 }
 export function detectMediaType(url: string): string | null
 ```
 
 ### `lib/utils/embedUrl.ts`
+
 ```
 youtube   → https://www.youtube.com/embed/{videoId}
 tiktok    → oEmbed API officielle
@@ -252,6 +261,7 @@ fallback  → lien externe + thumbnail générique
 ```
 
 ### `lib/utils/generateSlug.ts`
+
 ```
 "OH PTN LAURENT" → "oh-ptn-laurent"
 Translittérer accents, lowercase, tirets
@@ -262,9 +272,8 @@ Vérifier unicité en DB → ajouter suffix -2, -3... si collision
 
 ## Design system
 
-- Background : `#0a0a0a`
-- Accent : `#8B5CF6` (purple-500)
-- Texte : `#F5F5F5`
+Voir Design Token !
+
 - Fonts : Rader Italic Bold (titres) / Supply Mono (labels) / Satoshi (corps)
 - Mobile-first systématiquement
 - États loading / error / empty toujours gérés
@@ -305,4 +314,74 @@ SUPABASE_SERVICE_ROLE_KEY=
 
 ---
 
-*Mars 2026*
+---
+
+## Figma MCP — Règles d'intégration
+
+### Flow obligatoire (ne pas sauter d'étape)
+
+1. `get_design_context` en premier — récupérer la représentation structurée du nœud ciblé
+2. Si la réponse est trop large, utiliser `get_metadata` pour la carte haut niveau, puis re-fetcher seulement les nœuds nécessaires
+3. `get_screenshot` pour la référence visuelle
+4. Une fois les deux en main, télécharger les assets si besoin et démarrer l'implémentation
+5. Traduire l'output Figma (React + Tailwind) dans les conventions du projet
+6. Valider visuellement contre le screenshot avant de considérer la tâche terminée
+
+### Composants
+
+- **IMPORTANT** : Toujours chercher d'abord dans `components/ref/` et `components/ui/` avant de créer un nouveau composant
+- Les composants ShadCN sont dans `components/ui/` — **ne jamais les modifier**
+- Les nouveaux composants liés aux refs vont dans `components/ref/`
+- Les composants de layout vont dans `components/layout/`
+- Nommage : PascalCase, export nommé
+
+### Tokens de couleur
+
+Les couleurs sont définies comme variables CSS dans `app/globals.css`. **Ne jamais hardcoder de hex.**
+
+| Variable         | Valeur    | Usage                           |
+| ---------------- | --------- | ------------------------------- |
+| `var(--bg)`      | `#edf1e8` | Background principal            |
+| `var(--bg2)`     | `#d7dbd2` | Background secondaire           |
+| `var(--fg)`      | `#141414` | Texte principal                 |
+| `var(--accent1)` | `#ed6a5a` | Rouge/corail — CTA, alertes     |
+| `var(--accent2)` | `#f4f1bb` | Jaune crème — highlights        |
+| `var(--accent3)` | `#9bc1bc` | Teal — éléments secondaires     |
+| `var(--accent4)` | `#5d576b` | Violet sombre                   |
+| `var(--accent5)` | `#b6a6fe` | Violet clair — accent principal |
+
+Utiliser les classes utilitaires Tailwind custom : `.bg-bg`, `.bg-fg`, `.text-fg`, `.bg-accent1`…`.bg-accent5`, `.text-accent1`…`.text-accent5`
+
+### Typographie
+
+- **Titres** : `font-family: 'PPRader'` → classe `.font-rader` ou `.font-pprader`, toujours `uppercase`, `line-height: 0.95`
+- **Labels / mono** : `font-family: 'Supply Mono'` → classe `.font-supplymono`
+- **Corps** : `font-family: 'Satoshi'`
+- **IMPORTANT** : Ne jamais installer de nouvelles polices — les trois sont déjà chargées via `@font-face` dans `globals.css`
+
+### Styling
+
+- Tailwind CSS utility classes en priorité
+- Variables CSS pour les couleurs du design system (pas de classes Tailwind `text-red-500` pour les couleurs projet)
+- Utilitaire `.shadow-badge` disponible pour l'ombre `-8px 8px 0 #000`
+- Utilitaire `.badge` disponible pour les capsules avec bordure + ombre
+- Mobile-first systématiquement (`sm:`, `md:`, `lg:`)
+- Micro-animations : `transition`, `hover:scale-*` Tailwind
+
+### Assets
+
+- **IMPORTANT** : Si le Figma MCP retourne une URL `localhost` pour une image ou SVG, l'utiliser directement
+- **IMPORTANT** : Ne pas installer de nouvelles librairies d'icônes
+- Assets statiques dans `public/`
+
+### Règles de traduction Figma → code
+
+- L'output Figma (React + Tailwind) est une **référence**, pas du code final
+- Remplacer les classes Tailwind de couleur par les variables CSS du projet
+- Remplacer les `font-family` inline par les classes utilitaires (`.font-rader`, `.font-supplymono`)
+- S'assurer que le composant est un Server Component si possible, `"use client"` seulement si nécessaire
+- Pas de `any` TypeScript
+
+---
+
+_Mars 2026_
