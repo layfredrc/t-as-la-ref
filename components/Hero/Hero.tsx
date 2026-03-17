@@ -48,7 +48,7 @@ export default function Hero() {
         const progress = self.progress
         gsap.set('.hero-img', {
           y: `${-110 + 110 * progress}%`,
-          scale: 0.25 + 0.75 * progress,
+          scale: 0.3 + 0.7 * progress,
           rotation: -15 + 15 * progress,
         })
       },

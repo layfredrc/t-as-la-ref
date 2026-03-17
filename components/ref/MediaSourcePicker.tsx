@@ -311,7 +311,7 @@ const SOURCES: SourceConfig[] = [
     label: 'Tweet / Post',
     hint: 'Un post X qui a fait le tour',
     description: '',
-    glowColor: '#E7E9EA',
+    glowColor: '#171717',
     visual: <LogoStack logos={[{ logo: <TwitterXLogo />, label: 'Twitter/X' }]} />,
   },
   {
@@ -423,7 +423,8 @@ export function MediaSourcePicker({ onSelect, selected }: MediaSourcePickerProps
                     : isHovered
                       ? `2px solid ${source.glowColor}80`
                       : '2px solid rgba(20,20,20,0.08)',
-                  boxShadow: !isSelected && isHovered ? `0 0 16px 2px ${source.glowColor}25` : undefined,
+                  boxShadow:
+                    !isSelected && isHovered ? `0 0 16px 2px ${source.glowColor}25` : undefined,
                 } as React.CSSProperties
               }
             >

@@ -134,7 +134,7 @@ const MemeVortex = () => {
         />
         <Link
           href='/feed'
-          className='group relative px-6 py-3 rounded-xl text-white uppercase text-2xl
+          className='group relative px-6 py-3 rounded-xl text-white uppercase text-lg text-center sm:text-2xl
              bg-black/50 backdrop-blur-md backdrop-saturate-150
              border border-white/15
              shadow-[0_8px_24px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.08)]

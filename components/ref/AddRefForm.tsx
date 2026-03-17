@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 import { StepMedia } from './steps/StepMedia'
 import { StepRef } from './steps/StepRef'
 import { StepDerives } from './steps/StepDerives'
@@ -39,37 +39,43 @@ export function AddRefForm() {
   const goBack = () => setStep((s) => s - 1)
 
   return (
-    <div className={`w-full mx-auto flex flex-col gap-8 ${step === 2 ? 'max-w-xl lg:max-w-4xl' : 'max-w-xl'}`}>
+    <div
+      className={`w-full mx-auto flex flex-col gap-8 ${step === 2 ? 'max-w-xl lg:max-w-4xl' : 'max-w-xl'}`}
+    >
       {/* Step indicator */}
-      <div className='flex items-center gap-2'>
+      <div className='flex items-start gap-1'>
         {STEPS.map((label, index) => {
           const stepNum = index + 1
           const isActive = stepNum === step
           const isCompleted = stepNum < step
           return (
-            <div key={label} className='flex items-center gap-2'>
-              <div
-                className={cn(
-                  'flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold transition-colors',
-                  isCompleted && 'bg-stepper text-white',
-                  isActive && 'bg-stepper/20 border border-stepper text-stepper',
-                  !isCompleted && !isActive && 'bg-muted text-muted-foreground',
-                )}
-              >
-                {isCompleted ? '✓' : stepNum}
+            <Fragment key={label}>
+              {/* Mobile : circle + label en colonne / Desktop : circle + label en ligne */}
+              <div className='flex flex-col items-center gap-1 sm:flex-row sm:gap-2'>
+                <div
+                  className={cn(
+                    'flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold transition-colors shrink-0',
+                    isCompleted && 'bg-stepper text-white',
+                    isActive && 'bg-stepper/20 border border-stepper text-stepper',
+                    !isCompleted && !isActive && 'bg-muted text-muted-foreground',
+                  )}
+                >
+                  {isCompleted ? '✓' : stepNum}
+                </div>
+                <span
+                  className={cn(
+                    'text-[10px] text-center sm:text-xs sm:text-left',
+                    isActive ? 'text-foreground font-medium' : 'text-muted-foreground',
+                  )}
+                >
+                  {label}
+                </span>
               </div>
-              <span
-                className={cn(
-                  'text-xs hidden sm:block',
-                  isActive ? 'text-foreground font-medium' : 'text-muted-foreground',
-                )}
-              >
-                {label}
-              </span>
+              {/* Connecteur centré sur le cercle (mt-3 = 12px = moitié de h-6) */}
               {index < STEPS.length - 1 && (
-                <div className={cn('h-px w-6 mx-1', isCompleted ? 'bg-stepper' : 'bg-border')} />
+                <div className={cn('h-px w-4 shrink-0 mt-3', isCompleted ? 'bg-stepper' : 'bg-border')} />
               )}
-            </div>
+            </Fragment>
           )
         })}
       </div>

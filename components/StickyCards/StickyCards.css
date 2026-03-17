@@ -52,7 +52,7 @@
 
 .sticky-card-header {
   width: 100%;
-  font-size: 3rem;
+  font-size: 3rem !important;
 }
 
 .sticky-card-img img {
