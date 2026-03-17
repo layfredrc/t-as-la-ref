@@ -27,9 +27,10 @@ const FormSchema = z.object({
 
 type InputOTPFormProps = {
   email: string | null
+  next?: string
 }
 
-export function InputOTPForm({ email }: InputOTPFormProps) {
+export function InputOTPForm({ email, next }: InputOTPFormProps) {
   const router = useRouter()
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -57,7 +58,7 @@ export function InputOTPForm({ email }: InputOTPFormProps) {
       toast.error(error.message || 'Invalid OTP.')
     } else {
       toast.success('Vous êtes connecté !')
-      router.push('/feed')
+      router.push(next ?? '/feed')
     }
   }
 

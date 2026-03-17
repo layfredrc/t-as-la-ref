@@ -18,6 +18,7 @@ const INITIAL_FORM_DATA: AddRefFormData = {
   tag_origine: null,
   tag_vibe: null,
   derives: [],
+  hashtags: [],
 }
 
 const STEPS = ['Média', 'La ref', 'Dérivés', 'Aperçu']
@@ -38,7 +39,7 @@ export function AddRefForm() {
   const goBack = () => setStep((s) => s - 1)
 
   return (
-    <div className='w-full max-w-xl mx-auto flex flex-col gap-8'>
+    <div className={`w-full mx-auto flex flex-col gap-8 ${step === 2 ? 'max-w-xl lg:max-w-4xl' : 'max-w-xl'}`}>
       {/* Step indicator */}
       <div className='flex items-center gap-2'>
         {STEPS.map((label, index) => {

@@ -39,6 +39,7 @@ export function StepPreview({ formData, onBack }: StepPreviewProps) {
           contexte: formData.contexte || undefined,
           tag_ids: [formData.tag_type_ref, formData.tag_origine, formData.tag_vibe],
           derives: formData.derives.length > 0 ? formData.derives : undefined,
+          hashtags: formData.hashtags.length > 0 ? formData.hashtags : undefined,
         }),
       })
 

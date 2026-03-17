@@ -63,6 +63,7 @@ export interface CreateRefBody {
   score_culture?: 'inconnu' | 'gen-z' | 'cultissime'
   tag_ids: string[]
   derives?: string[]
+  hashtags?: string[]
 }
 
 // Local form state across the multi-step flow
@@ -79,4 +80,6 @@ export interface AddRefFormData {
   tag_vibe: string | null
   // Step 3
   derives: string[]
+  // Step 2 — free-form hashtags
+  hashtags: string[]
 }

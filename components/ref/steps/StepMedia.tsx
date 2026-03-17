@@ -18,13 +18,13 @@ const URL_REQUIRED = new Set<MediaSourceType>(['video', 'tweet', 'audio'])
 const TEXT_OK = new Set<MediaSourceType>(['expression', 'image', 'outfit', 'location'])
 
 const URL_PLACEHOLDERS: Record<MediaSourceType, string> = {
-  video:      'Colle le lien (TikTok, YouTube, Reels...)',
-  tweet:      'Colle le lien du tweet ou du thread',
-  audio:      'Colle le lien Spotify ou SoundCloud',
-  expression: "Le mot, la vanne, la phrase — décris-la ou colle un lien",
-  location:   'Colle le lien Google Maps ou décris le lieu',
-  image:      "Colle le lien de l'image ou du meme",
-  outfit:     "Colle un lien ou décris le vêtement / la pièce",
+  video: 'Colle le lien (TikTok, YouTube, Reels...)',
+  tweet: 'Colle le lien du tweet ou du thread',
+  audio: 'Colle le lien Spotify ou SoundCloud',
+  expression: 'Le mot, la vanne, la phrase — décris-la ou colle un lien',
+  location: 'Colle le lien Google Maps ou décris le lieu',
+  image: "Colle le lien de l'image ou du meme",
+  outfit: 'Colle un lien ou décris le vêtement / la pièce',
 }
 
 type StepMediaProps = {
@@ -48,9 +48,7 @@ export function StepMedia({ formData, onNext }: StepMediaProps) {
 
   // Text-ok: can proceed as soon as something is typed
   // URL-required: need a valid detected media type
-  const canProceed = isTextOk
-    ? input.trim().length > 0
-    : Boolean(previewUrl && detectedType)
+  const canProceed = isTextOk ? input.trim().length > 0 : Boolean(previewUrl && detectedType)
 
   const handlePreview = () => {
     const trimmed = input.trim()
@@ -60,7 +58,9 @@ export function StepMedia({ formData, onNext }: StepMediaProps) {
     }
     const type = detectMediaType(trimmed)
     if (!type) {
-      setError("On capte pas la ref… Essaie avec un lien YouTube, TikTok, Spotify, Twitter/X ou Instagram.")
+      setError(
+        'On capte pas la ref… Essaie avec un lien YouTube, TikTok, Spotify, Twitter/X ou Instagram.',
+      )
       setPreviewUrl('')
       return
     }
@@ -81,7 +81,7 @@ export function StepMedia({ formData, onNext }: StepMediaProps) {
     // URL-required path
     const type = detectMediaType(trimmed)
     if (!trimmed || !type) {
-      setError("Ajoute une URL valide avant de continuer.")
+      setError('Ajoute une URL valide avant de continuer.')
       return
     }
     onNext({ mediaSource, media_url: trimmed, media_type: type })
@@ -90,10 +90,10 @@ export function StepMedia({ formData, onNext }: StepMediaProps) {
   const showEmbed = !isTextOk && previewUrl && detectedType && !error
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="space-y-1">
-        <h2 className="text-2xl font-bold">Ça vient d'où ?</h2>
-        <p className="text-muted-foreground text-sm">
+    <div className='flex flex-col gap-6'>
+      <div className='space-y-1'>
+        <h2 className='text-2xl font-bold'>Ça vient d'où ?</h2>
+        <p className='text-muted-foreground text-sm'>
           Choisis le type de média, puis colle le lien.
         </p>
       </div>
@@ -111,14 +111,13 @@ export function StepMedia({ formData, onNext }: StepMediaProps) {
 
       {/* Input section — slides in after source selected */}
       <div
-        className="overflow-hidden transition-all duration-300 ease-in-out"
+        className='transition-all duration-300 ease-in-out'
         style={{
-          maxHeight: inputVisible ? '600px' : '0px',
+          maxHeight: inputVisible ? '1800px' : '0px',
           opacity: inputVisible ? 1 : 0,
         }}
       >
-        <div className="flex flex-col gap-2 pt-1">
-
+        <div className='flex flex-col gap-2 pt-1'>
           {/* Text-ok: textarea. URL-required: input + preview button */}
           {isTextOk ? (
             <Textarea
@@ -127,10 +126,10 @@ export function StepMedia({ formData, onNext }: StepMediaProps) {
               onChange={(e) => setInput(e.target.value)}
               placeholder={mediaSource ? URL_PLACEHOLDERS[mediaSource] : ''}
               rows={3}
-              className="resize-none"
+              className='resize-none'
             />
           ) : (
-            <div className="flex gap-2">
+            <div className='flex gap-2'>
               <Input
                 autoFocus={inputVisible}
                 value={input}
@@ -149,10 +148,10 @@ export function StepMedia({ formData, onNext }: StepMediaProps) {
                   }, 50)
                 }}
                 placeholder={mediaSource ? URL_PLACEHOLDERS[mediaSource] : 'Colle le lien...'}
-                inputMode="url"
-                className="flex-1"
+                inputMode='url'
+                className='flex-1'
               />
-              <Button type="button" variant="secondary" onClick={handlePreview}>
+              <Button type='button' variant='secondary' onClick={handlePreview}>
                 Prévisualiser
               </Button>
             </div>
@@ -160,8 +159,13 @@ export function StepMedia({ formData, onNext }: StepMediaProps) {
 
           {/* Platform badge — URL mode only */}
           {isUrlRequired && mediaLabel && !error && (
-            <div className="flex items-center gap-1.5">
-              <span className={cn('text-xs font-medium px-2 py-0.5 rounded-full text-white', mediaLabel.color)}>
+            <div className='flex items-center gap-1.5'>
+              <span
+                className={cn(
+                  'text-xs font-medium px-2 py-0.5 rounded-full text-white',
+                  mediaLabel.color,
+                )}
+              >
                 {mediaLabel.emoji} {mediaLabel.label} détecté
               </span>
             </div>
@@ -169,16 +173,21 @@ export function StepMedia({ formData, onNext }: StepMediaProps) {
 
           {/* For text-ok with detected URL (e.g. Maps link pasted in location) */}
           {isTextOk && detectedType && previewUrl && !error && (
-            <div className="flex items-center gap-1.5">
-              <span className={cn('text-xs font-medium px-2 py-0.5 rounded-full text-white', mediaLabel?.color)}>
+            <div className='flex items-center gap-1.5'>
+              <span
+                className={cn(
+                  'text-xs font-medium px-2 py-0.5 rounded-full text-white',
+                  mediaLabel?.color,
+                )}
+              >
                 {mediaLabel?.emoji} {mediaLabel?.label} détecté
               </span>
             </div>
           )}
 
           {error && (
-            <div className="flex gap-2 rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
-              <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" aria-hidden />
+            <div className='flex gap-2 rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive'>
+              <AlertTriangle className='h-4 w-4 shrink-0 mt-0.5' aria-hidden />
               <p>{error}</p>
             </div>
           )}
@@ -186,30 +195,26 @@ export function StepMedia({ formData, onNext }: StepMediaProps) {
 
         {/* Embed preview — URL-required mode, or text-ok with detected URL */}
         {showEmbed && (
-          <div className="mt-4 rounded-xl overflow-hidden border border-border bg-black/20">
+          <div className='mt-4 flex justify-center'>
             <MediaEmbed url={previewUrl} mediaType={detectedType} />
           </div>
         )}
 
         {/* Maps preview in location text-ok mode */}
         {isTextOk && mediaSource === 'location' && previewUrl && detectedType === 'maps' && (
-          <div className="mt-4">
-            <MediaEmbed url={previewUrl} mediaType="maps" />
+          <div className='mt-4'>
+            <MediaEmbed url={previewUrl} mediaType='maps' />
           </div>
         )}
 
-        <Button
-          onClick={handleNext}
-          disabled={!canProceed}
-          className="w-full mt-4"
-        >
+        <Button onClick={handleNext} disabled={!canProceed} className='w-full mt-4'>
           Suivant →
         </Button>
       </div>
 
       {/* CTA when no source selected yet */}
       {!inputVisible && (
-        <p className="text-center text-sm text-muted-foreground">
+        <p className='text-center text-sm text-muted-foreground'>
           Sélectionne un type pour continuer
         </p>
       )}

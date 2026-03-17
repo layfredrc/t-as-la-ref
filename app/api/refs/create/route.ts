@@ -14,6 +14,7 @@ const CreateRefSchema = z.object({
   score_culture: z.enum(['inconnu', 'gen-z', 'cultissime']).optional(),
   tag_ids: z.array(z.uuid()).min(1).max(3),
   derives: z.array(z.url()).max(3).optional(),
+  hashtags: z.array(z.string().min(1).max(50)).max(10).optional(),
 })
 
 export async function POST(req: NextRequest) {
@@ -43,7 +44,7 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  const { titre, media_url, media_type, thumbnail, contexte, score_culture, tag_ids, derives } =
+  const { titre, media_url, media_type, thumbnail, contexte, score_culture, tag_ids, derives, hashtags } =
     parsed.data
 
   // 3. Generate unique slug
@@ -97,6 +98,18 @@ export async function POST(req: NextRequest) {
 
     if (derivesError) {
       console.error('refs_derives insert error', derivesError)
+      // Non-blocking
+    }
+  }
+
+  // 7. INSERT ref_hashtags (triggers handle hashtags_index counts)
+  if (hashtags && hashtags.length > 0) {
+    const { error: hashtagsError } = await supabase.from('ref_hashtags').insert(
+      hashtags.map((label) => ({ ref_id: ref.id, label })),
+    )
+
+    if (hashtagsError) {
+      console.error('ref_hashtags insert error', hashtagsError)
       // Non-blocking
     }
   }

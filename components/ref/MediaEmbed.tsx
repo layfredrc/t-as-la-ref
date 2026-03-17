@@ -10,7 +10,9 @@ import { MetaEmbed } from '@/components/MetaEmbed/MetaEmbed'
 
 function spotifyEmbedUrl(url: string): string {
   // https://open.spotify.com/intl-fr/track/ID → https://open.spotify.com/embed/track/ID
-  const match = url.match(/open\.spotify\.com\/(?:intl-\w+\/)?(track|album|playlist|episode|show)\/([^?]+)/)
+  const match = url.match(
+    /open\.spotify\.com\/(?:intl-\w+\/)?(track|album|playlist|episode|show)\/([^?]+)/,
+  )
   if (match) return `https://open.spotify.com/embed/${match[1]}/${match[2]}`
   return url.replace('open.spotify.com/', 'open.spotify.com/embed/')
 }
@@ -29,11 +31,11 @@ function SpotifyEmbed({ url }: { url: string }) {
   return (
     <iframe
       src={spotifyEmbedUrl(url)}
-      width="100%"
-      height="152"
-      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-      loading="lazy"
-      className="rounded-xl"
+      width='100%'
+      height='152'
+      allow='autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture'
+      loading='lazy'
+      className='rounded-xl'
       style={{ border: 'none' }}
     />
   )
@@ -43,10 +45,10 @@ function SoundCloudEmbed({ url }: { url: string }) {
   return (
     <iframe
       src={soundcloudEmbedUrl(url)}
-      width="100%"
-      height="166"
-      allow="autoplay"
-      loading="lazy"
+      width='100%'
+      height='166'
+      allow='autoplay'
+      loading='lazy'
       style={{ border: 'none' }}
     />
   )
@@ -56,33 +58,84 @@ function FacebookEmbed({ url }: { url: string }) {
   return (
     <iframe
       src={facebookEmbedUrl(url)}
-      width="100%"
-      height="314"
-      allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+      width='100%'
+      height='314'
+      allow='autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share'
       allowFullScreen
-      loading="lazy"
+      loading='lazy'
       style={{ border: 'none' }}
     />
   )
 }
 
-function MapsLinkCard({ url }: { url: string }) {
+function mapsEmbedUrl(url: string): string | null {
+  // /place/Place+Name/@lat,lng → prefer place name for readability
+  const placeMatch = url.match(/\/place\/([^/@?]+)/)
+  if (placeMatch) {
+    const name = decodeURIComponent(placeMatch[1].replace(/\+/g, ' '))
+    return `https://maps.google.com/maps?q=${encodeURIComponent(name)}&output=embed`
+  }
+  // @lat,lng anywhere in the URL
+  const coordMatch = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/)
+  if (coordMatch) {
+    return `https://maps.google.com/maps?q=${coordMatch[1]},${coordMatch[2]}&output=embed`
+  }
+  // ?q=... or &q=... param
+  const qMatch = url.match(/[?&]q=([^&]+)/)
+  if (qMatch) {
+    return `https://maps.google.com/maps?q=${qMatch[1]}&output=embed`
+  }
+  return null
+}
+
+function MapsEmbed({ url }: { url: string }) {
+  const embedSrc = mapsEmbedUrl(url)
+
+  if (!embedSrc) {
+    // Short links (maps.app.goo.gl) can't be parsed client-side — fall back to link card
+    return (
+      <a
+        href={url}
+        target='_blank'
+        rel='noopener noreferrer'
+        className='flex items-center gap-3 p-4 rounded-xl border border-border bg-[var(--bg2)] hover:bg-[var(--bg)] transition-colors group'
+      >
+        <div className='w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center shrink-0'>
+          <MapPin className='w-5 h-5 text-blue-600' />
+        </div>
+        <div className='flex flex-col gap-0.5 min-w-0'>
+          <span className='text-sm font-medium text-[var(--fg)] truncate'>
+            Ouvrir dans Google Maps
+          </span>
+          <span className='text-xs text-[var(--fg)]/50 truncate font-supplymono'>{url}</span>
+        </div>
+        <ExternalLink className='w-4 h-4 text-[var(--fg)]/40 shrink-0 ml-auto group-hover:text-[var(--fg)]/70 transition-colors' />
+      </a>
+    )
+  }
+
   return (
-    <a
-      href={url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="flex items-center gap-3 p-4 rounded-xl border border-border bg-[var(--bg2)] hover:bg-[var(--bg)] transition-colors group"
-    >
-      <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
-        <MapPin className="w-5 h-5 text-blue-600" />
-      </div>
-      <div className="flex flex-col gap-0.5 min-w-0">
-        <span className="text-sm font-medium text-[var(--fg)] truncate">Ouvrir dans Google Maps</span>
-        <span className="text-xs text-[var(--fg)]/50 truncate font-supplymono">{url}</span>
-      </div>
-      <ExternalLink className="w-4 h-4 text-[var(--fg)]/40 shrink-0 ml-auto group-hover:text-[var(--fg)]/70 transition-colors" />
-    </a>
+    <div className='flex flex-col gap-2'>
+      <iframe
+        src={embedSrc}
+        width='100%'
+        height='300'
+        loading='lazy'
+        referrerPolicy='no-referrer-when-downgrade'
+        className='rounded-xl border border-border'
+        style={{ border: 'none' }}
+        title='Google Maps'
+      />
+      <a
+        href={url}
+        target='_blank'
+        rel='noopener noreferrer'
+        className='flex items-center gap-1.5 text-xs text-[var(--fg)]/50 hover:text-[var(--fg)]/80 transition-colors w-fit font-supplymono'
+      >
+        <ExternalLink className='w-3 h-3' />
+        Ouvrir dans Google Maps
+      </a>
+    </div>
   )
 }
 
@@ -117,11 +170,11 @@ export function MediaEmbed({ url, mediaType, className }: MediaEmbedProps) {
       return <SoundCloudEmbed url={url} />
 
     case 'maps':
-      return <MapsLinkCard url={url} />
+      return <MapsEmbed url={url} />
 
     default:
       return (
-        <div className='flex gap-2 rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive'>
+        <div className='flex gap-2 rounded-lg border border-destructive/30  text-sm text-destructive'>
           <AlertTriangle className='h-5 w-5 shrink-0' aria-hidden />
           <p>Type de média non supporté.</p>
         </div>

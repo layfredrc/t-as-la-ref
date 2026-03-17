@@ -1,7 +1,29 @@
 'use client'
 
+import { useState } from 'react'
 import { cn } from '@/lib/utils'
 import type { MediaSourceType } from '@/lib/types'
+
+const MSP_STYLES = `
+  @property --msp-angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+  }
+  @keyframes msp-spin {
+    to { --msp-angle: 360deg; }
+  }
+  @keyframes msp-card-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .msp-card {
+    animation: msp-card-in 0.4s ease both;
+  }
+  .msp-card[data-selected] {
+    animation: msp-spin 2s linear infinite !important;
+  }
+`
 
 // ─── SVG Logos (inline, no external deps) ────────────────────────────────────
 
@@ -362,31 +384,15 @@ interface MediaSourcePickerProps {
 }
 
 export function MediaSourcePicker({ onSelect, selected }: MediaSourcePickerProps) {
+  const [hovered, setHovered] = useState<MediaSourceType | null>(null)
+
   return (
     <>
-      <style>{`
-        @property --msp-angle {
-          syntax: '<angle>';
-          initial-value: 0deg;
-          inherits: false;
-        }
-        @keyframes msp-spin {
-          to { --msp-angle: 360deg; }
-        }
-        @keyframes msp-card-in {
-          from { opacity: 0; transform: translateY(8px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        .msp-card {
-          animation: msp-card-in 0.4s ease both;
-        }
-        .msp-card[data-selected] {
-          animation: msp-spin 2s linear infinite !important;
-        }
-      `}</style>
+      <style>{MSP_STYLES}</style>
       <div className='grid grid-cols-2 sm:grid-cols-4 gap-3'>
         {SOURCES.map((source, i) => {
           const isSelected = selected === source.type
+          const isHovered = hovered === source.type
           const isWide = source.size === 'wide'
 
           return (
@@ -394,7 +400,12 @@ export function MediaSourcePicker({ onSelect, selected }: MediaSourcePickerProps
               key={source.type}
               type='button'
               data-selected={isSelected ? '' : undefined}
-              onClick={() => onSelect(source.type)}
+              onClick={() => {
+                setHovered(null)
+                onSelect(source.type)
+              }}
+              onMouseEnter={() => setHovered(source.type)}
+              onMouseLeave={() => setHovered(null)}
               className={cn(
                 'msp-card group flex flex-col justify-between rounded-2xl text-left transition-all duration-200',
                 isWide ? 'col-span-2 p-5 min-h-[120px]' : 'col-span-1 p-4 min-h-[100px]',
@@ -407,23 +418,14 @@ export function MediaSourcePicker({ onSelect, selected }: MediaSourcePickerProps
                     ? `linear-gradient(var(--bg2), var(--bg)) padding-box,
                      conic-gradient(from var(--msp-angle), ${source.glowColor} 0deg, transparent 60deg, transparent 300deg, ${source.glowColor} 360deg) border-box`
                     : 'var(--bg)',
-                  border: isSelected ? '2px solid transparent' : '2px solid rgba(20,20,20,0.08)',
+                  border: isSelected
+                    ? '2px solid transparent'
+                    : isHovered
+                      ? `2px solid ${source.glowColor}80`
+                      : '2px solid rgba(20,20,20,0.08)',
+                  boxShadow: !isSelected && isHovered ? `0 0 16px 2px ${source.glowColor}25` : undefined,
                 } as React.CSSProperties
               }
-              onMouseEnter={(e) => {
-                if (!isSelected) {
-                  const el = e.currentTarget as HTMLElement
-                  el.style.borderColor = `${source.glowColor}80`
-                  el.style.boxShadow = `0 0 16px 2px ${source.glowColor}25`
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!isSelected) {
-                  const el = e.currentTarget as HTMLElement
-                  el.style.borderColor = ''
-                  el.style.boxShadow = ''
-                }
-              }}
             >
               {/* Visual */}
               <div className={cn('flex items-center', isWide ? 'h-10 mb-4' : 'h-8 mb-3')}>

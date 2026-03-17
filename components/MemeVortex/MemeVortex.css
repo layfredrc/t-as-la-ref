@@ -188,3 +188,34 @@
   text-align: center;
   margin-top: 2rem;
 }
+
+/* ---- Mobile ---- */
+@media (max-width: 768px) {
+  /* Pas de cursor sur touch */
+  .cursor {
+    display: none;
+  }
+
+  /* Blocs réduits pour ne pas déborder */
+  .block {
+    width: 120px;
+    height: 80px;
+  }
+
+  /* Titre plus lisible */
+  .header h1 {
+    font-size: 18vw;
+  }
+
+  .header p {
+    font-size: 16px;
+    margin-top: 0.75rem;
+  }
+}
+
+/* Fallback : masquer le cursor sur tous les écrans touch (tablettes larges incluses) */
+@media (hover: none) {
+  .cursor {
+    display: none;
+  }
+}

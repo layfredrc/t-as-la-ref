@@ -77,24 +77,24 @@ export async function signInWithOTP(formData: FormData) {
   redirect('/feed')
 }
 
-export async function signInWithGoogle() {
+export async function signInWithGoogle(formData: FormData) {
   const supabase = await createClient()
-  console.log(process.env.NODE_ENV)
   const isLocalEnv = process.env.NODE_ENV === 'development'
   const origin = isLocalEnv ? 'http://localhost:3000' : process.env.NEXT_PUBLIC_SITE_URL! // définis cette env en prod
-  console.log({ origin })
+  const next = formData.get('next') as string | null
+  const callbackUrl = next
+    ? `${origin}/auth/callback?next=${encodeURIComponent(next)}`
+    : `${origin}/auth/callback`
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: `${origin}/auth/callback`,
+      redirectTo: callbackUrl,
       scopes: 'openid email profile',
-      // Quelques options utiles :
       queryParams: { prompt: 'select_account', access_type: 'offline' },
     },
   })
   if (error) {
     redirect('/error')
   }
-  console.log({ data })
   redirect(data.url)
 }

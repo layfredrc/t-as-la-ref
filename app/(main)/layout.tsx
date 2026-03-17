@@ -11,7 +11,7 @@ export default function MainLayout({
   return (
     <SidebarProvider>
       <AppSidebar />
-      <SidebarInset>
+      <SidebarInset className='bg-background'>
         <header
           className='flex h-16 shrink-0 items-center gap-2 px-4
              fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md
