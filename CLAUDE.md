@@ -382,6 +382,15 @@ Utiliser les classes utilitaires Tailwind custom : `.bg-bg`, `.bg-fg`, `.text-fg
 - S'assurer que le composant est un Server Component si possible, `"use client"` seulement si nécessaire
 - Pas de `any` TypeScript
 
----
+## Décisions techniques majeures
+
+### Feed — Swiper + react-player v3
+
+- Feed utilise Swiper (vertical, mousewheel + keyboard modules)
+- Pas de CSS snap scroll (double scrollbar), pas d'IntersectionObserver
+- Pattern isActive → mount dans RefCard pour éviter les CSP violations
+- react-player v3 : prop `src` (pas `url`), web components à importer
+  explicitement (`youtube-video-element`, `tiktok-video-element`...)
+- Ne jamais contrôler le son depuis le parent — laisser le widget gérer
 
 _Mars 2026_

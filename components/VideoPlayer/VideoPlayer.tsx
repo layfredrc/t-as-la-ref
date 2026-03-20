@@ -1,22 +1,24 @@
 'use client'
 
-import React from 'react'
 import ReactPlayer from 'react-player'
-import { Heart, Share2, Bookmark, MessageCircle, Play, Pause, Volume2, VolumeX } from 'lucide-react'
+import 'youtube-video-element'
+import 'tiktok-video-element'
 import { cn } from '@/lib/utils'
 
 type ShortsPlayerProps = {
   url: string
+  playing?: boolean
   username?: string
   title?: string
   music?: string
   className?: string
 }
 
-export const VideoPlayer = ({ url, className }: ShortsPlayerProps) => {
-  const [playing, setPlaying] = React.useState(true)
-  const [muted, setMuted] = React.useState(false)
-
+export const VideoPlayer = ({
+  url,
+  playing: externalPlaying = false,
+  className,
+}: ShortsPlayerProps) => {
   return (
     <div
       className={cn(
@@ -27,12 +29,11 @@ export const VideoPlayer = ({ url, className }: ShortsPlayerProps) => {
       {/* Video */}
       <ReactPlayer
         src={url}
-        playing={playing}
+        playing={externalPlaying}
         loop
         controls
         width='100%'
         height='100%'
-        muted={muted}
         className='!absolute !top-0 !left-0 z-0'
       />
     </div>

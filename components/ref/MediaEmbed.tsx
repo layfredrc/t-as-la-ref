@@ -144,15 +144,16 @@ function MapsEmbed({ url }: { url: string }) {
 type MediaEmbedProps = {
   url: string
   mediaType: MediaType
+  playing?: boolean
   className?: string
 }
 
-export function MediaEmbed({ url, mediaType, className }: MediaEmbedProps) {
+export function MediaEmbed({ url, mediaType, playing, className }: MediaEmbedProps) {
   switch (mediaType) {
     case 'youtube':
     case 'tiktok':
     case 'video':
-      return <VideoPlayer url={url} className={className} />
+      return <VideoPlayer url={url} playing={playing} className={className} />
 
     case 'twitter':
       return <TweetEmbed url={url} className={className} />
