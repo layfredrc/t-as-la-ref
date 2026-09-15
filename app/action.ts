@@ -4,7 +4,8 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
 import { createClient } from '@/utils/supabase/server'
-import { cookies, headers } from 'next/headers'
+import { cookies } from 'next/headers'
+import { getRequestOrigin } from '@/lib/utils/getRequestOrigin'
 
 export async function login(formData: FormData) {
   const supabase = await createClient()
@@ -50,8 +51,7 @@ export async function signup(formData: FormData) {
 export async function signInWithOTP(formData: FormData) {
   const supabase = await createClient()
   const email = formData.get('email') as string
-  const nextHeaders = await headers()
-  const origin = nextHeaders.get('origin') ?? process.env.NEXT_PUBLIC_SITE_URL! // définis cette env en prod
+  const origin = await getRequestOrigin()
 
   const { error } = await supabase.auth.signInWithOtp({
     email,
@@ -79,8 +79,7 @@ export async function signInWithOTP(formData: FormData) {
 
 export async function signInWithGoogle(formData: FormData) {
   const supabase = await createClient()
-  const isLocalEnv = process.env.NODE_ENV === 'development'
-  const origin = isLocalEnv ? 'http://localhost:3000' : process.env.NEXT_PUBLIC_SITE_URL! // définis cette env en prod
+  const origin = await getRequestOrigin()
   const next = formData.get('next') as string | null
   const callbackUrl = next
     ? `${origin}/auth/callback?next=${encodeURIComponent(next)}`

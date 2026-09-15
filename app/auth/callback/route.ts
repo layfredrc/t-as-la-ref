@@ -1,25 +1,30 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
+import { getRequestOrigin } from '@/lib/utils/getRequestOrigin'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const code = searchParams.get('code')
-  let next = searchParams.get('next') ?? '/feed'
-  if (!next.startsWith('/')) next = '/'
 
-  const isLocalEnv = process.env.NODE_ENV === 'development'
-  const defaultHost = isLocalEnv ? 'http://localhost:3000' : process.env.NEXT_PUBLIC_SITE_URL!
+  // `next` vient de l'URL : on n'accepte qu'un chemin relatif, sinon un
+  // paramètre forgé transformerait le callback en redirection ouverte.
+  let next = searchParams.get('next') ?? '/feed'
+  if (!next.startsWith('/') || next.startsWith('//')) next = '/feed'
+
+  // L'hôte réel de la requête — pas NODE_ENV, qui renvoie l'URL de prod
+  // depuis une preview Vercel.
+  const origin = await getRequestOrigin()
 
   if (code) {
     const supabase = await createClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (!error) {
-      console.log('✅ Redirecting to:', `${defaultHost}${next}`)
-      return NextResponse.redirect(`${defaultHost}${next}`)
+      return NextResponse.redirect(`${origin}${next}`)
     }
+
+    console.error('auth callback — exchangeCodeForSession', error)
   }
 
-  console.log('❌ Auth error, redirecting to:', `${defaultHost}/auth/auth-code-error`)
-  return NextResponse.redirect(`${defaultHost}/auth/auth-code-error`)
+  return NextResponse.redirect(`${origin}/auth/error`)
 }

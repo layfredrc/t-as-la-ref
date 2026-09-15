@@ -118,11 +118,11 @@ export default async function RefPage({ params }: Props) {
             </span>
           )}
 
-          <h1 className='font-rader uppercase text-4xl sm:text-5xl leading-[0.95] text-[var(--fg)]'>
+          <h1 className='font-rader uppercase text-3xl sm:text-5xl leading-[0.95] text-[var(--fg)] break-words hyphens-auto'>
             {ref.titre}
           </h1>
 
-          <div className='flex items-center gap-2'>
+          <div className='flex flex-wrap items-center gap-2'>
             <span className='font-supplymono text-xs text-[var(--fg)]/60'>Score Culture 🔥</span>
             <span className='font-supplymono text-xs px-2.5 py-1 rounded-full border-2 border-black bg-[var(--accent2)] text-[var(--fg)]'>
               {scoreCultureLabel[ref.score_culture] ?? ref.score_culture}
@@ -142,8 +142,18 @@ export default async function RefPage({ params }: Props) {
         </header>
 
         {/* ── Média ────────────────────────────────────────────── */}
-        <div className='rounded-2xl overflow-hidden border-2 border-black bg-black/80'>
-          <MediaEmbed url={ref.media_url} mediaType={ref.media_type as MediaType} />
+        {/*
+          VideoPlayer impose ses propres largeurs max (jusqu'à max-w-2xl en 2xl)
+          pour le feed. Ici on les neutralise variante par variante — c'est ce que
+          tailwind-merge sait dédupliquer — et on centre : le cadre épouse le
+          player au lieu de déborder derrière lui.
+        */}
+        <div className='flex justify-center'>
+          <MediaEmbed
+            url={ref.media_url}
+            mediaType={ref.media_type as MediaType}
+            className='w-full max-w-sm md:max-w-sm lg:max-w-sm xl:max-w-sm 2xl:max-w-sm rounded-2xl border-2 border-black'
+          />
         </div>
 
         {/* ── Contexte ─────────────────────────────────────────── */}
@@ -171,8 +181,8 @@ export default async function RefPage({ params }: Props) {
 
         {/* ── Auteur + actions ─────────────────────────────────── */}
         <div className='flex items-center justify-between gap-4 border-t-2 border-black/10 pt-6'>
-          <div className='flex items-center gap-3'>
-            <Avatar className='w-10 h-10 border-2 border-black'>
+          <div className='flex items-center gap-3 min-w-0'>
+            <Avatar className='w-10 h-10 shrink-0 border-2 border-black'>
               {author?.profile_picture && (
                 <AvatarImage src={author.profile_picture} alt={username} />
               )}
@@ -180,15 +190,17 @@ export default async function RefPage({ params }: Props) {
                 {username.slice(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            <div className='flex flex-col'>
-              <span className='font-supplymono text-sm text-[var(--fg)]'>@{username}</span>
+            <div className='flex flex-col min-w-0'>
+              <span className='font-supplymono text-sm text-[var(--fg)] truncate'>@{username}</span>
               <span className='font-supplymono text-xs text-[var(--fg)]/50'>
                 {new Date(ref.created_at).toLocaleDateString('fr-FR', { dateStyle: 'long' })}
               </span>
             </div>
           </div>
 
-          <LikeButton refId={ref.id} initialCount={ref.likes_count} variant='solid' />
+          <div className='shrink-0'>
+            <LikeButton refId={ref.id} initialCount={ref.likes_count} variant='solid' />
+          </div>
         </div>
 
         {/* ── Débat ────────────────────────────────────────────── */}

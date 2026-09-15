@@ -94,7 +94,7 @@ export function CommentSection({ refId, commentsCount }: CommentSectionProps) {
               />
 
               {thread.replies.length > 0 && (
-                <ul className='flex flex-col gap-3 pl-6 border-l-2 border-black/15 ml-4'>
+                <ul className='ml-2 flex flex-col gap-3 border-l-2 border-black/15 pl-3 sm:ml-4 sm:pl-6'>
                   {thread.replies.map((reply) => (
                     <li key={reply.id}>
                       <CommentRow comment={reply} refId={refId} canReply={false} />
@@ -104,7 +104,7 @@ export function CommentSection({ refId, commentsCount }: CommentSectionProps) {
               )}
 
               {replyTo === thread.id && profile && (
-                <div className='pl-6 ml-4'>
+                <div className='ml-2 pl-3 sm:ml-4 sm:pl-6'>
                   <CommentComposer
                     refId={refId}
                     parentId={thread.id}
