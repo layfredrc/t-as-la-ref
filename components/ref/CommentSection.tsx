@@ -263,15 +263,7 @@ function CommentComposer({
               Annuler
             </Button>
           )}
-          <Button
-            size='sm'
-            onClick={handleSubmit}
-            disabled={!canSubmit}
-            className={cn(
-              'rounded-lg border-2 border-black transition-all',
-              canSubmit && 'bg-neon-gradient text-white hover:scale-105 hover:opacity-90',
-            )}
-          >
+          <Button size='sm' onClick={handleSubmit} disabled={!canSubmit} className='rounded-lg'>
             {addComment.isPending ? 'Envoi…' : 'Envoyer'}
           </Button>
         </div>
