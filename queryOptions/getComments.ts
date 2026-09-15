@@ -3,19 +3,51 @@ import type { CommentThread, RefComment } from '@/lib/types'
 
 export const commentsKey = (refId: string) => ['comments', refId] as const
 
-/** Regroupe la liste plate renvoyée par l'API en racines + réponses directes. */
+/**
+ * Regroupe la liste plate renvoyée par l'API en racines + réponses.
+ *
+ * Le thread n'a qu'un niveau visuel, mais rien n'empêche de poster une réponse
+ * à une réponse : le trigger serveur ne vérifie que l'appartenance à la même
+ * ref. On remonte donc chaque commentaire jusqu'à sa racine plutôt que de
+ * n'accepter que `parent_id` direct — sinon ces réponses disparaissent de
+ * l'affichage tout en restant comptées dans `comments_count`.
+ */
 function toThreads(comments: RefComment[]): CommentThread[] {
+  const byId = new Map(comments.map((c) => [c.id, c]))
+
+  const rootIdOf = (comment: RefComment): string => {
+    const seen = new Set<string>([comment.id])
+    let current = comment
+
+    while (current.parent_id) {
+      const parent = byId.get(current.parent_id)
+      // Parent absent (supprimé, non chargé) ou cycle : on s'arrête là.
+      if (!parent || seen.has(parent.id)) break
+      seen.add(parent.id)
+      current = parent
+    }
+
+    return current.id
+  }
+
   const roots = comments.filter((c) => !c.parent_id)
-  const repliesByParent = new Map<string, RefComment[]>()
+  const repliesByRoot = new Map<string, RefComment[]>()
 
   for (const comment of comments) {
     if (!comment.parent_id) continue
-    const bucket = repliesByParent.get(comment.parent_id) ?? []
+    const rootId = rootIdOf(comment)
+    if (rootId === comment.id) continue // orpheline : sa racine a disparu
+    const bucket = repliesByRoot.get(rootId) ?? []
     bucket.push(comment)
-    repliesByParent.set(comment.parent_id, bucket)
+    repliesByRoot.set(rootId, bucket)
   }
 
-  return roots.map((root) => ({ ...root, replies: repliesByParent.get(root.id) ?? [] }))
+  return roots.map((root) => ({
+    ...root,
+    replies: (repliesByRoot.get(root.id) ?? []).sort((a, b) =>
+      a.created_at.localeCompare(b.created_at),
+    ),
+  }))
 }
 
 export const useComments = (refId: string) => {

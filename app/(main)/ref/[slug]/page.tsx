@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { cache } from 'react'
 import type { Metadata } from 'next'
 import { ArrowLeft } from 'lucide-react'
 import { createClient } from '@/utils/supabase/server'
@@ -35,7 +36,10 @@ const REF_SELECT = `
   ref_hashtags ( label )
 `
 
-async function getRef(slug: string) {
+// generateMetadata et le composant appellent tous les deux getRef : sans
+// mémoïsation, chaque page ref fait quatre allers-retours Supabase au lieu de
+// deux. `cache` dédoublonne sur la durée de la requête.
+const getRef = cache(async (slug: string) => {
   const supabase = await createClient()
 
   const { data: ref } = await supabase
@@ -67,7 +71,7 @@ async function getRef(slug: string) {
   }
 
   return { ref, tags, hashtags, author }
-}
+})
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
