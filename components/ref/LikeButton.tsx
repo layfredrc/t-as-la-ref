@@ -41,6 +41,9 @@ export function LikeButton({ refId, initialCount, variant = 'overlay' }: LikeBut
     // Tant que la liste des likes n'est pas chargée, on ne connaît pas l'état
     // de départ : cliquer enverrait un toggle dans le mauvais sens.
     if (!myLikes) return
+    // Le serveur encaisse les doubles appels, mais un second clic pendant la
+    // requête inverserait l'affichage optimiste pour rien.
+    if (toggleLike.isPending) return
 
     const previousCount = count
     setCount((c) => (liked ? Math.max(c - 1, 0) : c + 1))
