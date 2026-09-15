@@ -67,37 +67,43 @@ export function LikeButton({ refId, initialCount, variant = 'overlay' }: LikeBut
   }
 
   return (
-    <div className='flex flex-col gap-1 items-center'>
+    <div className='flex flex-col items-center gap-1'>
       <button
         onClick={handleClick}
         aria-pressed={liked}
         aria-label={liked ? 'Retirer le like' : 'Liker cette ref'}
         className={cn(
-          'relative w-11 h-11 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-95',
+          'relative flex h-11 w-11 items-center justify-center rounded-full transition-all hover:scale-110 active:scale-95',
+          // Le fond reste neutre dans les deux variantes : c'est l'icône qui
+          // porte la couleur, comme sur Instagram.
           isOverlay
-            ? 'bg-white/20 hover:bg-white/30'
+            ? 'hover:bg-white/15'
             : 'border-2 border-black bg-[var(--bg2)] hover:bg-[var(--accent2)]',
-          liked && (isOverlay ? 'bg-[var(--accent1)]/80' : 'bg-[var(--accent1)]'),
         )}
       >
         <Heart
           className={cn(
-            'w-5 h-5 transition-transform duration-200',
-            liked && 'fill-current scale-110',
-            isOverlay ? 'text-white' : 'text-[var(--fg)]',
+            'transition-all duration-200',
+            isOverlay ? 'h-7 w-7 drop-shadow-[0_1px_3px_rgba(0,0,0,0.45)]' : 'h-5 w-5',
+            liked
+              ? 'scale-110 fill-[var(--accent1)] text-[var(--accent1)]'
+              : isOverlay
+                ? 'fill-white text-white'
+                : 'text-[var(--fg)]',
+            burst && 'scale-125',
           )}
         />
         {burst && (
           <span
             aria-hidden
-            className='absolute inset-0 rounded-full border-2 border-[var(--accent1)] animate-ping'
+            className='absolute inset-0 animate-ping rounded-full border-2 border-[var(--accent1)]'
           />
         )}
       </button>
       <span
         className={cn(
-          'text-xs font-supplymono tabular-nums',
-          isOverlay ? 'text-white' : 'text-[var(--fg)]/70',
+          'font-supplymono text-xs tabular-nums',
+          isOverlay ? 'text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.45)]' : 'text-[var(--fg)]/70',
         )}
       >
         {count}

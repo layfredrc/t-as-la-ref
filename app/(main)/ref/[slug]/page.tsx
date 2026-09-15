@@ -186,7 +186,7 @@ export default async function RefPage({ params }: Props) {
               {author?.profile_picture && (
                 <AvatarImage src={author.profile_picture} alt={username} />
               )}
-              <AvatarFallback className='bg-[var(--accent5)] text-[var(--fg)] font-supplymono text-xs'>
+              <AvatarFallback className='bg-neon-gradient font-supplymono text-xs text-white'>
                 {username.slice(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
