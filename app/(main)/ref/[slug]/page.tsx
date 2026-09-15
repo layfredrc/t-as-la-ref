@@ -103,7 +103,7 @@ export default async function RefPage({ params }: Props) {
       <div className='max-w-2xl mx-auto flex flex-col gap-8'>
         <Link
           href='/feed'
-          className='flex items-center gap-2 font-supplymono text-sm text-[var(--fg)]/60 hover:text-[var(--fg)] transition-colors w-fit'
+          className='flex items-center gap-2 font-supplymono text-sm text-[var(--fg)]/70 hover:text-[var(--fg)] transition-colors w-fit'
         >
           <ArrowLeft className='w-4 h-4' />
           Retour au feed
@@ -124,7 +124,7 @@ export default async function RefPage({ params }: Props) {
           </h1>
 
           <div className='flex flex-wrap items-center gap-2'>
-            <span className='font-supplymono text-xs text-[var(--fg)]/60'>Score Culture 🔥</span>
+            <span className='font-supplymono text-xs text-[var(--fg)]/70'>Score Culture 🔥</span>
             <span className='font-supplymono text-xs px-2.5 py-1 rounded-full border-2 border-black bg-[var(--accent2)] text-[var(--fg)]'>
               {scoreCultureLabel[ref.score_culture] ?? ref.score_culture}
             </span>
@@ -162,7 +162,7 @@ export default async function RefPage({ params }: Props) {
         {/* ── Contexte ─────────────────────────────────────────── */}
         {ref.contexte && (
           <div className='border-2 border-black rounded-lg bg-[var(--bg2)] p-5 flex flex-col gap-2'>
-            <span className='font-supplymono text-xs uppercase text-[var(--fg)]/60'>
+            <span className='font-supplymono text-xs uppercase text-[var(--fg)]/70'>
               Le contexte
             </span>
             <p className='text-[var(--fg)]/85 whitespace-pre-wrap'>{ref.contexte}</p>
@@ -195,7 +195,7 @@ export default async function RefPage({ params }: Props) {
             </Avatar>
             <div className='flex flex-col min-w-0'>
               <span className='font-supplymono text-sm text-[var(--fg)] truncate'>@{username}</span>
-              <span className='font-supplymono text-xs text-[var(--fg)]/50'>
+              <span className='font-supplymono text-xs text-[var(--fg)]/70'>
                 {new Date(ref.created_at).toLocaleDateString('fr-FR', { dateStyle: 'long' })}
               </span>
             </div>

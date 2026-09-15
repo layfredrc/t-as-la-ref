@@ -46,7 +46,7 @@ export default function FeedPage() {
 
   if (isLoading) {
     return (
-      <div className='h-screen flex items-center justify-center bg-bg'>
+      <div className='h-[calc(100dvh-4rem)] md:h-dvh flex items-center justify-center bg-bg'>
         <p className='font-supplymono text-fg/60 animate-pulse'>Chargement des refs…</p>
       </div>
     )
@@ -54,7 +54,7 @@ export default function FeedPage() {
 
   if (error) {
     return (
-      <div className='h-screen flex items-center justify-center bg-bg'>
+      <div className='h-[calc(100dvh-4rem)] md:h-dvh flex items-center justify-center bg-bg'>
         <p className='font-supplymono text-accent1'>Erreur de chargement. Réessaie.</p>
       </div>
     )
@@ -62,7 +62,7 @@ export default function FeedPage() {
 
   if (refs.length === 0) {
     return (
-      <div className='h-screen flex flex-col items-center justify-center gap-4 bg-bg'>
+      <div className='h-[calc(100dvh-4rem)] md:h-dvh flex flex-col items-center justify-center gap-4 bg-bg'>
         <p className='font-rader text-5xl uppercase'>Rien ici…</p>
         <p className='font-supplymono text-fg/60'>Sois le premier à ajouter une ref !</p>
       </div>
@@ -73,7 +73,7 @@ export default function FeedPage() {
     <>
       <OnboardingGuard />
 
-      <div className='h-screen relative'>
+      <div className='relative h-[calc(100dvh-4rem)] md:h-dvh'>
         <Swiper
           direction='vertical'
           slidesPerView={1}

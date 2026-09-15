@@ -33,7 +33,7 @@ export function RefCard({ ref_data, isActive = true }: RefCardProps) {
       <div className='absolute inset-0 backdrop-blur-xl bg-[var(--bg2)]/60 pointer-events-none z-0' />
 
       {/* Left info panel */}
-      <div className='absolute top-6 left-6 xl:left-12 flex flex-col gap-4 w-[260px] xl:w-[300px] z-10'>
+      <div className='absolute bottom-24 left-4 right-20 z-10 flex flex-col gap-4 sm:bottom-auto sm:top-6 sm:left-6 sm:right-auto sm:w-[260px] xl:left-12 xl:w-[300px]'>
         <div className='border-2 border-black rounded-lg bg-[var(--bg2)] p-4 space-y-4'>
           <h1 className='text-3xl xl:text-4xl font-rader uppercase leading-[0.95] text-[var(--fg)]'>
             {ref_data.titre}
@@ -67,7 +67,9 @@ export function RefCard({ ref_data, isActive = true }: RefCardProps) {
           <BarometerReadout drole={ref_data.drole_score} importance={ref_data.importance_score} />
 
           {ref_data.contexte && (
-            <p className='text-sm text-[var(--fg)]/70 line-clamp-3'>{ref_data.contexte}</p>
+            <p className='hidden text-sm text-[var(--fg)]/70 line-clamp-3 sm:block'>
+              {ref_data.contexte}
+            </p>
           )}
 
           <Link href={`/ref/${ref_data.slug}`}>

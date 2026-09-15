@@ -22,7 +22,7 @@ export const VideoPlayer = ({
   return (
     <div
       className={cn(
-        'relative aspect-[9/16] w-full max-w-sm md:max-w-sm lg:max-w-sm xl:max-w-md 2xl:max-w-2xl rounded-3xl overflow-hidden bg-black shadow-xl backdrop-blur-md z-50',
+        'relative aspect-[9/16] w-full max-w-sm md:max-w-sm lg:max-w-sm xl:max-w-md 2xl:max-w-2xl overflow-hidden rounded-3xl bg-black shadow-xl backdrop-blur-md',
         className,
       )}
     >
