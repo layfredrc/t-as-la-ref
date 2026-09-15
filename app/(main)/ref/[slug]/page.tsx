@@ -1,7 +1,12 @@
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import type { Metadata } from 'next'
+import { ArrowLeft } from 'lucide-react'
 import { createClient } from '@/utils/supabase/server'
 import { MediaEmbed } from '@/components/ref/MediaEmbed'
-import { Badge } from '@/components/ui/badge'
+import { CommentSection } from '@/components/ref/CommentSection'
+import { LikeButton } from '@/components/ref/LikeButton'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import type { MediaType, Tag } from '@/lib/types'
 import { mediaTypeLabels } from '@/lib/utils/detectMediaType'
 
@@ -9,68 +14,185 @@ type Props = {
   params: Promise<{ slug: string }>
 }
 
-export default async function RefPage({ params }: Props) {
-  const { slug } = await params
+const scoreCultureLabel: Record<string, string> = {
+  inconnu: 'Inconnu 🤷',
+  'gen-z': 'Only Gen Z ⚡',
+  cultissime: 'Cultissime 🏆',
+}
+
+// Couleur par axe de tag — cohérent avec la RefCard du feed.
+const tagColorByType: Record<Tag['type'], string> = {
+  type_ref: 'bg-[var(--accent1)]',
+  origine: 'bg-[var(--accent5)]',
+  vibe: 'bg-[var(--accent3)]',
+}
+
+const REF_SELECT = `
+  id, slug, titre, media_url, media_type, contexte, score_culture,
+  likes_count, comments_count, created_at, auteur_id,
+  refs_tags ( tags ( id, label, emoji, type, slug ) ),
+  ref_hashtags ( label )
+`
+
+async function getRef(slug: string) {
   const supabase = await createClient()
 
   const { data: ref } = await supabase
     .from('refs')
-    .select(`
-      id, slug, titre, media_url, media_type, contexte, score_culture, likes_count, created_at, auteur_id,
-      refs_tags ( tags ( id, label, emoji, type, slug ) )
-    `)
+    .select(REF_SELECT)
     .eq('slug', slug)
     .eq('status', 'published')
-    .single()
+    .maybeSingle()
 
-  if (!ref) notFound()
+  if (!ref) return null
 
-  const tags: Tag[] = (ref.refs_tags ?? [])
-    .flatMap((rt: { tags: unknown }) => {
-      const tag = rt.tags as Tag | Tag[] | null
-      if (!tag) return []
-      return Array.isArray(tag) ? tag : [tag]
-    })
+  const tags: Tag[] = (ref.refs_tags ?? []).flatMap((rt: { tags: unknown }) => {
+    const tag = rt.tags as Tag | Tag[] | null
+    if (!tag) return []
+    return Array.isArray(tag) ? tag : [tag]
+  })
 
+  const hashtags: string[] = (ref.ref_hashtags ?? []).map((h: { label: string }) => h.label)
+
+  // `auteur_id` pointe sur auth.users : le profil public se récupère à part.
+  let author: { username: string | null; profile_picture: string | null } | null = null
+  if (ref.auteur_id) {
+    const { data } = await supabase
+      .from('users')
+      .select('username, profile_picture')
+      .eq('id', ref.auteur_id)
+      .maybeSingle()
+    author = data ?? null
+  }
+
+  return { ref, tags, hashtags, author }
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params
+  const result = await getRef(slug)
+
+  if (!result) return { title: 'Ref introuvable — T’as la ref ?' }
+
+  const { ref } = result
+  return {
+    title: `${ref.titre} — T’as la ref ?`,
+    description:
+      ref.contexte ?? 'Une ref de plus dans la bibliothèque vivante de l’internet francophone.',
+    openGraph: {
+      title: ref.titre,
+      description: ref.contexte ?? undefined,
+      type: 'article',
+    },
+  }
+}
+
+export default async function RefPage({ params }: Props) {
+  const { slug } = await params
+  const result = await getRef(slug)
+
+  if (!result) notFound()
+
+  const { ref, tags, hashtags, author } = result
   const mediaLabel = mediaTypeLabels[ref.media_type as MediaType]
+  const username = author?.username ?? 'anonyme'
 
   return (
-    <main className='min-h-screen bg-background px-4 py-12'>
-      <div className='max-w-2xl mx-auto flex flex-col gap-6'>
-        {/* Header */}
-        <div className='flex flex-col gap-2'>
+    <main className='min-h-screen bg-[var(--bg)] px-4 py-8 sm:py-12'>
+      <div className='max-w-2xl mx-auto flex flex-col gap-8'>
+        <Link
+          href='/feed'
+          className='flex items-center gap-2 font-supplymono text-sm text-[var(--fg)]/60 hover:text-[var(--fg)] transition-colors w-fit'
+        >
+          <ArrowLeft className='w-4 h-4' />
+          Retour au feed
+        </Link>
+
+        {/* ── Entête ───────────────────────────────────────────── */}
+        <header className='flex flex-col gap-4'>
           {mediaLabel && (
-            <span className={`text-xs font-medium px-2 py-0.5 rounded-full text-white w-fit ${mediaLabel.color}`}>
+            <span
+              className={`font-supplymono text-xs px-2.5 py-1 rounded-full text-white w-fit ${mediaLabel.color}`}
+            >
               {mediaLabel.emoji} {mediaLabel.label}
             </span>
           )}
-          <h1 className='text-3xl font-bold leading-tight'>{ref.titre}</h1>
-          {ref.contexte && (
-            <p className='text-muted-foreground'>{ref.contexte}</p>
-          )}
-          <div className='flex flex-wrap gap-1.5'>
+
+          <h1 className='font-rader uppercase text-4xl sm:text-5xl leading-[0.95] text-[var(--fg)]'>
+            {ref.titre}
+          </h1>
+
+          <div className='flex items-center gap-2'>
+            <span className='font-supplymono text-xs text-[var(--fg)]/60'>Score Culture 🔥</span>
+            <span className='font-supplymono text-xs px-2.5 py-1 rounded-full border-2 border-black bg-[var(--accent2)] text-[var(--fg)]'>
+              {scoreCultureLabel[ref.score_culture] ?? ref.score_culture}
+            </span>
+          </div>
+
+          <div className='flex flex-wrap gap-2'>
             {tags.map((tag) => (
-              <Badge key={tag.id} variant='secondary'>
+              <span
+                key={tag.id}
+                className={`font-supplymono text-xs px-2.5 py-1 rounded-full border-2 border-black text-[var(--fg)] ${tagColorByType[tag.type]}`}
+              >
                 {tag.emoji} {tag.label}
-              </Badge>
+              </span>
             ))}
           </div>
+        </header>
+
+        {/* ── Média ────────────────────────────────────────────── */}
+        <div className='rounded-2xl overflow-hidden border-2 border-black bg-black/80'>
+          <MediaEmbed url={ref.media_url} mediaType={ref.media_type as MediaType} />
         </div>
 
-        {/* Embed */}
-        <div className='rounded-2xl overflow-hidden border border-border bg-black/20'>
-          <MediaEmbed
-            url={ref.media_url}
-            mediaType={ref.media_type as MediaType}
-          />
+        {/* ── Contexte ─────────────────────────────────────────── */}
+        {ref.contexte && (
+          <div className='border-2 border-black rounded-lg bg-[var(--bg2)] p-5 flex flex-col gap-2'>
+            <span className='font-supplymono text-xs uppercase text-[var(--fg)]/60'>
+              Le contexte
+            </span>
+            <p className='text-[var(--fg)]/85 whitespace-pre-wrap'>{ref.contexte}</p>
+          </div>
+        )}
+
+        {hashtags.length > 0 && (
+          <div className='flex flex-wrap gap-2'>
+            {hashtags.map((label) => (
+              <span
+                key={label}
+                className='font-supplymono text-xs px-2 py-0.5 rounded-full bg-[var(--bg2)] text-[var(--fg)]/70'
+              >
+                #{label}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* ── Auteur + actions ─────────────────────────────────── */}
+        <div className='flex items-center justify-between gap-4 border-t-2 border-black/10 pt-6'>
+          <div className='flex items-center gap-3'>
+            <Avatar className='w-10 h-10 border-2 border-black'>
+              {author?.profile_picture && (
+                <AvatarImage src={author.profile_picture} alt={username} />
+              )}
+              <AvatarFallback className='bg-[var(--accent5)] text-[var(--fg)] font-supplymono text-xs'>
+                {username.slice(0, 2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <div className='flex flex-col'>
+              <span className='font-supplymono text-sm text-[var(--fg)]'>@{username}</span>
+              <span className='font-supplymono text-xs text-[var(--fg)]/50'>
+                {new Date(ref.created_at).toLocaleDateString('fr-FR', { dateStyle: 'long' })}
+              </span>
+            </div>
+          </div>
+
+          <LikeButton refId={ref.id} initialCount={ref.likes_count} variant='solid' />
         </div>
 
-        {/* Stats */}
-        <div className='flex items-center gap-4 text-sm text-muted-foreground'>
-          <span>❤️ {ref.likes_count} likes</span>
-          <span>•</span>
-          <span>{new Date(ref.created_at).toLocaleDateString('fr-FR', { dateStyle: 'long' })}</span>
-        </div>
+        {/* ── Débat ────────────────────────────────────────────── */}
+        <CommentSection refId={ref.id} commentsCount={ref.comments_count ?? 0} />
       </div>
     </main>
   )
