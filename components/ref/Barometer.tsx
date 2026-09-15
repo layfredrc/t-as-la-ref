@@ -82,7 +82,7 @@ function BarometerShell({
           />
           <div
             aria-hidden
-            className='flex justify-between px-1 font-supplymono text-[10px] text-[var(--fg)]/40'
+            className='flex justify-between px-1 font-supplymono text-[10px] text-[var(--fg)]/70'
           >
             {[1, 2, 3, 4, 5].map((step) => (
               <span key={step}>{step}</span>
@@ -91,7 +91,7 @@ function BarometerShell({
         </div>
       </div>
 
-      <p className='font-supplymono text-xs text-[var(--fg)]/50'>{hint}</p>
+      <p className='font-supplymono text-xs text-[var(--fg)]/70'>{hint}</p>
     </div>
   )
 }
@@ -113,7 +113,7 @@ export function DroleBarometer({ value, onChange }: BarometerProps) {
           <span key={value} className='text-4xl' role='img' aria-label={step.label}>
             {step.emoji}
           </span>
-          <span className='font-supplymono text-[10px] text-[var(--fg)]/60'>{step.label}</span>
+          <span className='font-supplymono text-[10px] text-[var(--fg)]/70'>{step.label}</span>
         </div>
       }
     />

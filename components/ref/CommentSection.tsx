@@ -76,7 +76,7 @@ export function CommentSection({ refId, commentsCount }: CommentSectionProps) {
       {threads && threads.length === 0 && (
         <div className='border-2 border-dashed border-black/30 rounded-lg p-6 text-center'>
           <p className='font-rader uppercase text-xl text-[var(--fg)]'>Personne n&apos;a capté</p>
-          <p className='font-supplymono text-sm text-[var(--fg)]/60 mt-1'>
+          <p className='font-supplymono text-sm text-[var(--fg)]/70 mt-1'>
             Sois le premier à expliquer cette ref.
           </p>
         </div>
@@ -155,7 +155,7 @@ function CommentRow({ comment, refId, canReply, onReply }: CommentRowProps) {
       <div className='flex-1 min-w-0 flex flex-col gap-1'>
         <div className='flex items-center gap-2 flex-wrap'>
           <span className='font-supplymono text-sm text-[var(--fg)]'>@{username}</span>
-          <span className='font-supplymono text-xs text-[var(--fg)]/50'>
+          <span className='font-supplymono text-xs text-[var(--fg)]/70'>
             {formatRelativeDate(comment.created_at)}
           </span>
         </div>
@@ -168,7 +168,7 @@ function CommentRow({ comment, refId, canReply, onReply }: CommentRowProps) {
           {canReply && onReply && (
             <button
               onClick={onReply}
-              className='flex items-center gap-1 font-supplymono text-xs text-[var(--fg)]/50 hover:text-[var(--fg)] transition-colors'
+              className='flex items-center gap-1 font-supplymono text-xs text-[var(--fg)]/70 hover:text-[var(--fg)] transition-colors'
             >
               <CornerDownRight className='w-3 h-3' />
               Répondre
@@ -178,7 +178,7 @@ function CommentRow({ comment, refId, canReply, onReply }: CommentRowProps) {
             <button
               onClick={handleDelete}
               disabled={deleteComment.isPending}
-              className='flex items-center gap-1 font-supplymono text-xs text-[var(--fg)]/50 hover:text-[var(--accent1)] transition-colors disabled:opacity-50'
+              className='flex items-center gap-1 font-supplymono text-xs text-[var(--fg)]/70 hover:text-[var(--accent1)] transition-colors disabled:opacity-50'
             >
               <Trash2 className='w-3 h-3' />
               {deleteComment.isPending ? 'Suppression…' : 'Supprimer'}
@@ -251,7 +251,7 @@ function CommentComposer({
         <span
           className={cn(
             'font-supplymono text-xs tabular-nums',
-            trimmed.length > MAX_LENGTH * 0.9 ? 'text-[var(--accent1)]' : 'text-[var(--fg)]/50',
+            trimmed.length > MAX_LENGTH * 0.9 ? 'text-[var(--accent1)]' : 'text-[var(--fg)]/70',
           )}
         >
           {trimmed.length}/{MAX_LENGTH}

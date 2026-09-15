@@ -433,6 +433,14 @@
   }
 }
 
+/* Tailwind v4 a retiré `cursor: pointer` du preflight sur les boutons :
+   sans cette règle, tous les boutons du site gardent la flèche. La règle est
+   ici plutôt que dans components/ui/, que le CLAUDE.md interdit de modifier. */
+button:not(:disabled),
+[role='button']:not([aria-disabled='true']) {
+  cursor: pointer;
+}
+
 body {
   background-color: var(--bg);
   color: var(--fg);
