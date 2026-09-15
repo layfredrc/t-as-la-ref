@@ -6,12 +6,14 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { TagSelector } from '@/components/ref/TagSelector'
 import { HashtagInput } from '@/components/ref/HashtagInput'
+import { DroleBarometer, ImportanceBarometer } from '@/components/ref/Barometer'
 import { MediaEmbed } from '@/components/ref/MediaEmbed'
 import { useTags } from '@/queryOptions/getTags'
 import { mediaTypeLabels } from '@/lib/utils/detectMediaType'
 import { cn } from '@/lib/utils'
 import { Loader2 } from 'lucide-react'
 import type { AddRefFormData } from '@/lib/types'
+import { clampScore, type BarometerScore } from '@/lib/utils/barometers'
 
 type StepRefProps = {
   formData: AddRefFormData
@@ -28,13 +30,17 @@ export function StepRef({ formData, onNext, onBack }: StepRefProps) {
   const [tagOrigine, setTagOrigine] = useState<string | null>(formData.tag_origine)
   const [tagVibe, setTagVibe] = useState<string | null>(formData.tag_vibe)
   const [hashtags, setHashtags] = useState<string[]>(formData.hashtags ?? [])
+  const [drole, setDrole] = useState<BarometerScore>(clampScore(formData.drole_score))
+  const [importance, setImportance] = useState<BarometerScore>(
+    clampScore(formData.importance_score),
+  )
   const [errors, setErrors] = useState<string[]>([])
 
   const handleNext = () => {
     const errs: string[] = []
     if (!titre.trim()) errs.push('Le titre est obligatoire.')
     if (!tagTypeRef) errs.push('Choisis un type de ref.')
-    if (!tagOrigine) errs.push("Choisis une origine.")
+    if (!tagOrigine) errs.push('Choisis une origine.')
     if (!tagVibe) errs.push('Choisis une vibe.')
     if (errs.length) {
       setErrors(errs)
@@ -48,18 +54,17 @@ export function StepRef({ formData, onNext, onBack }: StepRefProps) {
       tag_origine: tagOrigine,
       tag_vibe: tagVibe,
       hashtags,
+      drole_score: drole,
+      importance_score: importance,
     })
   }
 
   const mediaLabel = formData.media_type ? mediaTypeLabels[formData.media_type] : null
   const truncatedUrl =
-    formData.media_url.length > 40
-      ? `${formData.media_url.slice(0, 40)}…`
-      : formData.media_url
+    formData.media_url.length > 40 ? `${formData.media_url.slice(0, 40)}…` : formData.media_url
 
   return (
     <div className='flex flex-col gap-6 lg:grid lg:grid-cols-[1fr_1.2fr] lg:gap-10'>
-
       {/* ── LEFT — sticky media panel ── */}
       <div className='lg:sticky lg:top-8 lg:self-start flex flex-col gap-3'>
         {formData.media_type && formData.media_url ? (
@@ -82,9 +87,7 @@ export function StepRef({ formData, onNext, onBack }: StepRefProps) {
             </span>
           )}
           {formData.media_url && (
-            <p className='text-xs text-muted-foreground font-supplymono truncate'>
-              {truncatedUrl}
-            </p>
+            <p className='text-xs text-muted-foreground font-supplymono truncate'>{truncatedUrl}</p>
           )}
         </div>
 
@@ -137,12 +140,7 @@ export function StepRef({ formData, onNext, onBack }: StepRefProps) {
               selected={tagOrigine}
               onChange={setTagOrigine}
             />
-            <TagSelector
-              label='Vibe *'
-              tags={tags.vibe}
-              selected={tagVibe}
-              onChange={setTagVibe}
-            />
+            <TagSelector label='Vibe *' tags={tags.vibe} selected={tagVibe} onChange={setTagVibe} />
           </div>
         ) : null}
 
@@ -164,6 +162,12 @@ export function StepRef({ formData, onNext, onBack }: StepRefProps) {
             placeholder="D'où vient cette ref ? Qui l'a lancée ? Quand ça a explosé ?"
             rows={3}
           />
+        </div>
+
+        {/* Baromètres */}
+        <div className='flex flex-col gap-5'>
+          <DroleBarometer value={drole} onChange={setDrole} />
+          <ImportanceBarometer value={importance} onChange={setImportance} />
         </div>
 
         {/* Errors */}

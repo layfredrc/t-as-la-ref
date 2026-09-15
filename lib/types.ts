@@ -56,6 +56,8 @@ export interface Ref {
   created_at: string
   likes_count: number
   comments_count: number
+  drole_score: number
+  importance_score: number
   tags?: Tag[]
   author?: RefAuthor | null
 }
@@ -87,6 +89,8 @@ export interface CreateRefBody {
   tag_ids: string[]
   derives?: string[]
   hashtags?: string[]
+  drole_score?: number
+  importance_score?: number
 }
 
 // Local form state across the multi-step flow
@@ -101,6 +105,8 @@ export interface AddRefFormData {
   tag_type_ref: string | null
   tag_origine: string | null
   tag_vibe: string | null
+  drole_score: number
+  importance_score: number
   // Step 3
   derives: string[]
   // Step 2 — free-form hashtags

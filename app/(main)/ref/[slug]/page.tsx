@@ -6,6 +6,7 @@ import { createClient } from '@/utils/supabase/server'
 import { MediaEmbed } from '@/components/ref/MediaEmbed'
 import { CommentSection } from '@/components/ref/CommentSection'
 import { LikeButton } from '@/components/ref/LikeButton'
+import { BarometerReadout } from '@/components/ref/Barometer'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import type { MediaType, Tag } from '@/lib/types'
 import { mediaTypeLabels } from '@/lib/utils/detectMediaType'
@@ -29,7 +30,7 @@ const tagColorByType: Record<Tag['type'], string> = {
 
 const REF_SELECT = `
   id, slug, titre, media_url, media_type, contexte, score_culture,
-  likes_count, comments_count, created_at, auteur_id,
+  likes_count, comments_count, drole_score, importance_score, created_at, auteur_id,
   refs_tags ( tags ( id, label, emoji, type, slug ) ),
   ref_hashtags ( label )
 `
@@ -128,6 +129,8 @@ export default async function RefPage({ params }: Props) {
               {scoreCultureLabel[ref.score_culture] ?? ref.score_culture}
             </span>
           </div>
+
+          <BarometerReadout drole={ref.drole_score} importance={ref.importance_score} />
 
           <div className='flex flex-wrap gap-2'>
             {tags.map((tag) => (
