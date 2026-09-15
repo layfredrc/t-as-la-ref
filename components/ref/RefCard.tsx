@@ -2,12 +2,13 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { Heart, MessageCircle, PlusCircle } from 'lucide-react'
+import { MessageCircle, PlusCircle } from 'lucide-react'
 import type { AddRefFormData, Ref, Tag, TagsByType } from '@/lib/types'
 import { mediaTypeLabels } from '@/lib/utils/detectMediaType'
 import { MediaEmbed } from './MediaEmbed'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { LikeButton } from './LikeButton'
 
 const scoreCultureLabel: Record<string, string> = {
   inconnu: 'Inconnu 🤷',
@@ -26,9 +27,7 @@ export function RefCard({ ref_data, isActive = true }: RefCardProps) {
   const tagVibe = ref_data.tags?.find((t: Tag) => t.type === 'vibe')
 
   return (
-    <div
-      className='relative flex justify-center items-center w-full h-full overflow-hidden bg-[var(--bg)]'
-    >
+    <div className='relative flex justify-center items-center w-full h-full overflow-hidden bg-[var(--bg)]'>
       {/* Ambient blur bg */}
       <div className='absolute inset-0 backdrop-blur-xl bg-[var(--bg2)]/60 pointer-events-none z-0' />
 
@@ -84,19 +83,18 @@ export function RefCard({ ref_data, isActive = true }: RefCardProps) {
 
       {/* Right action panel */}
       <div className='absolute right-4 xl:right-12 bottom-8 z-20 flex flex-col gap-6 p-3 rounded-2xl bg-black/40 backdrop-blur-md border border-white/20 shadow-xl'>
-        <div className='flex flex-col gap-1 items-center'>
-          <button className='w-11 h-11 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-all hover:scale-110'>
-            <Heart className='w-5 h-5 text-white' />
-          </button>
-          <span className='text-white text-xs font-supplymono'>{ref_data.likes_count}</span>
-        </div>
+        <LikeButton refId={ref_data.id} initialCount={ref_data.likes_count} variant='overlay' />
 
-        <div className='flex flex-col gap-1 items-center'>
-          <button className='w-11 h-11 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-all hover:scale-110'>
-            <MessageCircle className='w-5 h-5 text-white' />
-          </button>
-          <span className='text-white text-xs font-supplymono'>0</span>
-        </div>
+        <Link href={`/ref/${ref_data.slug}#comments`} aria-label='Voir le débat'>
+          <div className='flex flex-col gap-1 items-center'>
+            <div className='w-11 h-11 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-all hover:scale-110'>
+              <MessageCircle className='w-5 h-5 text-white' />
+            </div>
+            <span className='text-white text-xs font-supplymono tabular-nums'>
+              {ref_data.comments_count}
+            </span>
+          </div>
+        </Link>
 
         <Link href={`/ref/${ref_data.slug}`}>
           <div className='flex flex-col gap-1 items-center'>
