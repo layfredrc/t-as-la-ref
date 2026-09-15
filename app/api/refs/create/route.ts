@@ -15,6 +15,8 @@ const CreateRefSchema = z.object({
   tag_ids: z.array(z.uuid()).min(1).max(3),
   derives: z.array(z.url()).max(3).optional(),
   hashtags: z.array(z.string().min(1).max(50)).max(10).optional(),
+  drole_score: z.number().int().min(1).max(5).optional(),
+  importance_score: z.number().int().min(1).max(5).optional(),
 })
 
 export async function POST(req: NextRequest) {
@@ -44,8 +46,19 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  const { titre, media_url, media_type, thumbnail, contexte, score_culture, tag_ids, derives, hashtags } =
-    parsed.data
+  const {
+    titre,
+    media_url,
+    media_type,
+    thumbnail,
+    contexte,
+    score_culture,
+    tag_ids,
+    derives,
+    hashtags,
+    drole_score,
+    importance_score,
+  } = parsed.data
 
   // 3. Generate unique slug
   let slug: string
@@ -66,6 +79,8 @@ export async function POST(req: NextRequest) {
       thumbnail: thumbnail ?? null,
       contexte: contexte ?? null,
       score_culture: score_culture ?? 'inconnu',
+      drole_score: drole_score ?? 3,
+      importance_score: importance_score ?? 3,
       auteur_id: user.id,
     })
     .select('id, slug')
@@ -77,9 +92,9 @@ export async function POST(req: NextRequest) {
   }
 
   // 5. INSERT refs_tags
-  const { error: tagsError } = await supabase.from('refs_tags').insert(
-    tag_ids.map((tag_id) => ({ ref_id: ref.id, tag_id })),
-  )
+  const { error: tagsError } = await supabase
+    .from('refs_tags')
+    .insert(tag_ids.map((tag_id) => ({ ref_id: ref.id, tag_id })))
 
   if (tagsError) {
     console.error('refs_tags insert error', tagsError)
@@ -104,9 +119,9 @@ export async function POST(req: NextRequest) {
 
   // 7. INSERT ref_hashtags (triggers handle hashtags_index counts)
   if (hashtags && hashtags.length > 0) {
-    const { error: hashtagsError } = await supabase.from('ref_hashtags').insert(
-      hashtags.map((label) => ({ ref_id: ref.id, label })),
-    )
+    const { error: hashtagsError } = await supabase
+      .from('ref_hashtags')
+      .insert(hashtags.map((label) => ({ ref_id: ref.id, label })))
 
     if (hashtagsError) {
       console.error('ref_hashtags insert error', hashtagsError)

@@ -20,7 +20,12 @@ export function StepPreview({ formData, onBack }: StepPreviewProps) {
   const [error, setError] = useState<string | null>(null)
 
   const handlePublish = async () => {
-    if (!formData.media_type || !formData.tag_type_ref || !formData.tag_origine || !formData.tag_vibe) {
+    if (
+      !formData.media_type ||
+      !formData.tag_type_ref ||
+      !formData.tag_origine ||
+      !formData.tag_vibe
+    ) {
       setError('Données incomplètes. Reviens en arrière et vérifie le formulaire.')
       return
     }
@@ -40,6 +45,8 @@ export function StepPreview({ formData, onBack }: StepPreviewProps) {
           tag_ids: [formData.tag_type_ref, formData.tag_origine, formData.tag_vibe],
           derives: formData.derives.length > 0 ? formData.derives : undefined,
           hashtags: formData.hashtags.length > 0 ? formData.hashtags : undefined,
+          drole_score: formData.drole_score,
+          importance_score: formData.importance_score,
         }),
       })
 
@@ -73,9 +80,7 @@ export function StepPreview({ formData, onBack }: StepPreviewProps) {
         </div>
       )}
 
-      {error && (
-        <p className='text-sm text-destructive text-center'>{error}</p>
-      )}
+      {error && <p className='text-sm text-destructive text-center'>{error}</p>}
 
       <div className='flex gap-3'>
         <Button variant='ghost' onClick={onBack} disabled={loading} className='flex-1'>

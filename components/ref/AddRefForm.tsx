@@ -6,6 +6,7 @@ import { StepRef } from './steps/StepRef'
 import { StepDerives } from './steps/StepDerives'
 import { StepPreview } from './steps/StepPreview'
 import type { AddRefFormData } from '@/lib/types'
+import { BAROMETER_DEFAULT } from '@/lib/utils/barometers'
 import { cn } from '@/lib/utils'
 
 const INITIAL_FORM_DATA: AddRefFormData = {
@@ -17,6 +18,8 @@ const INITIAL_FORM_DATA: AddRefFormData = {
   tag_type_ref: null,
   tag_origine: null,
   tag_vibe: null,
+  drole_score: BAROMETER_DEFAULT,
+  importance_score: BAROMETER_DEFAULT,
   derives: [],
   hashtags: [],
 }
@@ -73,7 +76,9 @@ export function AddRefForm() {
               </div>
               {/* Connecteur centré sur le cercle (mt-3 = 12px = moitié de h-6) */}
               {index < STEPS.length - 1 && (
-                <div className={cn('h-px w-4 shrink-0 mt-3', isCompleted ? 'bg-stepper' : 'bg-border')} />
+                <div
+                  className={cn('h-px w-4 shrink-0 mt-3', isCompleted ? 'bg-stepper' : 'bg-border')}
+                />
               )}
             </Fragment>
           )

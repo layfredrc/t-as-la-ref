@@ -9,6 +9,7 @@ import { MediaEmbed } from './MediaEmbed'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { LikeButton } from './LikeButton'
+import { BarometerReadout } from './Barometer'
 
 const scoreCultureLabel: Record<string, string> = {
   inconnu: 'Inconnu 🤷',
@@ -62,6 +63,8 @@ export function RefCard({ ref_data, isActive = true }: RefCardProps) {
               </Badge>
             )}
           </div>
+
+          <BarometerReadout drole={ref_data.drole_score} importance={ref_data.importance_score} />
 
           {ref_data.contexte && (
             <p className='text-sm text-[var(--fg)]/70 line-clamp-3'>{ref_data.contexte}</p>
