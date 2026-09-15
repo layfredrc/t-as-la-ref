@@ -33,9 +33,9 @@ export function CommentSection({ refId, commentsCount }: CommentSectionProps) {
   return (
     <section id='comments' className='flex flex-col gap-6 scroll-mt-8'>
       <div className='flex items-center gap-2'>
-        <MessageCircle className='w-5 h-5 text-[var(--fg)]' />
-        <h2 className='font-rader uppercase text-2xl leading-[0.95] text-[var(--fg)]'>Le débat</h2>
-        <span className='font-supplymono text-sm text-[var(--fg)]/60 tabular-nums'>({total})</span>
+        <MessageCircle className='h-5 w-5 text-neon' />
+        <h2 className='font-rader text-2xl uppercase leading-[0.95] text-[var(--fg)]'>Le débat</h2>
+        <span className='font-supplymono text-sm tabular-nums text-neon'>({total})</span>
       </div>
 
       {profile ? (
@@ -94,7 +94,7 @@ export function CommentSection({ refId, commentsCount }: CommentSectionProps) {
               />
 
               {thread.replies.length > 0 && (
-                <ul className='ml-2 flex flex-col gap-3 border-l-2 border-black/15 pl-3 sm:ml-4 sm:pl-6'>
+                <ul className='ml-2 flex flex-col gap-3 border-l-2 border-neon-soft pl-3 sm:ml-4 sm:pl-6'>
                   {thread.replies.map((reply) => (
                     <li key={reply.id}>
                       <CommentRow comment={reply} refId={refId} canReply={false} />
@@ -147,7 +147,7 @@ function CommentRow({ comment, refId, canReply, onReply }: CommentRowProps) {
         {comment.author?.profile_picture && (
           <AvatarImage src={comment.author.profile_picture} alt={username} />
         )}
-        <AvatarFallback className='bg-[var(--accent5)] text-[var(--fg)] font-supplymono text-xs'>
+        <AvatarFallback className='bg-neon-gradient font-supplymono text-xs text-white'>
           {username.slice(0, 2).toUpperCase()}
         </AvatarFallback>
       </Avatar>
@@ -244,7 +244,7 @@ function CommentComposer({
             handleSubmit()
           }
         }}
-        className='border-2 border-black bg-[var(--bg2)] rounded-lg resize-none focus-visible:ring-[var(--accent5)]'
+        className='focus-neon resize-none rounded-lg border-2 border-black bg-[var(--bg2)] focus-visible:ring-0'
       />
 
       <div className='flex items-center justify-between gap-3'>
@@ -263,7 +263,15 @@ function CommentComposer({
               Annuler
             </Button>
           )}
-          <Button size='sm' onClick={handleSubmit} disabled={!canSubmit} className='rounded-lg'>
+          <Button
+            size='sm'
+            onClick={handleSubmit}
+            disabled={!canSubmit}
+            className={cn(
+              'rounded-lg border-2 border-black transition-all',
+              canSubmit && 'bg-neon-gradient text-white hover:scale-105 hover:opacity-90',
+            )}
+          >
             {addComment.isPending ? 'Envoi…' : 'Envoyer'}
           </Button>
         </div>

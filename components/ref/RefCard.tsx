@@ -81,34 +81,36 @@ export function RefCard({ ref_data, isActive = true }: RefCardProps) {
         <MediaEmbed url={ref_data.media_url} mediaType={ref_data.media_type} playing={isActive} />
       )}
 
-      {/* Right action panel */}
-      <div className='absolute right-4 xl:right-12 bottom-8 z-20 flex flex-col gap-6 p-3 rounded-2xl bg-black/40 backdrop-blur-md border border-white/20 shadow-xl'>
+      {/* Right action panel — barre en verre, icônes pleines façon Instagram */}
+      <div className='glass absolute right-4 bottom-8 z-20 flex flex-col gap-6 rounded-2xl p-3 xl:right-12'>
         <LikeButton refId={ref_data.id} initialCount={ref_data.likes_count} variant='overlay' />
 
         <Link href={`/ref/${ref_data.slug}#comments`} aria-label='Voir le débat'>
-          <div className='flex flex-col gap-1 items-center'>
-            <div className='w-11 h-11 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-all hover:scale-110'>
-              <MessageCircle className='w-5 h-5 text-white' />
+          <div className='flex flex-col items-center gap-1'>
+            <div className='flex h-11 w-11 items-center justify-center rounded-full transition-all hover:scale-110 hover:bg-white/15'>
+              <MessageCircle className='h-7 w-7 fill-white text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.45)]' />
             </div>
-            <span className='text-white text-xs font-supplymono tabular-nums'>
+            <span className='font-supplymono text-xs tabular-nums text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.45)]'>
               {ref_data.comments_count}
             </span>
           </div>
         </Link>
 
         <Link href={`/ref/${ref_data.slug}`}>
-          <div className='flex flex-col gap-1 items-center'>
-            <div className='w-11 h-11 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-all hover:scale-110'>
+          <div className='flex flex-col items-center gap-1'>
+            <div className='flex h-11 w-11 items-center justify-center rounded-full transition-all hover:scale-110 hover:bg-white/15'>
               <Image
                 src='/logo-white.png'
                 alt='logo'
                 width={36}
                 height={36}
-                className='rounded-xl'
+                className='rounded-xl drop-shadow-[0_1px_3px_rgba(0,0,0,0.45)]'
                 priority
               />
             </div>
-            <span className='text-white text-xs font-supplymono'>Découvrir</span>
+            <span className='font-supplymono text-xs text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.45)]'>
+              Découvrir
+            </span>
           </div>
         </Link>
       </div>
