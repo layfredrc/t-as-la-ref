@@ -1,0 +1,322 @@
+[
+  {
+    "slug": "mais-c-est-pas-faux",
+    "titre": "Mais c'est pas faux",
+    "media_url": "",
+    "media_type": "youtube",
+    "contexte": "Perceval face à un mot qu'il ne comprend pas. La parade universelle quand on n'a pas suivi la conversation mais qu'on refuse de l'admettre.",
+    "score_culture": "cultissime",
+    "drole_score": 4,
+    "importance_score": 5,
+    "tags": {
+      "type_ref": "phrase-punchline",
+      "origine": "frenchcore",
+      "vibe": "intergenerationnel"
+    },
+    "hashtags": [
+      "kaamelott",
+      "perceval",
+      "replique"
+    ]
+  },
+  {
+    "slug": "le-gras-c-est-la-vie",
+    "titre": "Le gras c'est la vie",
+    "media_url": "",
+    "media_type": "youtube",
+    "contexte": "La profession de foi de Karadoc. Sortie à table, elle clôt tout débat diététique depuis bientôt vingt ans.",
+    "score_culture": "cultissime",
+    "drole_score": 4,
+    "importance_score": 4,
+    "tags": {
+      "type_ref": "phrase-punchline",
+      "origine": "frenchcore",
+      "vibe": "intergenerationnel"
+    },
+    "hashtags": [
+      "kaamelott",
+      "karadoc",
+      "bouffe"
+    ]
+  },
+  {
+    "slug": "on-en-a-gros",
+    "titre": "On en a gros !",
+    "media_url": "",
+    "media_type": "youtube",
+    "contexte": "Le cri du cœur de Perceval, devenu l'expression par défaut du ras-le-bol collectif français.",
+    "score_culture": "cultissime",
+    "drole_score": 5,
+    "importance_score": 5,
+    "tags": {
+      "type_ref": "phrase-punchline",
+      "origine": "frenchcore",
+      "vibe": "intergenerationnel"
+    },
+    "hashtags": [
+      "kaamelott",
+      "perceval",
+      "ralebol"
+    ]
+  },
+  {
+    "slug": "nan-mais-allo-quoi",
+    "titre": "Nan mais allô quoi",
+    "media_url": "",
+    "media_type": "youtube",
+    "contexte": "Nabilla, Les Anges, 2013. Le shampoing qui a traversé la décennie et fait entrer la téléréalité dans le langage courant.",
+    "score_culture": "cultissime",
+    "drole_score": 4,
+    "importance_score": 5,
+    "tags": {
+      "type_ref": "phrase-punchline",
+      "origine": "tv-medias",
+      "vibe": "millennial"
+    },
+    "hashtags": [
+      "nabilla",
+      "telerealite",
+      "2013"
+    ]
+  },
+  {
+    "slug": "djadja",
+    "titre": "Djadja",
+    "media_url": "https://www.youtube.com/watch?v=iPGgnzc34tY",
+    "media_type": "youtube",
+    "contexte": "Aya Nakamura, 2018. « Pookie » et « catchez-moi » sont sortis du morceau pour entrer dans la conversation, jusque dans les cours de récré.",
+    "score_culture": "cultissime",
+    "drole_score": 3,
+    "importance_score": 5,
+    "tags": {
+      "type_ref": "son-musique",
+      "origine": "rap-musique",
+      "vibe": "gen-z"
+    },
+    "hashtags": [
+      "ayanakamura",
+      "pookie",
+      "2018"
+    ]
+  },
+  {
+    "slug": "tchikita",
+    "titre": "Tchikita",
+    "media_url": "",
+    "media_type": "youtube",
+    "contexte": "Jul et son clip tourné à l'arrache. La preuve qu'on peut devenir un monument sans jamais passer par la case sérieux.",
+    "score_culture": "cultissime",
+    "drole_score": 4,
+    "importance_score": 4,
+    "tags": {
+      "type_ref": "son-musique",
+      "origine": "rap-musique",
+      "vibe": "gen-z"
+    },
+    "hashtags": [
+      "jul",
+      "marseille",
+      "clip"
+    ]
+  },
+  {
+    "slug": "bref",
+    "titre": "Bref.",
+    "media_url": "",
+    "media_type": "youtube",
+    "contexte": "Canal+, 2011. Le format court qui a inventé une grammaire — montage cut, voix off au présent — recopiée partout depuis.",
+    "score_culture": "cultissime",
+    "drole_score": 4,
+    "importance_score": 5,
+    "tags": {
+      "type_ref": "format-meme",
+      "origine": "tv-medias",
+      "vibe": "millennial"
+    },
+    "hashtags": [
+      "bref",
+      "canalplus",
+      "2011"
+    ]
+  },
+  {
+    "slug": "joueur-du-grenier",
+    "titre": "Le Joueur du Grenier",
+    "media_url": "",
+    "media_type": "youtube",
+    "contexte": "Frédéric Molas hurlant sur un jeu raté. La colère vidéoludique en français, matrice de tout un pan de YouTube FR.",
+    "score_culture": "cultissime",
+    "drole_score": 5,
+    "importance_score": 4,
+    "tags": {
+      "type_ref": "scene-culte",
+      "origine": "internet-pur",
+      "vibe": "millennial"
+    },
+    "hashtags": [
+      "jdg",
+      "retrogaming",
+      "youtubefr"
+    ]
+  },
+  {
+    "slug": "very-bad-blagues",
+    "titre": "Very Bad Blagues",
+    "media_url": "",
+    "media_type": "youtube",
+    "contexte": "Le Palmashow et le format sketch à deux. Chaque punchline a fini en citation de groupe WhatsApp.",
+    "score_culture": "cultissime",
+    "drole_score": 5,
+    "importance_score": 4,
+    "tags": {
+      "type_ref": "format-meme",
+      "origine": "tv-medias",
+      "vibe": "millennial"
+    },
+    "hashtags": [
+      "palmashow",
+      "sketch",
+      "vbb"
+    ]
+  },
+  {
+    "slug": "rap-tout-les-inconnus",
+    "titre": "Rap Tout",
+    "media_url": "",
+    "media_type": "youtube",
+    "contexte": "Les Inconnus, 1991. La parodie de rap qui a paradoxalement fait découvrir le genre à une génération de parents.",
+    "score_culture": "cultissime",
+    "drole_score": 4,
+    "importance_score": 5,
+    "tags": {
+      "type_ref": "scene-culte",
+      "origine": "tv-medias",
+      "vibe": "intergenerationnel"
+    },
+    "hashtags": [
+      "lesinconnus",
+      "1991",
+      "parodie"
+    ]
+  },
+  {
+    "slug": "panama-mister-v",
+    "titre": "Panama",
+    "media_url": "",
+    "media_type": "youtube",
+    "contexte": "Mister V passe de YouTube au rap et assume la blague jusqu'au bout. Le pont entre deux mondes qui ne se parlaient pas.",
+    "score_culture": "gen-z",
+    "drole_score": 3,
+    "importance_score": 3,
+    "tags": {
+      "type_ref": "son-musique",
+      "origine": "rap-musique",
+      "vibe": "gen-z"
+    },
+    "hashtags": [
+      "misterv",
+      "youtubefr",
+      "rap"
+    ]
+  },
+  {
+    "slug": "qui-est-l-imposteur",
+    "titre": "Qui est l'imposteur ?",
+    "media_url": "",
+    "media_type": "youtube",
+    "contexte": "Squeezie et le format jeu entre créateurs. La mécanique a été reprise par la moitié du YouTube francophone.",
+    "score_culture": "gen-z",
+    "drole_score": 4,
+    "importance_score": 4,
+    "tags": {
+      "type_ref": "format-meme",
+      "origine": "internet-pur",
+      "vibe": "gen-z"
+    },
+    "hashtags": [
+      "squeezie",
+      "youtubefr",
+      "jeu"
+    ]
+  },
+  {
+    "slug": "ah-que-coucou",
+    "titre": "Ah que coucou",
+    "media_url": "",
+    "media_type": "youtube",
+    "contexte": "La Cité de la peur, 1994. Les Nuls ont laissé une réplique que personne ne sait plus situer mais que tout le monde ressort.",
+    "score_culture": "cultissime",
+    "drole_score": 4,
+    "importance_score": 4,
+    "tags": {
+      "type_ref": "phrase-punchline",
+      "origine": "tv-medias",
+      "vibe": "intergenerationnel"
+    },
+    "hashtags": [
+      "lesnuls",
+      "citedelapeur",
+      "1994"
+    ]
+  },
+  {
+    "slug": "c-est-pas-des-lol",
+    "titre": "C'est pas des LOL",
+    "media_url": "",
+    "media_type": "youtube",
+    "contexte": "L'expression sortie du gaming FR pour dire qu'on ne plaisante plus. Passée du vocal Discord à la vraie vie.",
+    "score_culture": "gen-z",
+    "drole_score": 3,
+    "importance_score": 3,
+    "tags": {
+      "type_ref": "reaction",
+      "origine": "gaming",
+      "vibe": "gen-z"
+    },
+    "hashtags": [
+      "gaming",
+      "discord",
+      "vocal"
+    ]
+  },
+  {
+    "slug": "la-boule-de-feu",
+    "titre": "La boule de feu de Koh-Lanta",
+    "media_url": "",
+    "media_type": "youtube",
+    "contexte": "L'épreuve du feu et les commentaires de Denis Brogniart. Le « ALORS ADRIEN ? » est devenu un format de réaction à lui seul.",
+    "score_culture": "cultissime",
+    "drole_score": 4,
+    "importance_score": 4,
+    "tags": {
+      "type_ref": "scene-culte",
+      "origine": "tv-medias",
+      "vibe": "intergenerationnel"
+    },
+    "hashtags": [
+      "kohlanta",
+      "brogniart",
+      "alorsadrien"
+    ]
+  },
+  {
+    "slug": "wesh-alors",
+    "titre": "Wesh alors",
+    "media_url": "",
+    "media_type": "youtube",
+    "contexte": "L'interpellation passe-partout de la rue française. Un mot d'arabe dialectal devenu ponctuation nationale.",
+    "score_culture": "gen-z",
+    "drole_score": 3,
+    "importance_score": 4,
+    "tags": {
+      "type_ref": "reaction",
+      "origine": "irl-rue",
+      "vibe": "intergenerationnel"
+    },
+    "hashtags": [
+      "wesh",
+      "rue",
+      "argot"
+    ]
+  }
+]

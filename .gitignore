@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Seed généré depuis supabase/seed-refs.json (npm run seed:build)
+# Non versionné tant que les URLs ne sont pas validées localement.
+supabase/seed_refs.sql
