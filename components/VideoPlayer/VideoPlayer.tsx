@@ -1,5 +1,6 @@
 'use client'
 
+import type { RefObject } from 'react'
 import ReactPlayer from 'react-player'
 import 'youtube-video-element'
 import 'tiktok-video-element'
@@ -12,12 +13,20 @@ type ShortsPlayerProps = {
   title?: string
   music?: string
   className?: string
+  /**
+   * Accès direct à l'élément média. Indispensable sur mobile : le play doit
+   * partir du handler de tap lui-même pour rester un « user gesture » aux
+   * yeux du navigateur — une prop React appliquée plus tard par un effet
+   * perd cette qualité et la lecture est refusée.
+   */
+  playerRef?: RefObject<HTMLVideoElement | null>
 }
 
 export const VideoPlayer = ({
   url,
   playing: externalPlaying = false,
   className,
+  playerRef,
 }: ShortsPlayerProps) => {
   return (
     <div
@@ -28,6 +37,7 @@ export const VideoPlayer = ({
     >
       {/* Video */}
       <ReactPlayer
+        ref={playerRef}
         src={url}
         playing={externalPlaying}
         loop

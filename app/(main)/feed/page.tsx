@@ -89,7 +89,12 @@ export default function FeedPage() {
         >
           {refs.map((ref, index) => (
             <SwiperSlide key={ref.id}>
-              <RefCard ref_data={ref} isActive={index === activeIndex} />
+              <RefCard
+                ref_data={ref}
+                isActive={index === activeIndex}
+                onSwipeUp={goNext}
+                onSwipeDown={() => swiper?.slidePrev()}
+              />
             </SwiperSlide>
           ))}
 

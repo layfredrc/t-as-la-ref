@@ -1,5 +1,6 @@
 'use client'
 
+import type { RefObject } from 'react'
 import { AlertTriangle, MapPin, ExternalLink } from 'lucide-react'
 import type { MediaType } from '@/lib/types'
 import { VideoPlayer } from '@/components/VideoPlayer/VideoPlayer'
@@ -146,14 +147,18 @@ type MediaEmbedProps = {
   mediaType: MediaType
   playing?: boolean
   className?: string
+  /** Transmis au lecteur vidéo pour le contrôle direct (voir VideoPlayer). */
+  playerRef?: RefObject<HTMLVideoElement | null>
 }
 
-export function MediaEmbed({ url, mediaType, playing, className }: MediaEmbedProps) {
+export function MediaEmbed({ url, mediaType, playing, className, playerRef }: MediaEmbedProps) {
   switch (mediaType) {
     case 'youtube':
     case 'tiktok':
     case 'video':
-      return <VideoPlayer url={url} playing={playing} className={className} />
+      return (
+        <VideoPlayer url={url} playing={playing} className={className} playerRef={playerRef} />
+      )
 
     case 'twitter':
       return <TweetEmbed url={url} className={className} />

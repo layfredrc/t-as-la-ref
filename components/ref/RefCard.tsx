@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { ChevronDown, ChevronUp, MessageCircle, Play, PlusCircle } from 'lucide-react'
 import type { AddRefFormData, Ref, Tag, TagsByType } from '@/lib/types'
 import { mediaTypeLabels } from '@/lib/utils/detectMediaType'
@@ -22,9 +22,15 @@ const scoreCultureLabel: Record<string, string> = {
 type RefCardProps = {
   ref_data: Ref
   isActive?: boolean
+  /** Navigation pilotée depuis le feed — voir le capteur de gestes. */
+  onSwipeUp?: () => void
+  onSwipeDown?: () => void
 }
 
-export function RefCard({ ref_data, isActive = true }: RefCardProps) {
+/** Déplacement minimum, en px, pour qu'un geste compte comme un swipe. */
+const SWIPE_THRESHOLD = 60
+
+export function RefCard({ ref_data, isActive = true, onSwipeUp, onSwipeDown }: RefCardProps) {
   const tagTypeRef = ref_data.tags?.find((t: Tag) => t.type === 'type_ref')
   const tagOrigine = ref_data.tags?.find((t: Tag) => t.type === 'origine')
   const tagVibe = ref_data.tags?.find((t: Tag) => t.type === 'vibe')
@@ -45,14 +51,61 @@ export function RefCard({ ref_data, isActive = true }: RefCardProps) {
     setPaused(false)
   }
 
+  const playerRef = useRef<HTMLVideoElement | null>(null)
+  const gestureStart = useRef<{ x: number; y: number } | null>(null)
+  // `touchend` produit aussi un `click` synthétique : sans ce drapeau, un
+  // seul tap déclenchait le play deux fois.
+  const handledByTouch = useRef(false)
+
   // Tap sur la vidéo : referme le panneau s'il est ouvert, sinon play/pause.
   // C'est le « quand on laisse, ça se replie ».
-  const handleSurfaceTap = () => {
+  const handleTap = () => {
     if (expanded) {
       setExpanded(false)
       return
     }
-    setPaused((value) => !value)
+
+    const media = playerRef.current
+    if (!media) return
+
+    // L'appel part d'ici, dans le handler du geste : c'est ce que le
+    // navigateur exige pour autoriser la lecture sur mobile.
+    if (media.paused) {
+      setPaused(false)
+      void media.play().catch(() => setPaused(true))
+    } else {
+      media.pause()
+      setPaused(true)
+    }
+  }
+
+  const handleTouchStart = (event: React.TouchEvent) => {
+    const touch = event.touches[0]
+    gestureStart.current = { x: touch.clientX, y: touch.clientY }
+  }
+
+  const handleTouchEnd = (event: React.TouchEvent) => {
+    const start = gestureStart.current
+    gestureStart.current = null
+    handledByTouch.current = true
+    if (!start) return
+
+    const touch = event.changedTouches[0]
+    const dx = touch.clientX - start.x
+    const dy = touch.clientY - start.y
+
+    // Geste horizontal dominant : ni swipe vertical, ni tap.
+    if (Math.abs(dx) > Math.abs(dy)) return
+
+    if (dy <= -SWIPE_THRESHOLD) {
+      onSwipeUp?.()
+      return
+    }
+    if (dy >= SWIPE_THRESHOLD) {
+      onSwipeDown?.()
+      return
+    }
+    handleTap()
   }
 
   return (
@@ -66,6 +119,7 @@ export function RefCard({ ref_data, isActive = true }: RefCardProps) {
           url={ref_data.media_url}
           mediaType={ref_data.media_type}
           playing={isActive && !paused}
+          playerRef={playerRef}
         />
       )}
 
@@ -73,19 +127,40 @@ export function RefCard({ ref_data, isActive = true }: RefCardProps) {
         Capteur de gestes — mobile uniquement.
 
         Le player est un iframe cross-origin : ses touchmove ne franchissent
-        jamais la frontière du document, donc Swiper ne voyait aucun geste et
-        le feed était bloqué sur la première ref. Cette couche transparente
-        rend les gestes à Swiper (elle est dans notre DOM, ça bubble), et le
-        tap sert de play/pause.
+        jamais la frontière du document, donc Swiper ne voit aucun geste et le
+        feed reste bloqué sur la première ref.
 
-        Contrepartie assumée : sous le doigt, les contrôles natifs du player
-        ne sont plus atteignables sur mobile.
+        Première tentative : couche transparente et on laissait Swiper faire.
+        Ça marchait en test mais pas sur appareil réel, et surtout ça rendait
+        le play impossible — les contrôles du player passaient dessous.
+
+        Ici on ne délègue plus rien : `swiper-no-swiping` dit à Swiper
+        d'ignorer cette zone, on mesure le geste nous-mêmes et on appelle la
+        navigation ou le play/pause. Aucune dépendance à la façon dont les
+        événements traversent l'iframe.
       */}
-      <button
-        type='button'
+      <div
+        role='button'
+        tabIndex={0}
         aria-label={paused ? 'Reprendre la vidéo' : 'Mettre la vidéo en pause'}
-        onClick={handleSurfaceTap}
-        className='absolute inset-0 z-[5] cursor-default sm:hidden'
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        onClick={() => {
+          // Souris et clavier uniquement : le tactile est déjà passé par
+          // `onTouchEnd`, qui distingue le swipe du tap.
+          if (handledByTouch.current) {
+            handledByTouch.current = false
+            return
+          }
+          handleTap()
+        }}
+        onKeyDown={(event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault()
+            handleTap()
+          }
+        }}
+        className='swiper-no-swiping absolute inset-0 z-[5] sm:hidden'
       />
 
       {paused && (
