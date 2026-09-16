@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "verify:seed": "node scripts/verify-seed.mjs"
+    "seed:build": "node scripts/build-seed.mjs",
+    "seed:check": "node scripts/build-seed.mjs --check-only"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
