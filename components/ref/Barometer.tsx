@@ -147,39 +147,137 @@ export function ImportanceBarometer({ value, onChange }: BarometerProps) {
 
 // ─── Variante lecture seule (feed + page détail) ──────────────────────────────
 
+/**
+ * Jauge à 5 crans. Le baromètre du flow d'ajout se lit d'un coup d'œil parce
+ * qu'il a une piste graduée : la version lecture seule doit garder ce signal,
+ * sinon la note se réduit à une pastille qu'on ne repère plus dans la carte.
+ */
+function Track({ value, fill, size }: { value: BarometerScore; fill: string; size: Size }) {
+  return (
+    <span aria-hidden className='flex gap-[3px]'>
+      {[1, 2, 3, 4, 5].map((step) => (
+        <span
+          key={step}
+          className={cn(
+            'rounded-[2px] border border-black/80 transition-colors',
+            size === 'full' ? 'h-2.5 w-5' : 'h-2 w-3.5',
+            step <= value ? fill : 'bg-[var(--bg)]',
+          )}
+        />
+      ))}
+    </span>
+  )
+}
+
+type Size = 'compact' | 'full'
+
+function Gauge({
+  label,
+  emoji,
+  stepLabel,
+  value,
+  fill,
+  size,
+  badgeClassName,
+}: {
+  label: string
+  emoji: string
+  stepLabel: string
+  value: BarometerScore
+  fill: string
+  size: Size
+  /** Palier « importance » : le badge porte sa propre couleur de niveau. */
+  badgeClassName?: string
+}) {
+  return (
+    <div
+      className='flex flex-col gap-1'
+      role='img'
+      aria-label={`${label} ${value} sur 5 — ${stepLabel}`}
+    >
+      {size === 'full' && (
+        <span className='font-supplymono text-xs text-[var(--fg)]/70'>{label}</span>
+      )}
+
+      <div className='flex items-center gap-2'>
+        <span aria-hidden className={size === 'full' ? 'text-2xl' : 'text-lg'}>
+          {emoji}
+        </span>
+        <Track value={value} fill={fill} size={size} />
+        <span
+          className={cn(
+            'rounded-full border-2 border-black px-2 py-0.5 font-supplymono leading-none',
+            size === 'full' ? 'text-[11px]' : 'text-[10px]',
+            badgeClassName ?? 'bg-[var(--bg)] text-[var(--fg)]',
+          )}
+        >
+          {stepLabel}
+        </span>
+      </div>
+    </div>
+  )
+}
+
 type BarometerReadoutProps = {
   drole: number | null | undefined
   importance: number | null | undefined
+  /** `full` sur la page détail, `compact` dans le panneau du feed. */
+  variant?: Size
+  /** Nombre de votes derrière la moyenne — masqué si absent. */
+  votesCount?: number
   className?: string
 }
 
-export function BarometerReadout({ drole, importance, className }: BarometerReadoutProps) {
+export function BarometerReadout({
+  drole,
+  importance,
+  variant = 'compact',
+  votesCount,
+  className,
+}: BarometerReadoutProps) {
   const droleValue = clampScore(drole)
   const importanceValue = clampScore(importance)
   const droleStep = droleScale[droleValue]
   const importanceStep = importanceScale[importanceValue]
 
   return (
-    <div className={cn('flex flex-wrap items-center gap-2', className)}>
-      <span
-        className='flex items-center gap-1 rounded-full border-2 border-black bg-[var(--bg)] px-2 py-0.5 font-supplymono text-[11px] text-[var(--fg)]'
-        title={`Drôle : ${droleValue}/5 — ${droleStep.label}`}
-      >
-        <span role='img' aria-label={droleStep.label}>
-          {droleStep.emoji}
-        </span>
-        <span className='tabular-nums'>{droleValue}/5</span>
+    <div
+      className={cn(
+        'flex flex-col rounded-lg border-2 border-black bg-[var(--bg)] p-3',
+        variant === 'full' ? 'gap-4 p-4' : 'gap-2.5',
+        className,
+      )}
+    >
+      <span className='font-supplymono text-[10px] uppercase tracking-wider text-[var(--fg)]/60'>
+        Le baromètre
+        {typeof votesCount === 'number' && (
+          <span className='normal-case tracking-normal'>
+            {' · '}
+            {votesCount === 0
+              ? 'aucun vote'
+              : `${votesCount} vote${votesCount > 1 ? 's' : ''}`}
+          </span>
+        )}
       </span>
 
-      <span
-        className={cn(
-          'rounded-full border-2 border-black px-2 py-0.5 font-supplymono text-[11px]',
-          importanceStep.className,
-        )}
-        title={`Importance culturelle : ${importanceValue}/5`}
-      >
-        {importanceStep.label}
-      </span>
+      <Gauge
+        label="C'est drôle ?"
+        emoji={droleStep.emoji}
+        stepLabel={droleStep.label}
+        value={droleValue}
+        fill='bg-[var(--accent1)]'
+        size={variant}
+      />
+
+      <Gauge
+        label='Important dans la culture ?'
+        emoji='🏛️'
+        stepLabel={importanceStep.label}
+        value={importanceValue}
+        fill='bg-[var(--neon)]'
+        size={variant}
+        badgeClassName={importanceStep.className}
+      />
     </div>
   )
 }

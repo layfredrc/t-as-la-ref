@@ -8,8 +8,9 @@ import { MediaEmbed } from '@/components/ref/MediaEmbed'
 import { CommentSection } from '@/components/ref/CommentSection'
 import { LikeButton } from '@/components/ref/LikeButton'
 import { BarometerReadout } from '@/components/ref/Barometer'
+import { BarometerVote } from '@/components/ref/BarometerVote'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import type { MediaType, Tag } from '@/lib/types'
+import type { BarometerVote as BarometerVoteValue, MediaType, Tag } from '@/lib/types'
 import { mediaTypeLabels } from '@/lib/utils/detectMediaType'
 
 type Props = {
@@ -31,7 +32,7 @@ const tagColorByType: Record<Tag['type'], string> = {
 
 const REF_SELECT = `
   id, slug, titre, media_url, media_type, contexte, score_culture,
-  likes_count, comments_count, drole_score, importance_score, created_at, auteur_id,
+  likes_count, comments_count, drole_score, importance_score, votes_count, created_at, auteur_id,
   refs_tags ( tags ( id, label, emoji, type, slug ) ),
   ref_hashtags ( label )
 `
@@ -99,6 +100,24 @@ export default async function RefPage({ params }: Props) {
   if (!result) notFound()
 
   const { ref, tags, hashtags, author } = result
+
+  // Le vote de l'utilisateur courant est lu ici plutôt que côté client :
+  // le curseur affiche sa position dès le premier rendu, sans à-coup.
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  let myVote: BarometerVoteValue | null = null
+  if (user) {
+    const { data } = await supabase
+      .from('ref_votes')
+      .select('drole, importance')
+      .eq('ref_id', ref.id)
+      .eq('user_id', user.id)
+      .maybeSingle()
+    myVote = data ?? null
+  }
   const mediaLabel = mediaTypeLabels[ref.media_type as MediaType]
   const username = author?.username ?? 'anonyme'
 
@@ -134,7 +153,12 @@ export default async function RefPage({ params }: Props) {
             </span>
           </div>
 
-          <BarometerReadout drole={ref.drole_score} importance={ref.importance_score} />
+          <BarometerReadout
+            drole={ref.drole_score}
+            importance={ref.importance_score}
+            variant='compact'
+            votesCount={ref.votes_count}
+          />
 
           <div className='flex flex-wrap gap-2'>
             {tags.map((tag) => (
@@ -185,6 +209,17 @@ export default async function RefPage({ params }: Props) {
             ))}
           </div>
         )}
+
+        {/* ── Baromètre : vote de la communauté ────────────────── */}
+        <BarometerVote
+          refId={ref.id}
+          droleAverage={ref.drole_score}
+          importanceAverage={ref.importance_score}
+          votesCount={ref.votes_count ?? 0}
+          myVote={myVote}
+          isAuthenticated={user !== null}
+          loginHref={`/login?next=${encodeURIComponent(`/ref/${ref.slug}`)}`}
+        />
 
         {/* ── Auteur + actions ─────────────────────────────────── */}
         <div className='flex items-center justify-between gap-4 border-t-2 border-black/10 pt-6'>

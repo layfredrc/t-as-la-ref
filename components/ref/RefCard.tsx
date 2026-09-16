@@ -39,6 +39,12 @@ export function RefCard({ ref_data, isActive = true }: RefCardProps) {
             {ref_data.titre}
           </h1>
 
+          <BarometerReadout
+            drole={ref_data.drole_score}
+            importance={ref_data.importance_score}
+            variant='compact'
+          />
+
           <div className='flex items-center gap-2'>
             <span className='text-xs font-supplymono text-[var(--fg)]/70'>Score Culture 🔥</span>
             <Badge variant='secondary' className='text-xs'>
@@ -63,8 +69,6 @@ export function RefCard({ ref_data, isActive = true }: RefCardProps) {
               </Badge>
             )}
           </div>
-
-          <BarometerReadout drole={ref_data.drole_score} importance={ref_data.importance_score} />
 
           {ref_data.contexte && (
             <p className='hidden text-sm text-[var(--fg)]/70 line-clamp-3 sm:block'>
@@ -170,6 +174,12 @@ export function RefCardPreview({ formData, tags }: RefCardPreviewProps) {
         {formData.contexte && (
           <p className='text-sm text-muted-foreground line-clamp-3'>{formData.contexte}</p>
         )}
+
+        <BarometerReadout
+          drole={formData.drole_score}
+          importance={formData.importance_score}
+          variant='compact'
+        />
 
         {/* Tags */}
         <div className='flex flex-wrap gap-1.5'>

@@ -42,6 +42,20 @@ export interface LikeState {
   likes_count: number
 }
 
+/** Vote d'un utilisateur sur les deux baromètres d'une ref. */
+export interface BarometerVote {
+  drole: number
+  importance: number
+}
+
+/** Réponse de POST /api/refs/[id]/vote — vote posé + moyennes à jour. */
+export interface BarometerVoteState {
+  vote: BarometerVote
+  drole_score: number
+  importance_score: number
+  votes_count: number
+}
+
 export interface Ref {
   id: string
   slug: string
@@ -56,8 +70,11 @@ export interface Ref {
   created_at: string
   likes_count: number
   comments_count: number
+  /** Moyenne communautaire — voir migration 006. */
   drole_score: number
   importance_score: number
+  /** Absent des lectures qui ne le sélectionnent pas (feed). */
+  votes_count?: number
   tags?: Tag[]
   author?: RefAuthor | null
 }
