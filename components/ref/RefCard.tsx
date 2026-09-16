@@ -22,15 +22,9 @@ const scoreCultureLabel: Record<string, string> = {
 type RefCardProps = {
   ref_data: Ref
   isActive?: boolean
-  /** Navigation pilotée depuis le feed — voir le capteur de gestes. */
-  onSwipeUp?: () => void
-  onSwipeDown?: () => void
 }
 
-/** Déplacement minimum, en px, pour qu'un geste compte comme un swipe. */
-const SWIPE_THRESHOLD = 60
-
-export function RefCard({ ref_data, isActive = true, onSwipeUp, onSwipeDown }: RefCardProps) {
+export function RefCard({ ref_data, isActive = true }: RefCardProps) {
   const tagTypeRef = ref_data.tags?.find((t: Tag) => t.type === 'type_ref')
   const tagOrigine = ref_data.tags?.find((t: Tag) => t.type === 'origine')
   const tagVibe = ref_data.tags?.find((t: Tag) => t.type === 'vibe')
@@ -52,14 +46,15 @@ export function RefCard({ ref_data, isActive = true, onSwipeUp, onSwipeDown }: R
   }
 
   const playerRef = useRef<HTMLVideoElement | null>(null)
-  const gestureStart = useRef<{ x: number; y: number } | null>(null)
-  // `touchend` produit aussi un `click` synthétique : sans ce drapeau, un
-  // seul tap déclenchait le play deux fois.
-  const handledByTouch = useRef(false)
 
   // Tap sur la vidéo : referme le panneau s'il est ouvert, sinon play/pause.
   // C'est le « quand on laisse, ça se replie ».
-  const handleTap = () => {
+  const handleTap = (event: React.MouseEvent) => {
+    // Un drag se termine lui aussi par un `click`. Swiper le neutralise
+    // (`preventClicks`) dès qu'il a reconnu un swipe : sans ce garde-fou,
+    // chaque changement de ref basculerait aussi la lecture.
+    if (event.defaultPrevented) return
+
     if (expanded) {
       setExpanded(false)
       return
@@ -79,35 +74,6 @@ export function RefCard({ ref_data, isActive = true, onSwipeUp, onSwipeDown }: R
     }
   }
 
-  const handleTouchStart = (event: React.TouchEvent) => {
-    const touch = event.touches[0]
-    gestureStart.current = { x: touch.clientX, y: touch.clientY }
-  }
-
-  const handleTouchEnd = (event: React.TouchEvent) => {
-    const start = gestureStart.current
-    gestureStart.current = null
-    handledByTouch.current = true
-    if (!start) return
-
-    const touch = event.changedTouches[0]
-    const dx = touch.clientX - start.x
-    const dy = touch.clientY - start.y
-
-    // Geste horizontal dominant : ni swipe vertical, ni tap.
-    if (Math.abs(dx) > Math.abs(dy)) return
-
-    if (dy <= -SWIPE_THRESHOLD) {
-      onSwipeUp?.()
-      return
-    }
-    if (dy >= SWIPE_THRESHOLD) {
-      onSwipeDown?.()
-      return
-    }
-    handleTap()
-  }
-
   return (
     <div className='relative flex justify-center items-center w-full h-full overflow-hidden bg-[var(--bg)]'>
       {/* Ambient blur bg */}
@@ -120,47 +86,41 @@ export function RefCard({ ref_data, isActive = true, onSwipeUp, onSwipeDown }: R
           mediaType={ref_data.media_type}
           playing={isActive && !paused}
           playerRef={playerRef}
+          // Voir la couche de tap ci-dessous : c'est ce `pointer-events-none`
+          // qui débloque le swipe sur mobile.
+          className='pointer-events-none sm:pointer-events-auto'
         />
       )}
 
       {/*
-        Capteur de gestes — mobile uniquement.
+        Couche de tap — mobile uniquement.
 
-        Le player est un iframe cross-origin : ses touchmove ne franchissent
-        jamais la frontière du document, donc Swiper ne voit aucun geste et le
-        feed reste bloqué sur la première ref.
+        L'embed est un iframe cross-origin : un geste qui démarre au-dessus de
+        lui reste dans le document de l'iframe. Swiper ne voyait donc jamais le
+        swipe et le feed restait collé à la première ref.
 
-        Première tentative : couche transparente et on laissait Swiper faire.
-        Ça marchait en test mais pas sur appareil réel, et surtout ça rendait
-        le play impossible — les contrôles du player passaient dessous.
+        Les deux tentatives précédentes posaient ici une couche opaque aux
+        gestes (`swiper-no-swiping`) et remesuraient le swipe à la main depuis
+        `touchstart` / `touchend`. Ça passe en émulation, pas sur un vrai
+        téléphone : un geste tactile y est régulièrement interrompu
+        (`touchcancel` — reprise du scroll par le navigateur, rejet de paume,
+        passage au-dessus de l'iframe) et, sans `touchend`, le recognizer
+        maison laissait tomber le swipe sans rien dire.
 
-        Ici on ne délègue plus rien : `swiper-no-swiping` dit à Swiper
-        d'ignorer cette zone, on mesure le geste nous-mêmes et on appelle la
-        navigation ou le play/pause. Aucune dépendance à la façon dont les
-        événements traversent l'iframe.
+        On ne remesure plus rien : `pointer-events-none` sur l'embed (voir
+        `MediaEmbed` au-dessus) sort l'iframe du hit-testing, le geste atteint
+        la slide, et Swiper le traite nativement — suivi du doigt, inertie,
+        seuil, et annulation du geste qu'il écoute déjà (`touchcancel`,
+        `pointercancel`).
+
+        Il ne reste ici qu'une cible de tap pour le play/pause. Pas de
+        `swiper-no-swiping` : Swiper doit continuer à voir le geste passer.
       */}
-      <div
-        role='button'
-        tabIndex={0}
+      <button
+        type='button'
         aria-label={paused ? 'Reprendre la vidéo' : 'Mettre la vidéo en pause'}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-        onClick={() => {
-          // Souris et clavier uniquement : le tactile est déjà passé par
-          // `onTouchEnd`, qui distingue le swipe du tap.
-          if (handledByTouch.current) {
-            handledByTouch.current = false
-            return
-          }
-          handleTap()
-        }}
-        onKeyDown={(event) => {
-          if (event.key === 'Enter' || event.key === ' ') {
-            event.preventDefault()
-            handleTap()
-          }
-        }}
-        className='swiper-no-swiping absolute inset-0 z-[5] sm:hidden'
+        onClick={handleTap}
+        className='absolute inset-0 z-[5] sm:hidden'
       />
 
       {paused && (

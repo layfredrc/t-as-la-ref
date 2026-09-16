@@ -73,14 +73,21 @@ export default function FeedPage() {
     <>
       <OnboardingGuard />
 
-      <div className='relative h-[calc(100dvh-4rem)] md:h-dvh'>
+      {/*
+        `data-lenis-prevent` : Lenis enveloppe toute l'app (voir
+        `client-layout.tsx`) et, avec `syncTouch`, il capte les gestes
+        verticaux pour animer son propre scroll. Sur mobile il entrait donc en
+        concurrence directe avec le swipe du feed. L'attribut le fait passer
+        son tour sur cette zone — le geste appartient à Swiper.
+      */}
+      <div data-lenis-prevent className='relative h-[calc(100dvh-4rem)] md:h-dvh'>
         <Swiper
           direction='vertical'
           slidesPerView={1}
           mousewheel
           keyboard={{ enabled: true }}
-          // Swiper annule le touchstart par défaut, ce qui supprime le click
-          // synthétique : le tap play/pause de la RefCard ne partait jamais.
+          // Swiper annule le pointerdown par défaut, ce qui supprime le click
+          // qui suit : le tap play/pause de la RefCard ne partait jamais.
           touchStartPreventDefault={false}
           modules={[Mousewheel, Keyboard]}
           className='h-full'
@@ -89,12 +96,7 @@ export default function FeedPage() {
         >
           {refs.map((ref, index) => (
             <SwiperSlide key={ref.id}>
-              <RefCard
-                ref_data={ref}
-                isActive={index === activeIndex}
-                onSwipeUp={goNext}
-                onSwipeDown={() => swiper?.slidePrev()}
-              />
+              <RefCard ref_data={ref} isActive={index === activeIndex} />
             </SwiperSlide>
           ))}
 
