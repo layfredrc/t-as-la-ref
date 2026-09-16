@@ -32,39 +32,63 @@ export function RefCard({ ref_data, isActive = true }: RefCardProps) {
       {/* Ambient blur bg */}
       <div className='absolute inset-0 backdrop-blur-xl bg-[var(--bg2)]/60 pointer-events-none z-0' />
 
-      {/* Left info panel */}
-      <div className='absolute bottom-24 left-4 right-20 z-10 flex flex-col gap-4 sm:bottom-auto sm:top-6 sm:left-6 sm:right-auto sm:w-[260px] xl:left-12 xl:w-[300px]'>
-        <div className='border-2 border-black rounded-lg bg-[var(--bg2)] p-4 space-y-4'>
-          <h1 className='text-3xl xl:text-4xl font-rader uppercase leading-[0.95] text-[var(--fg)]'>
-            {ref_data.titre}
-          </h1>
+      {/*
+        Mobile : dégradé plutôt que carte opaque. Le texte se pose SUR la
+        vidéo au lieu de la masquer — même logique que la barre d'actions,
+        qui est déjà en blanc + drop-shadow. À partir de `sm`, la carte
+        opaque d'origine reprend la main.
+      */}
+      <div
+        aria-hidden
+        className='pointer-events-none absolute inset-x-0 bottom-0 z-10 h-2/5 bg-gradient-to-t from-black/85 via-black/45 to-transparent sm:hidden'
+      />
+
+      {/*
+        `right-[116px]` réserve la largeur réelle de la barre d'actions,
+        mesurée à 91px (le libellé « Découvrir » l'élargit au-delà des
+        icônes) + 16px de marge + 9px de respiration. Avec `right-20` la
+        carte passait dessous, et la barre étant en z-20, elle la recouvrait.
+      */}
+      <div className='absolute bottom-6 left-4 right-[116px] z-10 flex flex-col gap-3 sm:bottom-auto sm:left-6 sm:right-auto sm:top-6 sm:w-[260px] sm:gap-4 xl:left-12 xl:w-[300px]'>
+        <div className='flex flex-col gap-3 sm:gap-4 sm:rounded-lg sm:border-2 sm:border-black sm:bg-[var(--bg2)] sm:p-4'>
+          <Link href={`/ref/${ref_data.slug}`}>
+            <h1 className='line-clamp-2 font-rader text-2xl uppercase leading-[0.95] text-white drop-shadow-[0_2px_6px_rgba(20,20,20,0.75)] sm:line-clamp-none sm:text-3xl sm:text-[var(--fg)] sm:drop-shadow-none xl:text-4xl'>
+              {ref_data.titre}
+            </h1>
+          </Link>
 
           <BarometerReadout
             drole={ref_data.drole_score}
             importance={ref_data.importance_score}
             variant='compact'
+            votesCount={ref_data.votes_count}
           />
 
           <div className='flex items-center gap-2'>
-            <span className='text-xs font-supplymono text-[var(--fg)]/70'>Score Culture 🔥</span>
+            {/* Le libellé disparaît sur mobile : le badge se suffit. */}
+            <span className='hidden text-xs font-supplymono text-[var(--fg)]/70 sm:inline'>
+              Score Culture 🔥
+            </span>
             <Badge variant='secondary' className='text-xs'>
               {scoreCultureLabel[ref_data.score_culture] ?? ref_data.score_culture}
             </Badge>
           </div>
 
-          <div className='flex flex-row flex-wrap gap-2'>
+          {/* Une seule ligne défilante sur mobile : trois tags qui passent à
+              la ligne, c'est 60px de vidéo masquée en plus. */}
+          <div className='no-scrollbar flex flex-row gap-2 overflow-x-auto sm:flex-wrap sm:overflow-visible'>
             {tagTypeRef && (
-              <Badge className='bg-[var(--accent1)] text-[var(--fg)]'>
+              <Badge className='shrink-0 bg-[var(--accent1)] text-[var(--fg)]'>
                 {tagTypeRef.emoji} {tagTypeRef.label}
               </Badge>
             )}
             {tagOrigine && (
-              <Badge className='bg-[var(--accent5)] text-[var(--fg)]'>
+              <Badge className='shrink-0 bg-[var(--accent5)] text-[var(--fg)]'>
                 {tagOrigine.emoji} {tagOrigine.label}
               </Badge>
             )}
             {tagVibe && (
-              <Badge className='bg-[var(--accent3)] text-[var(--fg)]'>
+              <Badge className='shrink-0 bg-[var(--accent3)] text-[var(--fg)]'>
                 {tagVibe.emoji} {tagVibe.label}
               </Badge>
             )}
@@ -76,7 +100,9 @@ export function RefCard({ ref_data, isActive = true }: RefCardProps) {
             </p>
           )}
 
-          <Link href={`/ref/${ref_data.slug}`}>
+          {/* Sur mobile le CTA ferait 48px de plus : « Découvrir » dans la
+              barre d'actions et le titre cliquable mènent au même endroit. */}
+          <Link href={`/ref/${ref_data.slug}`} className='hidden sm:block'>
             <Button size='sm' className='rounded-lg w-full'>
               <PlusCircle className='w-4 h-4' />
               Enrichir la ref

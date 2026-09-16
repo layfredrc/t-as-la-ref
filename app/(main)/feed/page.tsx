@@ -99,8 +99,10 @@ export default function FeedPage() {
           )}
         </Swiper>
 
-        {/* Navigation arrows — centered vertically on the right */}
-        <div className='absolute right-4 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-3'>
+        {/* Navigation arrows — centered vertically on the right.
+            Masquées sur mobile : elles tombaient pile sur la barre d'actions
+            (même `right-4`), et le swipe les rend inutiles au doigt. */}
+        <div className='absolute right-4 top-1/2 z-30 hidden -translate-y-1/2 flex-col gap-3 sm:flex'>
           <button
             onClick={() => swiper?.slidePrev()}
             disabled={activeIndex === 0}

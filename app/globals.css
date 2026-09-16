@@ -411,6 +411,15 @@
     letter-spacing: var(--track-tightish);
   }
 
+  /* Rangée défilante sans barre visible — tags du feed sur mobile */
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
   /* shadow recto "badge" (équivalent -8px 8px 0 #000) */
   .shadow-badge {
     box-shadow: -8px 8px 0 #000;
