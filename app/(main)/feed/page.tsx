@@ -79,6 +79,9 @@ export default function FeedPage() {
           slidesPerView={1}
           mousewheel
           keyboard={{ enabled: true }}
+          // Swiper annule le touchstart par défaut, ce qui supprime le click
+          // synthétique : le tap play/pause de la RefCard ne partait jamais.
+          touchStartPreventDefault={false}
           modules={[Mousewheel, Keyboard]}
           className='h-full'
           onSwiper={setSwiper}

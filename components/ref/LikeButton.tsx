@@ -76,7 +76,7 @@ export function LikeButton({ refId, initialCount, variant = 'overlay' }: LikeBut
         aria-pressed={liked}
         aria-label={liked ? 'Retirer le like' : 'Liker cette ref'}
         className={cn(
-          'relative flex h-11 w-11 items-center justify-center rounded-full transition-all hover:scale-110 active:scale-95',
+          'relative flex h-9 w-9 items-center justify-center rounded-full transition-all hover:scale-110 active:scale-95 sm:h-11 sm:w-11',
           // Le fond reste neutre dans les deux variantes : c'est l'icône qui
           // porte la couleur, comme sur Instagram.
           isOverlay
@@ -87,7 +87,7 @@ export function LikeButton({ refId, initialCount, variant = 'overlay' }: LikeBut
         <Heart
           className={cn(
             'transition-all duration-200',
-            isOverlay ? 'h-7 w-7 drop-shadow-[0_1px_3px_rgba(0,0,0,0.45)]' : 'h-5 w-5',
+            isOverlay ? 'h-6 w-6 drop-shadow-[0_1px_3px_rgba(0,0,0,0.45)] sm:h-7 sm:w-7' : 'h-5 w-5',
             liked
               ? 'scale-110 fill-[var(--accent1)] text-[var(--accent1)]'
               : isOverlay

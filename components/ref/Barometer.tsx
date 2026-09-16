@@ -169,7 +169,7 @@ function Track({ value, fill, size }: { value: BarometerScore; fill: string; siz
   )
 }
 
-type Size = 'compact' | 'full'
+type Size = 'mini' | 'compact' | 'full'
 
 function Gauge({
   label,
@@ -239,6 +239,29 @@ export function BarometerReadout({
   const importanceValue = clampScore(importance)
   const droleStep = droleScale[droleValue]
   const importanceStep = importanceScale[importanceValue]
+
+  // `mini` : une seule ligne, pour l'état replié du feed mobile. Pas de
+  // piste graduée — à cette taille elle ne se lit plus, seul le chiffre parle.
+  if (variant === 'mini') {
+    return (
+      <span
+        className={cn(
+          'flex w-fit items-center gap-1.5 rounded-full border-2 border-black bg-[var(--bg)] px-2.5 py-1 font-supplymono text-[11px] text-[var(--fg)]',
+          className,
+        )}
+        role='img'
+        aria-label={`Drôle ${droleValue} sur 5, importance ${importanceValue} sur 5 — ${importanceStep.label}`}
+      >
+        <span aria-hidden>{droleStep.emoji}</span>
+        <span className='tabular-nums'>{droleValue}/5</span>
+        <span aria-hidden className='text-[var(--fg)]/30'>
+          ·
+        </span>
+        <span aria-hidden>🏛️</span>
+        <span className='tabular-nums'>{importanceValue}/5</span>
+      </span>
+    )
+  }
 
   return (
     <div
