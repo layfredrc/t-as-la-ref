@@ -6,7 +6,12 @@ import type { Config } from 'react-player/types'
 import 'youtube-video-element'
 import 'tiktok-video-element'
 import type { MediaType } from '@/lib/types'
-import { applyMutedTo, pilotableParApi, type MediaElement } from '@/lib/utils/playerSound'
+import {
+  commanderSon,
+  pilotableParApi,
+  sonObserve,
+  type MediaElement,
+} from '@/lib/utils/playerSound'
 import { cn } from '@/lib/utils'
 
 /**
@@ -95,31 +100,32 @@ export const VideoPlayer = ({
   const nodeRef = useRef<MediaElement | null>(null)
 
   /**
-   * Génération de l'iframe, pour les lecteurs dont l'API ignore le son.
+   * Génération de l'iframe, dernier recours quand le lecteur refuse l'ordre.
    *
-   * TikTok ne répond pas à un `unMute` venu de la page : son web component
-   * poste bien le message, le player ne l'applique pas. Le seul levier qui
-   * reste est l'URL de l'iframe, lue au montage — donc reconstruire l'élément.
-   * Le compteur entre dans la `key` de `ReactPlayer` : l'incrémenter remplace
-   * l'iframe par une neuve, en autoplay sonore.
+   * L'état du son ne se change normalement pas en rechargeant quoi que ce
+   * soit : on commande le lecteur, il obéit. Mais TikTok ignore parfois
+   * `unMute` venu de la page, et le seul levier qui reste est alors l'URL de
+   * l'iframe, lue au montage. Le compteur entre dans la `key` de
+   * `ReactPlayer` : l'incrémenter remplace l'iframe par une neuve, en autoplay
+   * sonore.
    *
-   * Contrepartie assumée : la vidéo repart du début. Une seule fois, au
-   * premier passage au son — les bascules suivantes ne changent plus la
-   * génération, puisqu'elle mémorise ce qui a déjà été monté.
+   * Contrepartie : la vidéo repart du début. C'est pour ça que ce n'est plus
+   * systématique — la version précédente remontait l'iframe dès qu'une ref
+   * TikTok s'affichait avec le son actif, soit un rechargement visible à
+   * chaque swipe. On n'y vient plus qu'après avoir constaté, pendant une
+   * fenêtre de grâce, que l'ordre n'a pas été suivi.
    */
   const [soundGeneration, setSoundGeneration] = useState(0)
-  /** État du son gravé dans l'URL de l'iframe actuellement montée. */
-  const mountedMuted = useRef(true)
+  const remontageFait = useRef(false)
 
-  useEffect(() => {
-    if (pilotableParApi(mediaType)) return
-    if (muted === mountedMuted.current) return
-    // Seul le passage au son justifie de tout reconstruire : re-couper le son
-    // marche très bien par message, et ça éviterait de redémarrer la vidéo
-    // deux fois. On note quand même l'état pour ne pas remonter en boucle.
-    mountedMuted.current = muted
-    if (!muted) setSoundGeneration((n) => n + 1)
-  }, [muted, mediaType])
+  /**
+   * Le lecteur a-t-il déjà parlé de son son ?
+   *
+   * TikTok initialise son `muted` interne à `false` et ne le corrige qu'au
+   * premier message `onMute`. Tant qu'il n'a rien dit, le lire reviendrait à
+   * croire que le son est actif alors que l'iframe démarre muette.
+   */
+  const sonRapporte = useRef(false)
 
   /**
    * Rattrapage du `mute` dans l'URL de l'iframe.
@@ -139,7 +145,8 @@ export const VideoPlayer = ({
     (node: MediaElement | null) => {
       nodeRef.current = node
       if (playerRef) playerRef.current = node
-      if (!node || !autoPlayIntent.current || !mountedMuted.current) return
+      sonRapporte.current = false
+      if (!node || !autoPlayIntent.current || remontageFait.current) return
 
       node.toggleAttribute('muted', true)
       setTimeout(() => {
@@ -151,30 +158,66 @@ export const VideoPlayer = ({
     [playerRef],
   )
 
-  /**
-   * Ré-affirme l'état du son sur le lecteur. La logique vit dans
-   * `lib/utils/playerSound` : le bouton son de la RefCard doit pouvoir donner
-   * le même ordre lui-même, synchronement dans le handler de son clic.
-   */
-  const applyMuted = useCallback(() => applyMutedTo(nodeRef.current, muted), [muted])
+  /** Ré-affirme l'état du son. Appelé aussi quand la lecture (re)démarre. */
+  const commande = useCallback(() => commanderSon(nodeRef.current, muted), [muted])
 
   /**
-   * Au montage, l'API du lecteur n'existe pas encore : le premier passage ne
-   * fait rien d'utile. On réessaie brièvement plutôt que de s'accrocher à la
-   * promesse `loadComplete` de l'élément, qu'il remplace dès qu'il se
-   * recharge — on resterait sur un signal mort.
+   * Converger sur l'état **observé**, pas sur l'ordre donné.
+   *
+   * Un ordre parti avant que le lecteur ne soit prêt est perdu sans bruit :
+   * c'est la source de l'irrégularité du son. On redemande donc jusqu'à ce que
+   * le lecteur rapporte le bon état, et on ne s'arrête que là.
    */
   useEffect(() => {
-    if (applyMuted()) return
+    const node = nodeRef.current
+    if (!node) return
 
-    const debut = Date.now()
-    const timer = setInterval(() => {
-      if (applyMuted() || Date.now() - debut > 5000) clearInterval(timer)
-    }, 150)
-    return () => clearInterval(timer)
-  }, [applyMuted])
+    const marqueRapport = () => {
+      sonRapporte.current = true
+    }
+    node.addEventListener('volumechange', marqueRapport)
 
-  // Une iframe montée pour le son ne repasse pas par le démarrage muet.
+    let converge = false
+    const verifie = () => {
+      const observe = sonObserve(nodeRef.current, { sonRapporte: sonRapporte.current })
+      if (observe === muted) converge = true
+      return converge
+    }
+
+    // Tout de suite : quand l'appel vient d'un appui, le geste est encore
+    // « actif » aux yeux du navigateur, ce dont dépend l'activation du son.
+    commande()
+
+    const insiste = setInterval(() => {
+      if (verifie()) {
+        clearInterval(insiste)
+        return
+      }
+      commande()
+    }, 200)
+
+    /**
+     * Fenêtre de grâce. Passé ce délai sans que le lecteur ait suivi, c'est
+     * qu'il n'écoute pas — et pour les plateformes connues pour ça, il ne
+     * reste que l'URL de l'iframe. Seulement pour activer le son : le couper
+     * ne vaut jamais un rechargement.
+     */
+    const repli = setTimeout(() => {
+      clearInterval(insiste)
+      if (verifie() || muted) return
+      if (pilotableParApi(mediaType) || remontageFait.current) return
+      remontageFait.current = true
+      setSoundGeneration((n) => n + 1)
+    }, 1500)
+
+    return () => {
+      node.removeEventListener('volumechange', marqueRapport)
+      clearInterval(insiste)
+      clearTimeout(repli)
+    }
+  }, [commande, muted, mediaType, soundGeneration])
+
+  // Une iframe remontée pour le son ne repasse pas par le démarrage muet.
   const sonAuMontage = soundGeneration > 0
   const enAutoplay = autoPlayIntent.current || sonAuMontage
 
@@ -207,7 +250,7 @@ export const VideoPlayer = ({
         // Sans ça, iOS passe la vidéo en plein écran au lieu de la jouer
         // dans la carte.
         playsInline
-        onPlay={applyMuted}
+        onPlay={commande}
         loop
         width='100%'
         height='100%'

@@ -19,7 +19,8 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { LikeButton } from './LikeButton'
 import { BarometerReadout } from './Barometer'
-import { applyMutedTo, type MediaElement } from '@/lib/utils/playerSound'
+import { commanderSon, type MediaElement } from '@/lib/utils/playerSound'
+import { VideoProgress } from './VideoProgress'
 import { cn } from '@/lib/utils'
 
 const scoreCultureLabel: Record<string, string> = {
@@ -47,8 +48,8 @@ type RefCardProps = {
  * et le laisser atteignable (pour que ses contrôles marchent) : il faut
  * trancher. Ici, il est recouvert à 100 %, sur tous les breakpoints, et c'est
  * la carte qui fournit les commandes — tap pour play/pause, bouton pour le
- * son. Le scrub et le plein écran restent sur `/ref/[slug]`, où l'embed garde
- * ses contrôles natifs.
+ * son, barre de progression au ras du bord (`VideoProgress`). Le plein écran
+ * reste sur `/ref/[slug]`, où l'embed garde ses contrôles natifs.
  *
  * La tentative inverse (une bande de 64px laissée au lecteur en bas) a coûté
  * le swipe — c'est là que les pouces démarrent — et exposait le bouton unmute
@@ -121,7 +122,7 @@ export function RefCard({ ref_data, isActive = true, muted = true, onToggleMuted
    */
   const handleToggleMuted = (event: React.MouseEvent<HTMLButtonElement>) => {
     if (event.detail > 0) event.currentTarget.blur()
-    applyMutedTo(playerRef.current, !muted)
+    commanderSon(playerRef.current, !muted)
     onToggleMuted?.()
   }
 
@@ -200,7 +201,7 @@ export function RefCard({ ref_data, isActive = true, muted = true, onToggleMuted
         fois rétrécie (52px + 12px de marge + 12px de respiration). Mesuré au
         rendu, pas estimé.
       */}
-      <div className='absolute bottom-4 left-4 right-[76px] z-10 flex flex-col gap-3 sm:bottom-auto sm:left-6 sm:right-auto sm:top-6 sm:w-[260px] sm:gap-4 xl:left-12 xl:w-[300px]'>
+      <div className='absolute bottom-6 left-4 right-[76px] z-10 flex flex-col gap-3 sm:bottom-auto sm:left-6 sm:right-auto sm:top-6 sm:w-[260px] sm:gap-4 xl:left-12 xl:w-[300px]'>
         <div className='flex flex-col gap-3 sm:gap-4 sm:rounded-lg sm:border-2 sm:border-black sm:bg-[var(--bg2)] sm:p-4'>
           <Link href={`/ref/${ref_data.slug}`}>
             <h1 className='line-clamp-2 font-rader text-2xl uppercase leading-[0.95] text-white drop-shadow-[0_2px_6px_rgba(20,20,20,0.75)] sm:line-clamp-none sm:text-3xl sm:text-[var(--fg)] sm:drop-shadow-none xl:text-4xl'>
@@ -307,10 +308,20 @@ export function RefCard({ ref_data, isActive = true, muted = true, onToggleMuted
         </div>
       </div>
 
+      {/*
+        La barre de progression, au ras du bord.
+
+        Elle n'existe que parce que le feed coupe les contrôles natifs du
+        lecteur : sans elle, aucun moyen d'avancer dans une vidéo. Le panneau
+        d'infos et la barre d'actions sont remontés à `bottom-6` pour lui
+        laisser le bord.
+      */}
+      {isActive && <VideoProgress playerRef={playerRef} active={isActive} />}
+
       {/* Right action panel — barre en verre, icônes pleines façon Instagram.
           Resserrée sur mobile : c'est elle qui dictait la largeur perdue par
           la carte, et le libellé « Découvrir » l'élargissait à 91px. */}
-      <div className='glass absolute bottom-4 right-3 z-20 flex flex-col gap-4 rounded-2xl p-2 sm:bottom-8 sm:right-4 sm:gap-6 sm:p-3 xl:right-12'>
+      <div className='glass absolute bottom-6 right-3 z-20 flex flex-col gap-4 rounded-2xl p-2 sm:bottom-8 sm:right-4 sm:gap-6 sm:p-3 xl:right-12'>
         {/*
           Le son, sur tous les breakpoints.
 
