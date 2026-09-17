@@ -141,7 +141,14 @@ export const VideoPlayer = ({
     // Tout de suite : quand l'appel vient d'un appui, le geste est encore
     // « actif » aux yeux du navigateur, ce dont dépend l'activation du son.
     applique()
-    return Boolean(node.api?.mute)
+
+    // Y a-t-il encore quelque chose à attendre ? Seuls les lecteurs qui
+    // exposent une API en ont une à attendre (`api` est déclaré, à null, dès
+    // la construction de l'élément YouTube). TikTok n'en expose pas : la
+    // propriété a déjà fait son effet, il n'y a rien à réessayer. Sans cette
+    // distinction la boucle ci-dessous tournait indéfiniment et renvoyait un
+    // `unMute` toutes les 150 ms au lecteur — le son hachait.
+    return !('api' in node) || Boolean(node.api?.mute)
   }, [muted])
 
   /**

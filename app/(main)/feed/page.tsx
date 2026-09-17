@@ -37,11 +37,23 @@ export default function FeedPage() {
     }
   }, [refs.length, swiper, activeIndex])
 
-  const handleSlideChange = (s: SwiperType) => {
-    setActiveIndex(s.activeIndex)
-    if (s.activeIndex >= refs.length - 2 && hasNextPage && !isFetchingNextPage) {
+  /**
+   * Garder des refs d'avance, en se basant sur l'état et non sur l'événement
+   * de changement de slide.
+   *
+   * Le préchargement était accroché à `onSlideChange`, qui ne peut pas se
+   * produire quand il n'y a qu'une slide : pas de ref suivante donc pas de
+   * changement, pas de changement donc pas de chargement. Le feed se bloquait
+   * sur la première ref, et aucun geste ne pouvait l'en sortir.
+   */
+  useEffect(() => {
+    if (hasNextPage && !isFetchingNextPage && refs.length - activeIndex < 3) {
       fetchNextPage()
     }
+  }, [refs.length, activeIndex, hasNextPage, isFetchingNextPage, fetchNextPage])
+
+  const handleSlideChange = (s: SwiperType) => {
+    setActiveIndex(s.activeIndex)
   }
 
   const goNext = () => {
