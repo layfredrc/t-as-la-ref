@@ -1,13 +1,17 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import type { Swiper as SwiperType } from 'swiper'
+
+/** Champs internes de Swiper, absents de ses types publics. */
+type SwiperInterne = SwiperType & {
+  size?: number
+  touchEventsData?: { isTouched?: boolean; isMoved?: boolean; isScrolling?: boolean }
+}
 
 /**
  * Panneau de diagnostic du feed, affiché uniquement avec `?debug=1` dans
- * l'URL. Sert à lire sur un vrai téléphone ce qu'aucune émulation ne dit :
- * quel build est servi, si le breakpoint `sm` est actif, si l'embed est bien
- * sorti du hit-testing, et ce que le navigateur fait réellement d'un geste.
+ * l'URL. Sert à lire sur un vrai téléphone ce qu'aucune émulation ne dit.
  *
  * À retirer une fois le feed stabilisé.
  */
@@ -20,9 +24,10 @@ type Facts = {
   player: string
   params: string
   focusables: string
+  verrou: string
 }
 
-function lire(swiper: SwiperType | null): Facts {
+function lire(swiper: SwiperInterne | null): Facts {
   const el = document.querySelector('youtube-video, tiktok-video')
   const iframe = el?.shadowRoot?.querySelector('iframe')
   const src = iframe?.getAttribute('src') ?? ''
@@ -39,18 +44,23 @@ function lire(swiper: SwiperType | null): Facts {
     coucheDeTap: tap ? getComputedStyle(tap).display : 'absente',
     player: el?.tagName.toLowerCase() ?? '—',
     params: src
-      ? `mute=${q.get('mute') ?? q.get('muted') ?? '∅'} autoplay=${q.get('autoplay') ?? '∅'} playsinline=${q.get('playsinline') ?? '∅'}`
+      ? `mute=${q.get('mute') ?? q.get('muted') ?? '∅'} auto=${q.get('autoplay') ?? '∅'}`
       : '—',
     focusables: (swiper?.params.focusableElements ?? '?').includes('button')
       ? 'button INCLUS ⚠️'
       : 'button exclu ✓',
+    verrou: swiper
+      ? `verrou=${swiper.isLocked ? 'OUI ⚠️' : 'non'} slides=${swiper.slides.length} snap=${swiper.snapGrid.length} size=${Math.round(swiper.size ?? 0)} next=${swiper.allowSlideNext ? 'oui' : 'NON ⚠️'}`
+      : 'pas de swiper',
   }
 }
 
-export function FeedDebug({ swiper }: { swiper: SwiperType | null }) {
+export function FeedDebug({ swiper }: { swiper: SwiperInterne | null }) {
   const [actif, setActif] = useState(false)
   const [facts, setFacts] = useState<Facts | null>(null)
   const [journal, setJournal] = useState<string[]>([])
+
+  const ajoute = useCallback((ligne: string) => setJournal((j) => [ligne, ...j].slice(0, 5)), [])
 
   useEffect(() => {
     if (!new URLSearchParams(window.location.search).has('debug')) return
@@ -59,8 +69,8 @@ export function FeedDebug({ swiper }: { swiper: SwiperType | null }) {
 
   useEffect(() => {
     if (!actif) return
-    const t = setTimeout(() => setFacts(lire(swiper)), 1500)
-    return () => clearTimeout(t)
+    const t = setInterval(() => setFacts(lire(swiper)), 1200)
+    return () => clearInterval(t)
   }, [actif, swiper])
 
   useEffect(() => {
@@ -69,7 +79,6 @@ export function FeedDebug({ swiper }: { swiper: SwiperType | null }) {
     let depart: { x: number; y: number } | null = null
     let moves = 0
     let idxDepart = 0
-    const ajoute = (ligne: string) => setJournal((j) => [ligne, ...j].slice(0, 6))
 
     const onStart = (e: TouchEvent) => {
       const t = e.touches[0]
@@ -77,10 +86,7 @@ export function FeedDebug({ swiper }: { swiper: SwiperType | null }) {
       moves = 0
       idxDepart = swiper?.activeIndex ?? -1
       const cible = e.target as Element
-      const nom = cible.tagName.toLowerCase()
-      const detail =
-        cible.getAttribute('aria-label') ?? cible.className?.toString().slice(0, 18) ?? ''
-      ajoute(`↓ ${nom} ${detail}`)
+      ajoute(`↓ ${cible.tagName.toLowerCase()} ${cible.getAttribute('aria-label') ?? ''}`)
     }
     const onMove = () => {
       moves++
@@ -89,49 +95,75 @@ export function FeedDebug({ swiper }: { swiper: SwiperType | null }) {
       if (!depart) return
       const t = e.changedTouches[0]
       const dy = t ? Math.round(t.clientY - depart.y) : 0
-      const tr = swiper ? Math.round(swiper.translate) : 0
       depart = null
+      // Capturé tout de suite : Swiper remet ces champs à zéro juste après.
+      const d = swiper?.touchEventsData
+      const etat = d ? `tou=${d.isTouched} mov=${d.isMoved} scr=${d.isScrolling}` : '—'
+      const tr = swiper ? Math.round(swiper.translate) : 0
       setTimeout(() => {
-        const idx = swiper?.activeIndex ?? -1
-        ajoute(`${nom} dy=${dy} moves=${moves} tr=${tr} idx ${idxDepart}→${idx}`)
+        ajoute(
+          `${nom} dy=${dy} mv=${moves} tr=${tr} idx ${idxDepart}→${swiper?.activeIndex ?? -1} ${etat}`,
+        )
       }, 450)
     }
 
     const opts = { capture: true, passive: true } as const
+    const onEnd = fin('↑')
+    const onCancel = fin('✖ANNULÉ')
     window.addEventListener('touchstart', onStart, opts)
     window.addEventListener('touchmove', onMove, opts)
-    window.addEventListener('touchend', fin('↑'), opts)
-    window.addEventListener('touchcancel', fin('✖ ANNULÉ'), opts)
+    window.addEventListener('touchend', onEnd, opts)
+    window.addEventListener('touchcancel', onCancel, opts)
     return () => {
       window.removeEventListener('touchstart', onStart, opts)
       window.removeEventListener('touchmove', onMove, opts)
-      window.removeEventListener('touchend', fin('↑'), opts)
-      window.removeEventListener('touchcancel', fin('✖ ANNULÉ'), opts)
+      window.removeEventListener('touchend', onEnd, opts)
+      window.removeEventListener('touchcancel', onCancel, opts)
     }
-  }, [actif, swiper])
+  }, [actif, swiper, ajoute])
 
   if (!actif) return null
 
   return (
-    <div className='pointer-events-none fixed inset-x-0 top-0 z-[999] bg-black/85 p-2 font-mono text-[10px] leading-tight text-green-400'>
+    <div className='fixed inset-x-0 top-0 z-[999] bg-black/90 p-2 font-mono text-[10px] leading-tight text-green-400'>
       {facts ? (
         <>
           <div>
             build {facts.build} · {facts.viewport} · sm {facts.smActif ? 'ACTIF ⚠️' : 'inactif ✓'}
           </div>
           <div>
-            embed pointer-events <b>{facts.embedPointerEvents}</b> · couche de tap{' '}
-            {facts.coucheDeTap}
+            embed pointer-events <b>{facts.embedPointerEvents}</b> · tap {facts.coucheDeTap}
           </div>
           <div>
-            {facts.player} · {facts.params}
+            {facts.player} · {facts.params} · {facts.focusables}
           </div>
-          <div>focusableElements : {facts.focusables}</div>
+          <div className='text-cyan-300'>{facts.verrou}</div>
         </>
       ) : (
         <div>lecture…</div>
       )}
-      <div className='mt-1 border-t border-green-400/30 pt-1 text-yellow-300'>
+
+      {/*
+        Le test qui coupe le problème en deux : si la slide bouge ici mais pas
+        au doigt, c'est le geste qui ne passe pas. Si elle ne bouge pas non
+        plus, c'est Swiper lui-même qui refuse — mesure ou verrou.
+      */}
+      <button
+        type='button'
+        onClick={() => {
+          const avant = swiper?.activeIndex ?? -1
+          swiper?.slideNext()
+          setTimeout(
+            () => ajoute(`▶ slideNext() : idx ${avant}→${swiper?.activeIndex ?? -1}`),
+            500,
+          )
+        }}
+        className='my-1 rounded border border-green-400 px-2 py-1 text-green-300'
+      >
+        ▶ tester slideNext()
+      </button>
+
+      <div className='border-t border-green-400/30 pt-1 text-yellow-300'>
         {journal.length === 0 ? (
           <div>(fais un swipe)</div>
         ) : (
