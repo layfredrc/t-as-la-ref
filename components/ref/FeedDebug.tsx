@@ -23,9 +23,13 @@ type Facts = {
   coucheDeTap: string
   player: string
   params: string
+  son: string
   focusables: string
   verrou: string
 }
+
+/** Élément média, avec l'API que le web component YouTube expose. */
+type ElementMedia = Element & { muted?: boolean; api?: unknown }
 
 function lire(swiper: SwiperInterne | null): Facts {
   const el = document.querySelector('youtube-video, tiktok-video')
@@ -33,6 +37,7 @@ function lire(swiper: SwiperInterne | null): Facts {
   const src = iframe?.getAttribute('src') ?? ''
   const q = new URLSearchParams(src.split('?')[1] ?? '')
   const tap = document.querySelector('button[aria-label*="vidéo"]')
+  const media = el as ElementMedia | null
 
   return {
     build: process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? 'local',
@@ -44,7 +49,13 @@ function lire(swiper: SwiperInterne | null): Facts {
     coucheDeTap: tap ? getComputedStyle(tap).display : 'absente',
     player: el?.tagName.toLowerCase() ?? '—',
     params: src
-      ? `mute=${q.get('mute') ?? q.get('muted') ?? '∅'} auto=${q.get('autoplay') ?? '∅'}`
+      ? `mute=${q.get('mute') ?? q.get('muted') ?? '∅'} auto=${q.get('autoplay') ?? '∅'} ctrl=${q.get('controls') ?? '∅'}`
+      : '—',
+    // L'état que le lecteur nous renvoie vraiment — TikTok le met à jour sur
+    // les messages `onMute` du player, YouTube via son API. C'est la seule
+    // façon de savoir si un `unMute` a été suivi d'effet.
+    son: media
+      ? `muted=${String(media.muted ?? '∅')} api=${'api' in media ? (media.api ? 'prête' : 'en attente') : 'aucune'}`
       : '—',
     focusables: (swiper?.params.focusableElements ?? '?').includes('button')
       ? 'button INCLUS ⚠️'
@@ -85,8 +96,17 @@ export function FeedDebug({ swiper }: { swiper: SwiperInterne | null }) {
       depart = { x: t.clientX, y: t.clientY }
       moves = 0
       idxDepart = swiper?.activeIndex ?? -1
-      const cible = e.target as Element
-      ajoute(`↓ ${cible.tagName.toLowerCase()} ${cible.getAttribute('aria-label') ?? ''}`)
+      // `e.target` est déjà le résultat du hit-testing, mais il ne dit pas si
+      // l'iframe a été évité de justesse. `elementFromPoint` le confirme au
+      // pixel près, et son `touch-action` calculé dit si le navigateur nous
+      // laissera le geste. C'est le contrôle qui aurait attrapé la bande
+      // basse de 64px : sous cette ligne, la cible devenait l'embed.
+      const sousLeDoigt = document.elementFromPoint(t.clientX, t.clientY)
+      const cible = sousLeDoigt ?? (e.target as Element)
+      const ta = sousLeDoigt ? getComputedStyle(sousLeDoigt).touchAction : '?'
+      ajoute(
+        `↓ ${cible.tagName.toLowerCase()} ${cible.getAttribute('aria-label') ?? ''} ta=${ta}`,
+      )
     }
     const onMove = () => {
       moves++
@@ -135,7 +155,10 @@ export function FeedDebug({ swiper }: { swiper: SwiperInterne | null }) {
             embed pointer-events <b>{facts.embedPointerEvents}</b> · tap {facts.coucheDeTap}
           </div>
           <div>
-            {facts.player} · {facts.params} · {facts.focusables}
+            {facts.player} · {facts.params}
+          </div>
+          <div>
+            son {facts.son} · {facts.focusables}
           </div>
           <div className='text-cyan-300'>{facts.verrou}</div>
         </>

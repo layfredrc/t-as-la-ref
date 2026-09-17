@@ -1,7 +1,7 @@
 import React from 'react'
 import { AppSidebar } from '@/components/app-sidebar'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
-import { MobileHeader } from '@/components/layout/MobileHeader'
+import { MainShell } from '@/components/layout/MainShell'
 
 export default function MainLayout({
   children,
@@ -12,8 +12,9 @@ export default function MainLayout({
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset className='bg-background'>
-        <MobileHeader />
-        <div className='pt-16 md:pt-0'>{children}</div>
+        {/* `MainShell` décide de l'en-tête mobile : le feed s'en passe et
+            occupe tout l'écran (voir le composant). */}
+        <MainShell>{children}</MainShell>
       </SidebarInset>
     </SidebarProvider>
   )
