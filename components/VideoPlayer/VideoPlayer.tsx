@@ -83,19 +83,23 @@ export const VideoPlayer = ({
    */
   const autoPlayIntent = useRef(externalPlaying)
 
-  /**
-   * Rattrapage pour les web components qui construisent l'URL de leur iframe
-   * dans leur constructeur, avant que react-player n'ait posé `config` : le
-   * `mute` n'y arrive alors jamais et l'autoplay reste refusé. C'est le cas de
-   * `tiktok-video-element`.
-   *
-   * On pose l'attribut `muted` — le seul que leur sérialisation relise, la
-   * propriété du même nom ne faisant qu'appeler l'API du lecteur — puis on ne
-   * redemande un `load()` que si l'URL en manque vraiment. `youtube-video-element`,
-   * lui, prend bien la `config` : son URL est déjà correcte et n'est pas rechargée.
-   */
   const nodeRef = useRef<MediaElement | null>(null)
 
+  /**
+   * Rattrapage du `mute` dans l'URL de l'iframe.
+   *
+   * `tiktok-video-element` construit cette URL avant que react-player n'ait
+   * posé `config`. Pour la première ref affichée ça passe — l'élément est
+   * encore en attente d'upgrade quand React écrit ses propriétés — mais pas
+   * pour celles montées ensuite, au fil des swipes : leur URL part sans
+   * `muted`, et sans lui la politique d'autoplay refuse la lecture.
+   *
+   * L'attribut est le seul que leur sérialisation relise, mais le poser ne
+   * reconstruit rien : il faut redemander un `load()`. Reporté d'un tour,
+   * parce que `load()` est ignoré tant qu'un chargement est déjà en vol —
+   * ce qui est le cas juste après l'insertion. Sans ce report le rattrapage
+   * passait parfois à la trappe : TikTok tantôt muet, tantôt non.
+   */
   const attachPlayer = useCallback(
     (node: MediaElement | null) => {
       nodeRef.current = node
@@ -103,8 +107,11 @@ export const VideoPlayer = ({
       if (!node || !autoPlayIntent.current) return
 
       node.toggleAttribute('muted', true)
-      const src = node.shadowRoot?.querySelector('iframe')?.getAttribute('src')
-      if (src && !/[?&]mute(d)?=1(&|$)/.test(src)) node.load()
+      setTimeout(() => {
+        if (nodeRef.current !== node) return
+        const src = node.shadowRoot?.querySelector('iframe')?.getAttribute('src')
+        if (src && !/[?&]mute(d)?=1(&|$)/.test(src)) node.load()
+      }, 0)
     },
     [playerRef],
   )
