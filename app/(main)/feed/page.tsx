@@ -95,6 +95,17 @@ export default function FeedPage() {
           // Swiper annule le pointerdown par défaut, ce qui supprime le click
           // qui suit : le tap play/pause de la RefCard ne partait jamais.
           touchStartPreventDefault={false}
+          // `touch-action: none` en style inline, pas en classe : il doit
+          // gagner à coup sûr sur le `touch-action: pan-x` que la feuille de
+          // Swiper pose sur ce même élément, et l'ordre des feuilles de style
+          // n'est pas garanti au build.
+          //
+          // C'est la déclaration qui dit au navigateur de ne traiter AUCUN
+          // geste lui-même sur cette zone. Sans elle, il lui suffit de croire
+          // qu'il peut faire défiler quelque chose pour s'emparer du geste au
+          // niveau du compositeur — auquel cas les `touchmove` ne remontent
+          // jamais jusqu'à Swiper, et le swipe « ne capture pas ».
+          style={{ touchAction: 'none' }}
           // Swiper abandonne un drag qui démarre sur l'élément déjà focus,
           // s'il fait partie de `focusableElements` — le garde-fou pensé pour
           // ne pas voler le geste d'un champ texte. `button` étant dans la
