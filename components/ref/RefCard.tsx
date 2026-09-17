@@ -19,13 +19,8 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { LikeButton } from './LikeButton'
 import { BarometerReadout } from './Barometer'
+import { scoreCultureLabel } from '@/lib/utils/scoreCulture'
 import { cn } from '@/lib/utils'
-
-const scoreCultureLabel: Record<string, string> = {
-  inconnu: 'Inconnu 🤷',
-  'gen-z': 'Only Gen Z ⚡',
-  cultissime: 'Cultissime 🏆',
-}
 
 type RefCardProps = {
   ref_data: Ref
@@ -229,7 +224,7 @@ export function RefCard({ ref_data, isActive = true, muted = true, onToggleMuted
                     Score Culture 🔥
                   </span>
                   <Badge variant='secondary' className='text-xs'>
-                    {scoreCultureLabel[ref_data.score_culture] ?? ref_data.score_culture}
+                    {scoreCultureLabel(ref_data.score_culture)}
                   </Badge>
                 </div>
 

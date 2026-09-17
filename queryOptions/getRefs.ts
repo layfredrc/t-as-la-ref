@@ -26,7 +26,7 @@ export const useInfiniteRefs = () => {
         .from('refs')
         .select(
           `
-          id, slug, titre, media_url, media_type, contexte, score_culture,
+          id, slug, titre, media_url, media_type, thumbnail, contexte, score_culture,
           likes_count, comments_count, drole_score, importance_score, votes_count, created_at, auteur_id,
           refs_tags ( tags ( id, label, emoji, type, slug ) )
         `,
