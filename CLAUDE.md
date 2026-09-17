@@ -391,29 +391,74 @@ Utiliser les classes utilitaires Tailwind custom : `.bg-bg`, `.bg-fg`, `.text-fg
 - Pattern isActive → mount dans RefCard pour éviter les CSP violations
 - react-player v3 : prop `src` (pas `url`), web components à importer
   explicitement (`youtube-video-element`, `tiktok-video-element`...)
-- Laisser le widget gérer le son **partout où ses contrôles sont
-  atteignables**. Exception : le feed sur mobile, où la couche de tap les
-  recouvre — un bouton son dans la barre d'actions pilote alors la propriété
-  `muted` de l'élément média, que le widget traduit lui-même en `mute()` /
-  `unMute()`. Nulle part ailleurs.
+### Feed — l'embed est une image, pas une surface de contrôle
+
+**La règle qui prime sur toutes les autres.** Un iframe cross-origin avale tous
+les gestes qui démarrent au-dessus de lui. On ne peut donc pas à la fois le
+recouvrir (pour que Swiper voie le swipe) et le laisser atteignable (pour que
+ses contrôles marchent). Dix commits ont oscillé entre les deux ; c'est tranché :
+
+- Dans le feed, l'embed est recouvert **à 100 %, sur tous les breakpoints**, et
+  ses contrôles natifs sont coupés (`controls={false}`). Les deux web components
+  traduisent l'absence d'attribut `controls` par `controls=0` dans l'URL de
+  l'iframe : la barre n'existe même plus.
+- La carte fournit toutes les commandes : tap plein cadre pour play/pause,
+  bouton son dans la barre d'actions, **visible aussi sur desktop**. Ne jamais
+  remettre ce bouton en `sm:hidden` : `VideoPlayer` réaffirme `muted` à chaque
+  rendu, donc sans notre bouton le son est structurellement impossible.
+- Le scrub et le plein écran vivent sur `/ref/[slug]`, où l'embed garde ses
+  contrôles natifs (aucun appelant hors du feed ne passe `controls`).
+- Ne jamais rouvrir une bande au lecteur en bas de l'écran : c'est là que les
+  pouces démarrent un swipe, et c'est là que le bouton unmute de TikTok redirige
+  vers tiktok.com.
 
 ### Feed mobile — geste et lecture
 
-Trois pièges, tous vérifiés au navigateur tactile. Ne pas les réintroduire :
+Pièges vérifiés au navigateur tactile (CDP, vrais pointer events). Ne pas les
+réintroduire :
 
-- **L'embed est un iframe cross-origin** : un geste qui démarre au-dessus de
-  lui ne quitte jamais son document. D'où `pointer-events-none` sur l'embed en
-  mobile — le geste atteint la slide et c'est Swiper qui le traite. Ne pas
+- **`pointer-events-none` sur l'embed**, en plus de la couche de tap. Ne pas
   remplacer ça par une couche qui remesure le swipe à la main : sur un vrai
   téléphone le geste est régulièrement interrompu (`touchcancel`) et un
   recognizer maison le perd en silence.
+- **Les seuils par défaut de Swiper sont ceux d'un carrousel.** Au-delà de
+  `longSwipesMs` (300 ms), il faut parcourir `longSwipesRatio` (50 %) de la
+  hauteur pour changer de slide. Mesuré : un swipe de 300px en ~450 ms sur un
+  écran de 664px suit le doigt puis **revient en arrière**. C'est ça qu'on
+  ressent comme « le swipe ne marche pas ». Le feed est à
+  `longSwipesRatio={0.15}`, `longSwipesMs={200}`, `threshold={5}`.
 - **`focusableElements` de Swiper contient `button` par défaut.** Swiper
   abandonne tout drag qui démarre sur l'élément déjà focus s'il est dans cette
   liste. Un seul tap sur la couche de tap suffisait donc à tuer tous les
   swipes suivants. Le feed retire `button` de la liste.
+- **Ne jamais mettre le loader de pagination en `SwiperSlide`** : il ajoute et
+  retire une slide pendant que l'utilisateur swipe (le préchargement part à
+  trois refs de la fin) et Swiper recompte en plein geste. Il est en
+  surimpression, hors de `<Swiper>`.
+- **Ne pas appeler `swiper.update()` sur `activeIndex`** : il tourne alors
+  pendant la transition et peut la faire revenir en arrière. Uniquement quand
+  le nombre de refs change.
 - **L'autoplay se joue dans l'URL de l'iframe, au montage.** Il faut `mute=1`
   ET `autoplay=1` dedans : `react-player` applique `playing` depuis un effet,
-  qui n'est pas un geste utilisateur, et la lecture est refusée. Le son
-  s'active ensuite via la propriété `muted`, sans reconstruire l'iframe.
+  qui n'est pas un geste utilisateur, et la lecture est refusée.
+- **TikTok ne répond pas à `unMute` venu de la page.** Le seul levier est
+  l'URL de l'iframe : le premier passage au son remonte l'élément (`key`) avec
+  `autoplay=1&muted=0`, dans la foulée du clic — l'activation utilisateur est
+  encore valide. La vidéo repart du début, une seule fois. Voir
+  `PLATEFORMES_SANS_API_SON` dans `lib/utils/playerSound.ts` : si l'API TikTok
+  se met à répondre, retirer l'entrée suffit.
+
+### Feed — plein écran
+
+Le feed est la seule route sans en-tête mobile (voir `components/layout/MainShell.tsx`) :
+il occupe `h-dvh`, et le menu revient en surimpression dans la page. Une mesure
+de moins à tenir juste pour Swiper.
+
+### Feed — diagnostic
+
+`/feed?debug=1` affiche un panneau qui lit, sur un vrai téléphone, ce
+qu'aucune émulation ne dit : l'élément réellement sous le doigt et son
+`touch-action`, les paramètres de l'URL de l'iframe, l'état du son renvoyé par
+le lecteur, et l'état interne de Swiper. À retirer une fois le feed stabilisé.
 
 _Septembre 2026_

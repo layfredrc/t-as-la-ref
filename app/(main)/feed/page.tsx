@@ -7,6 +7,7 @@ import type { Swiper as SwiperType } from 'swiper'
 import 'swiper/css'
 import { ChevronUp, ChevronDown } from 'lucide-react'
 import OnboardingGuard from '@/components/OnboardingGuard'
+import { SidebarTrigger } from '@/components/ui/sidebar'
 import { RefCard } from '@/components/ref/RefCard'
 import { FeedDebug } from '@/components/ref/FeedDebug'
 import { useInfiniteRefs } from '@/queryOptions/getRefs'
@@ -25,13 +26,23 @@ export default function FeedPage() {
   const [muted, setMuted] = useState(true)
   const pendingNext = useRef(false)
 
-  // When new refs load and we were waiting to advance, slide to next
+  /**
+   * Remesure : les slides arrivent après l'init de Swiper, et une mesure faite
+   * trop tôt le laisse avec des tailles fausses.
+   *
+   * Uniquement quand le nombre de refs change. L'effet dépendait aussi de
+   * `activeIndex`, donc `update()` tournait à chaque changement de slide —
+   * c'est-à-dire *pendant* la transition, qu'il pouvait faire revenir en
+   * arrière.
+   */
   useEffect(() => {
-    if (!swiper) return
-    // Remesure : les slides arrivent après l'init de Swiper, et une mesure
-    // faite trop tôt le laisse avec des tailles fausses.
-    swiper.update()
-    if (pendingNext.current && refs.length > activeIndex + 1) {
+    swiper?.update()
+  }, [refs.length, swiper])
+
+  // Reprise du « suivant » demandé alors que la page d'après chargeait encore.
+  useEffect(() => {
+    if (!swiper || !pendingNext.current) return
+    if (refs.length > activeIndex + 1) {
       swiper.slideNext()
       pendingNext.current = false
     }
@@ -67,7 +78,7 @@ export default function FeedPage() {
 
   if (isLoading) {
     return (
-      <div className='h-[calc(100dvh-4rem)] md:h-dvh flex items-center justify-center bg-bg'>
+      <div className='h-dvh flex items-center justify-center bg-bg'>
         <p className='font-supplymono text-fg/60 animate-pulse'>Chargement des refs…</p>
       </div>
     )
@@ -75,7 +86,7 @@ export default function FeedPage() {
 
   if (error) {
     return (
-      <div className='h-[calc(100dvh-4rem)] md:h-dvh flex items-center justify-center bg-bg'>
+      <div className='h-dvh flex items-center justify-center bg-bg'>
         <p className='font-supplymono text-accent1'>Erreur de chargement. Réessaie.</p>
       </div>
     )
@@ -83,7 +94,7 @@ export default function FeedPage() {
 
   if (refs.length === 0) {
     return (
-      <div className='h-[calc(100dvh-4rem)] md:h-dvh flex flex-col items-center justify-center gap-4 bg-bg'>
+      <div className='h-dvh flex flex-col items-center justify-center gap-4 bg-bg'>
         <p className='font-rader text-5xl uppercase'>Rien ici…</p>
         <p className='font-supplymono text-fg/60'>Sois le premier à ajouter une ref !</p>
       </div>
@@ -101,8 +112,14 @@ export default function FeedPage() {
         concurrence directe avec le swipe du feed. L'attribut le fait passer
         son tour sur cette zone — le geste appartient à Swiper.
       */}
-      <div data-lenis-prevent className='relative h-[calc(100dvh-4rem)] md:h-dvh'>
+      <div data-lenis-prevent className='relative h-dvh'>
         <FeedDebug swiper={swiper} />
+
+        {/*
+          Le feed est le seul écran sans en-tête (voir `MainShell`) : plein
+          cadre, comme un Reels. Le menu revient donc ici, en surimpression.
+        */}
+        <SidebarTrigger className='glass absolute left-3 top-3 z-30 h-10 w-10 rounded-full text-white hover:bg-white/15 hover:text-white md:hidden' />
         <Swiper
           direction='vertical'
           slidesPerView={1}
@@ -137,6 +154,29 @@ export default function FeedPage() {
           // `slideNext()`. Il y a toujours plus d'une ref ici : on retire ce
           // verrou plutôt que de dépendre de la mesure.
           watchOverflow={false}
+          /*
+            Seuils de validation du geste — les valeurs par défaut de Swiper
+            sont celles d'un carrousel, pas d'un feed.
+
+            Par défaut, un geste qui dure plus de `longSwipesMs` (300 ms) ne
+            change de slide que s'il a parcouru `longSwipesRatio` (50 %) de la
+            hauteur. Mesuré ici : un swipe de 300px en 500 ms sur un écran de
+            664px suit le doigt (`translate: -286`) puis **revient en arrière**,
+            parce qu'il manque 7 %. C'est exactement ce qu'on ressent comme
+            « le swipe ne marche pas » : le feed bouge sous le doigt et refuse
+            de changer de ref.
+
+            À 15 %, un geste franc mais posé passe — celui qu'on fait
+            réellement sur TikTok ou Reels. Les flicks rapides continuent de
+            passer par `shortSwipes`, qui ne regarde que la vitesse.
+
+            `threshold` : 5px de jeu avant de considérer que c'est un drag.
+            Sans lui, le moindre tremblement pendant un tap ouvre un geste que
+            Swiper annulera — et le tap play/pause est perdu.
+          */
+          longSwipesRatio={0.15}
+          longSwipesMs={200}
+          threshold={5}
           modules={[Mousewheel, Keyboard]}
           className='h-full'
           onSwiper={setSwiper}
@@ -152,15 +192,22 @@ export default function FeedPage() {
               />
             </SwiperSlide>
           ))}
-
-          {isFetchingNextPage && (
-            <SwiperSlide>
-              <div className='h-full flex items-center justify-center bg-bg'>
-                <p className='font-supplymono text-fg/60 animate-pulse'>Plus de refs…</p>
-              </div>
-            </SwiperSlide>
-          )}
         </Swiper>
+
+        {/*
+          Le chargement de la page suivante se dit par-dessus, jamais en slide.
+
+          En slide, il en ajoutait puis en retirait une pendant que
+          l'utilisateur swipait — le préchargement se déclenche à trois refs de
+          la fin — et Swiper recomptait ses slides en plein geste.
+        */}
+        {isFetchingNextPage && (
+          <div className='pointer-events-none absolute bottom-6 left-1/2 z-30 -translate-x-1/2'>
+            <span className='glass rounded-full px-3 py-1.5 font-supplymono text-[11px] uppercase tracking-wider text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.45)]'>
+              Plus de refs…
+            </span>
+          </div>
+        )}
 
         {/* Navigation arrows — centered vertically on the right.
             Masquées sur mobile : elles tombaient pile sur la barre d'actions

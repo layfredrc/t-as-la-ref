@@ -148,6 +148,11 @@ type MediaEmbedProps = {
   playing?: boolean
   /** Démarrage muet — voir VideoPlayer, c'est ce qui rend l'autoplay légal. */
   muted?: boolean
+  /**
+   * Barre de contrôle du lecteur. Seul le feed la coupe : il recouvre l'embed
+   * pour capter le swipe, et fournit ses propres commandes (voir `RefCard`).
+   */
+  controls?: boolean
   className?: string
   /** Transmis au lecteur vidéo pour le contrôle direct (voir VideoPlayer). */
   playerRef?: RefObject<HTMLVideoElement | null>
@@ -158,6 +163,7 @@ export function MediaEmbed({
   mediaType,
   playing,
   muted,
+  controls,
   className,
   playerRef,
 }: MediaEmbedProps) {
@@ -168,8 +174,10 @@ export function MediaEmbed({
       return (
         <VideoPlayer
           url={url}
+          mediaType={mediaType}
           playing={playing}
           muted={muted}
+          controls={controls}
           className={className}
           playerRef={playerRef}
         />
