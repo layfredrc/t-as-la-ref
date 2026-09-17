@@ -2,7 +2,13 @@ import { useInfiniteQuery } from '@tanstack/react-query'
 import { createClient } from '@/utils/supabase/client'
 import type { Ref, Tag } from '@/lib/types'
 
-const PAGE_SIZE = 1
+/**
+ * Le feed a besoin d'au moins une ref d'avance pour que le swipe ait une
+ * destination. À 1, Swiper n'avait qu'une seule slide : nulle part où aller,
+ * donc aucun changement de slide — et le préchargement, déclenché par ce
+ * changement, n'arrivait jamais. Le feed restait bloqué sur la première ref.
+ */
+const PAGE_SIZE = 5
 
 type RefsPage = {
   data: Ref[]
