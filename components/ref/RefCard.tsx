@@ -38,6 +38,14 @@ type RefCardProps = {
   onToggleMuted?: () => void
 }
 
+/*
+ * Bande basse laissée à l'embed : `bottom-16` (64px), de quoi couvrir la barre
+ * de contrôle des lecteurs sans mordre sur la zone où les pouces démarrent un
+ * swipe. Les calques qui la surplombent sont en `bottom-20` (80px). En
+ * classes et non en style inline : un style inline gagnerait aussi au-dessus
+ * de `sm`, où cette bande n'existe pas.
+ */
+
 export function RefCard({ ref_data, isActive = true, muted = true, onToggleMuted }: RefCardProps) {
   const tagTypeRef = ref_data.tags?.find((t: Tag) => t.type === 'type_ref')
   const tagOrigine = ref_data.tags?.find((t: Tag) => t.type === 'origine')
@@ -107,9 +115,6 @@ export function RefCard({ ref_data, isActive = true, muted = true, onToggleMuted
           playing={isActive && !paused}
           muted={muted}
           playerRef={playerRef}
-          // Voir la couche de tap ci-dessous : c'est ce `pointer-events-none`
-          // qui débloque le swipe sur mobile.
-          className='pointer-events-none sm:pointer-events-auto'
         />
       )}
 
@@ -117,31 +122,25 @@ export function RefCard({ ref_data, isActive = true, muted = true, onToggleMuted
         Couche de tap — mobile uniquement.
 
         L'embed est un iframe cross-origin : un geste qui démarre au-dessus de
-        lui reste dans le document de l'iframe. Swiper ne voyait donc jamais le
-        swipe et le feed restait collé à la première ref.
+        lui reste dans son document, Swiper ne le voit jamais. Cette couche est
+        ce qui rend le swipe possible : elle recouvre l'embed, donc le geste
+        atterrit sur un élément de notre page et Swiper le traite nativement —
+        suivi du doigt, inertie, seuil, et annulation du geste qu'il écoute
+        déjà (`touchcancel`, `pointercancel`). Pas de `swiper-no-swiping`, pas
+        de recognizer maison : les tentatives qui remesuraient le geste à la
+        main passaient en émulation mais pas sur un vrai téléphone.
 
-        Les deux tentatives précédentes posaient ici une couche opaque aux
-        gestes (`swiper-no-swiping`) et remesuraient le swipe à la main depuis
-        `touchstart` / `touchend`. Ça passe en émulation, pas sur un vrai
-        téléphone : un geste tactile y est régulièrement interrompu
-        (`touchcancel` — reprise du scroll par le navigateur, rejet de paume,
-        passage au-dessus de l'iframe) et, sans `touchend`, le recognizer
-        maison laissait tomber le swipe sans rien dire.
-
-        On ne remesure plus rien : `pointer-events-none` sur l'embed (voir
-        `MediaEmbed` au-dessus) sort l'iframe du hit-testing, le geste atteint
-        la slide, et Swiper le traite nativement — suivi du doigt, inertie,
-        seuil, et annulation du geste qu'il écoute déjà (`touchcancel`,
-        `pointercancel`).
-
-        Il ne reste ici qu'une cible de tap pour le play/pause. Pas de
-        `swiper-no-swiping` : Swiper doit continuer à voir le geste passer.
+        Elle s'arrête au-dessus de la bande basse. C'est le compromis assumé :
+        là, l'embed reste atteignable, donc ses contrôles (son, scrub, plein
+        écran) fonctionnent — et en échange un swipe qui démarre dans ces 64px
+        n'aboutit pas, l'iframe l'absorbe. Les pouces démarrent au milieu de
+        l'écran, pas au ras du bord.
       */}
       <button
         type='button'
         aria-label={paused ? 'Reprendre la vidéo' : 'Mettre la vidéo en pause'}
         onClick={handleTap}
-        className='absolute inset-0 z-[5] sm:hidden'
+        className='absolute inset-x-0 bottom-16 top-0 z-[5] sm:hidden'
       />
 
       {paused && (
@@ -165,7 +164,7 @@ export function RefCard({ ref_data, isActive = true, muted = true, onToggleMuted
       <div
         aria-hidden
         className={cn(
-          'pointer-events-none absolute inset-x-0 bottom-0 z-[7] bg-gradient-to-t from-black/85 via-black/45 to-transparent transition-all duration-300 sm:hidden',
+          'pointer-events-none absolute inset-x-0 bottom-16 z-[7] bg-gradient-to-t from-black/85 via-black/45 to-transparent transition-all duration-300 sm:hidden',
           expanded ? 'h-3/5' : 'h-1/4',
         )}
       />
@@ -175,7 +174,7 @@ export function RefCard({ ref_data, isActive = true, muted = true, onToggleMuted
         fois rétrécie (52px + 12px de marge + 12px de respiration). Mesuré au
         rendu, pas estimé.
       */}
-      <div className='absolute bottom-6 left-4 right-[76px] z-10 flex flex-col gap-3 sm:bottom-auto sm:left-6 sm:right-auto sm:top-6 sm:w-[260px] sm:gap-4 xl:left-12 xl:w-[300px]'>
+      <div className='absolute bottom-20 left-4 right-[76px] z-10 flex flex-col gap-3 sm:bottom-auto sm:left-6 sm:right-auto sm:top-6 sm:w-[260px] sm:gap-4 xl:left-12 xl:w-[300px]'>
         <div className='flex flex-col gap-3 sm:gap-4 sm:rounded-lg sm:border-2 sm:border-black sm:bg-[var(--bg2)] sm:p-4'>
           <Link href={`/ref/${ref_data.slug}`}>
             <h1 className='line-clamp-2 font-rader text-2xl uppercase leading-[0.95] text-white drop-shadow-[0_2px_6px_rgba(20,20,20,0.75)] sm:line-clamp-none sm:text-3xl sm:text-[var(--fg)] sm:drop-shadow-none xl:text-4xl'>
@@ -285,7 +284,7 @@ export function RefCard({ ref_data, isActive = true, muted = true, onToggleMuted
       {/* Right action panel — barre en verre, icônes pleines façon Instagram.
           Resserrée sur mobile : c'est elle qui dictait la largeur perdue par
           la carte, et le libellé « Découvrir » l'élargissait à 91px. */}
-      <div className='glass absolute right-3 bottom-8 z-20 flex flex-col gap-4 rounded-2xl p-2 sm:right-4 sm:gap-6 sm:p-3 xl:right-12'>
+      <div className='glass absolute bottom-20 right-3 z-20 flex flex-col gap-4 rounded-2xl p-2 sm:bottom-8 sm:right-4 sm:gap-6 sm:p-3 xl:right-12'>
         {/*
           Le son, seulement sur mobile. Ailleurs, les contrôles du lecteur
           restent atteignables et c'est lui qui gère — ici la couche de tap
