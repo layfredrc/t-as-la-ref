@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useRef, type RefObject } from 'react'
+import { useCallback, useEffect, useRef, type RefObject } from 'react'
 import ReactPlayer from 'react-player'
 import type { Config } from 'react-player/types'
 import 'youtube-video-element'
@@ -26,6 +26,19 @@ const MUTED_AUTOPLAY_CONFIG = {
   youtube: { mute: 1 },
   tiktok: { muted: 1 },
 } as unknown as Config
+
+/** Surface de l'API du lecteur, exposée par le web component YouTube. */
+type PlayerApi = {
+  mute?: () => void
+  unMute?: () => void
+  setVolume?: (value: number) => void
+}
+
+type MediaElement = HTMLVideoElement & {
+  api?: PlayerApi | null
+  /** Résolue quand le lecteur est prêt — c'est là que `api` existe enfin. */
+  loadComplete?: Promise<unknown>
+}
 
 type ShortsPlayerProps = {
   url: string
@@ -81,8 +94,11 @@ export const VideoPlayer = ({
    * redemande un `load()` que si l'URL en manque vraiment. `youtube-video-element`,
    * lui, prend bien la `config` : son URL est déjà correcte et n'est pas rechargée.
    */
+  const nodeRef = useRef<MediaElement | null>(null)
+
   const attachPlayer = useCallback(
-    (node: HTMLVideoElement | null) => {
+    (node: MediaElement | null) => {
+      nodeRef.current = node
       if (playerRef) playerRef.current = node
       if (!node || !autoPlayIntent.current) return
 
@@ -92,6 +108,57 @@ export const VideoPlayer = ({
     },
     [playerRef],
   )
+
+  /**
+   * Ré-affirme l'état du son directement sur le lecteur.
+   *
+   * `youtube-video-element` compare l'état demandé à ce que lui répond l'API
+   * avant d'agir (`if (this.muted == val) return`, où le getter appelle
+   * `api.isMuted()`). Au démarrage cette réponse n'est pas fiable : la vidéo
+   * peut partir avec le son malgré `mute=1` dans l'URL — d'où des premières
+   * bribes audibles — et surtout le bouton son devient sans effet, le setter
+   * estimant qu'il n'y a rien à faire. On passe donc par l'API quand elle est
+   * là. `tiktok-video-element` n'a pas ce garde-fou : la propriété suffit.
+   */
+  const applyMuted = useCallback(() => {
+    const node = nodeRef.current
+    if (!node) return
+
+    const applique = () => {
+      const api = node.api
+      if (api?.mute && api?.unMute) {
+        if (muted) {
+          api.mute()
+        } else {
+          api.unMute()
+          api.setVolume?.(100)
+        }
+        return
+      }
+      node.muted = muted
+    }
+
+    // Tout de suite : quand l'appel vient d'un appui, le geste est encore
+    // « actif » aux yeux du navigateur, ce dont dépend l'activation du son.
+    applique()
+    return Boolean(node.api?.mute)
+  }, [muted])
+
+  /**
+   * Au montage, l'API du lecteur n'existe pas encore : le premier passage ne
+   * fait rien d'utile. On réessaie brièvement plutôt que de s'accrocher à la
+   * promesse `loadComplete` de l'élément, qu'il remplace dès qu'il se
+   * recharge — on resterait sur un signal mort.
+   */
+  useEffect(() => {
+    if (applyMuted()) return
+
+    const debut = Date.now()
+    const timer = setInterval(() => {
+      if (applyMuted() || Date.now() - debut > 5000) clearInterval(timer)
+    }, 150)
+    return () => clearInterval(timer)
+  }, [applyMuted])
 
   return (
     <div
@@ -116,6 +183,7 @@ export const VideoPlayer = ({
         // Sans ça, iOS passe la vidéo en plein écran au lieu de la jouer
         // dans la carte.
         playsInline
+        onPlay={applyMuted}
         loop
         controls
         width='100%'
