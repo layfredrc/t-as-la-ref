@@ -27,7 +27,11 @@ export default function FeedPage() {
 
   // When new refs load and we were waiting to advance, slide to next
   useEffect(() => {
-    if (pendingNext.current && swiper && refs.length > activeIndex + 1) {
+    if (!swiper) return
+    // Remesure : les slides arrivent après l'init de Swiper, et une mesure
+    // faite trop tôt le laisse avec des tailles fausses.
+    swiper.update()
+    if (pendingNext.current && refs.length > activeIndex + 1) {
       swiper.slideNext()
       pendingNext.current = false
     }
@@ -114,6 +118,13 @@ export default function FeedPage() {
           // les swipes suivants partant de là. Aucun champ texte dans le feed :
           // on sort `button` de la liste.
           focusableElements='input, select, option, textarea, video, label'
+          // Swiper se verrouille tout seul (`isLocked`, et `allowSlideNext`
+          // passe à false) quand il mesure une seule position d'arrêt — ce qui
+          // arrive s'il mesure au mauvais moment, avant que les slides aient
+          // leur hauteur. Il ne bouge plus d'un pixel, ni au doigt ni via
+          // `slideNext()`. Il y a toujours plus d'une ref ici : on retire ce
+          // verrou plutôt que de dépendre de la mesure.
+          watchOverflow={false}
           modules={[Mousewheel, Keyboard]}
           className='h-full'
           onSwiper={setSwiper}
