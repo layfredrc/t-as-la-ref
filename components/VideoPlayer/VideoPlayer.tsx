@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, type RefObject } from 'react'
+import { useCallback, useRef, type RefObject } from 'react'
 import ReactPlayer from 'react-player'
 import type { Config } from 'react-player/types'
 import 'youtube-video-element'
@@ -70,6 +70,29 @@ export const VideoPlayer = ({
    */
   const autoPlayIntent = useRef(externalPlaying)
 
+  /**
+   * Rattrapage pour les web components qui construisent l'URL de leur iframe
+   * dans leur constructeur, avant que react-player n'ait posé `config` : le
+   * `mute` n'y arrive alors jamais et l'autoplay reste refusé. C'est le cas de
+   * `tiktok-video-element`.
+   *
+   * On pose l'attribut `muted` — le seul que leur sérialisation relise, la
+   * propriété du même nom ne faisant qu'appeler l'API du lecteur — puis on ne
+   * redemande un `load()` que si l'URL en manque vraiment. `youtube-video-element`,
+   * lui, prend bien la `config` : son URL est déjà correcte et n'est pas rechargée.
+   */
+  const attachPlayer = useCallback(
+    (node: HTMLVideoElement | null) => {
+      if (playerRef) playerRef.current = node
+      if (!node || !autoPlayIntent.current) return
+
+      node.toggleAttribute('muted', true)
+      const src = node.shadowRoot?.querySelector('iframe')?.getAttribute('src')
+      if (src && !/[?&]mute(d)?=1(&|$)/.test(src)) node.load()
+    },
+    [playerRef],
+  )
+
   return (
     <div
       className={cn(
@@ -79,7 +102,7 @@ export const VideoPlayer = ({
     >
       {/* Video */}
       <ReactPlayer
-        ref={playerRef}
+        ref={attachPlayer}
         src={url}
         playing={externalPlaying}
         muted={muted}
