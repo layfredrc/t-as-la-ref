@@ -28,7 +28,16 @@ export type MediaElement = HTMLVideoElement & {
  * Plateformes dont l'API n'est pas garantie de répondre aux ordres venus de la
  * page. Pour elles, et **seulement si l'état observé refuse de suivre**, le
  * dernier levier est de reconstruire l'iframe avec l'autoplay sonore (voir
- * `VideoPlayer`). TikTok y est parce qu'on l'a vu ignorer `unMute`.
+ * `VideoPlayer`).
+ *
+ * TikTok y figure par prudence, pas par constat. Une session précédente avait
+ * conclu qu'il « ne répond pas à `unMute` venu du parent » ; vérifié depuis sur
+ * appareil, c'est faux — il répond, et le remontage ne se déclenche jamais. Le
+ * vrai coupable était l'ordre perdu avant que le lecteur ne soit prêt, que
+ * `sonObserve` rattrape maintenant. On garde le repli parce qu'il ne coûte rien
+ * tant que tout va bien et qu'il reste le seul chemin de secours si un
+ * navigateur refuse l'ordre — les règles d'activation utilisateur ne sont pas
+ * les mêmes partout. Retirer l'entrée supprime le mécanisme.
  */
 export const PLATEFORMES_SANS_API_SON: readonly MediaType[] = ['tiktok']
 

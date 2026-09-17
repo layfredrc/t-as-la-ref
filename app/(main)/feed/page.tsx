@@ -9,7 +9,6 @@ import { ChevronUp, ChevronDown } from 'lucide-react'
 import OnboardingGuard from '@/components/OnboardingGuard'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { RefCard } from '@/components/ref/RefCard'
-import { FeedDebug } from '@/components/ref/FeedDebug'
 import { useInfiniteRefs } from '@/queryOptions/getRefs'
 import type { Ref } from '@/lib/types'
 
@@ -113,8 +112,6 @@ export default function FeedPage() {
         son tour sur cette zone — le geste appartient à Swiper.
       */}
       <div data-lenis-prevent className='relative h-dvh'>
-        <FeedDebug swiper={swiper} />
-
         {/*
           Le feed est le seul écran sans en-tête (voir `MainShell`) : plein
           cadre, comme un Reels. Le menu revient donc ici, en surimpression.

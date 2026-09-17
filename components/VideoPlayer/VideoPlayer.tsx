@@ -103,11 +103,14 @@ export const VideoPlayer = ({
    * Génération de l'iframe, dernier recours quand le lecteur refuse l'ordre.
    *
    * L'état du son ne se change normalement pas en rechargeant quoi que ce
-   * soit : on commande le lecteur, il obéit. Mais TikTok ignore parfois
-   * `unMute` venu de la page, et le seul levier qui reste est alors l'URL de
-   * l'iframe, lue au montage. Le compteur entre dans la `key` de
-   * `ReactPlayer` : l'incrémenter remplace l'iframe par une neuve, en autoplay
-   * sonore.
+   * soit : on commande le lecteur, il obéit. Si jamais il n'obéit pas, le seul
+   * levier qui reste est l'URL de l'iframe, lue au montage. Le compteur entre
+   * dans la `key` de `ReactPlayer` : l'incrémenter remplace l'iframe par une
+   * neuve, en autoplay sonore.
+   *
+   * En pratique ce repli ne se déclenche plus (voir
+   * `PLATEFORMES_SANS_API_SON`) : TikTok répond bien, une fois l'ordre donné
+   * au bon moment.
    *
    * Contrepartie : la vidéo repart du début. C'est pour ça que ce n'est plus
    * systématique — la version précédente remontait l'iframe dès qu'une ref

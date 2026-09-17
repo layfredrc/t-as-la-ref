@@ -453,13 +453,18 @@ réintroduire :
   écho ; TikTok initialise son `muted` interne à `false` et ne le corrige qu'au
   premier message `onMute`, donc avant ça il annonce « son actif » alors que
   l'iframe démarre muette (d'où l'attente d'un `volumechange`).
-- **TikTok ignore parfois `unMute` venu de la page.** Dernier recours, et
-  seulement après 1,5 s sans convergence : remonter l'élément (`key`) avec
-  `autoplay=1&muted=0`, dans la foulée du clic — l'activation utilisateur est
-  encore valide. La vidéo repart du début. Ne jamais le faire
-  systématiquement : la version précédente remontait l'iframe dès qu'une ref
-  TikTok s'affichait avec le son actif, soit un rechargement visible à chaque
-  swipe. Voir `PLATEFORMES_SANS_API_SON` dans `lib/utils/playerSound.ts`.
+- **« TikTok ne répond pas à `unMute` venu du parent » était un faux
+  diagnostic.** Une session de septembre l'avait écrit et en avait tiré tout un
+  mécanisme de remontage d'iframe. Vérifié depuis sur appareil : TikTok répond
+  très bien, et ce repli ne se déclenche jamais. Le vrai coupable était l'ordre
+  perdu avant que le lecteur ne soit prêt — le point ci-dessus. Le repli reste
+  en place (`PLATEFORMES_SANS_API_SON` dans `lib/utils/playerSound.ts`) parce
+  qu'il ne coûte rien tant que tout va bien et qu'il est le seul chemin de
+  secours si un navigateur refuse l'ordre ; retirer l'entrée le supprime. S'il
+  devait resservir : remonter l'élément (`key`) avec `autoplay=1&muted=0`, dans
+  la foulée du clic, jamais systématiquement — la première version remontait
+  l'iframe dès qu'une ref TikTok s'affichait avec le son actif, soit un
+  rechargement visible à chaque swipe.
 
 ### Feed — barre de progression
 
@@ -487,9 +492,11 @@ de moins à tenir juste pour Swiper.
 
 ### Feed — diagnostic
 
-`/feed?debug=1` affiche un panneau qui lit, sur un vrai téléphone, ce
-qu'aucune émulation ne dit : l'élément réellement sous le doigt et son
-`touch-action`, les paramètres de l'URL de l'iframe, l'état du son renvoyé par
-le lecteur, et l'état interne de Swiper. À retirer une fois le feed stabilisé.
+Il a existé un panneau `?debug=1` (`components/ref/FeedDebug.tsx`) qui lisait,
+sur un vrai téléphone, ce qu'aucune émulation ne dit : l'élément réellement
+sous le doigt et son `touch-action`, les paramètres de l'URL de l'iframe,
+l'état du son renvoyé par le lecteur, l'état interne de Swiper. Retiré une fois
+le feed stabilisé — à récupérer dans l'historique git si le geste redevient
+douteux, plutôt qu'à réécrire.
 
 _Septembre 2026_
