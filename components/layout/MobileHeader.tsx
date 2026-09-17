@@ -6,6 +6,7 @@ import { SidebarTrigger } from '@/components/ui/sidebar'
 
 const ROUTE_TITLES: Record<string, string> = {
   '/feed': 'Explorer',
+  '/feed-v2': 'Explorer · poster',
   '/add': 'Ajouter une ref',
 }
 
