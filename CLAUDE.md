@@ -403,14 +403,17 @@ ses contrôles marchent). Dix commits ont oscillé entre les deux ; c'est tranch
   traduisent l'absence d'attribut `controls` par `controls=0` dans l'URL de
   l'iframe : la barre n'existe même plus.
 - La carte fournit toutes les commandes : tap plein cadre pour play/pause,
-  bouton son dans la barre d'actions, **visible aussi sur desktop**. Ne jamais
-  remettre ce bouton en `sm:hidden` : `VideoPlayer` réaffirme `muted` à chaque
-  rendu, donc sans notre bouton le son est structurellement impossible.
-- Le scrub et le plein écran vivent sur `/ref/[slug]`, où l'embed garde ses
-  contrôles natifs (aucun appelant hors du feed ne passe `controls`).
-- Ne jamais rouvrir une bande au lecteur en bas de l'écran : c'est là que les
-  pouces démarrent un swipe, et c'est là que le bouton unmute de TikTok redirige
-  vers tiktok.com.
+  bouton son dans la barre d'actions **visible aussi sur desktop**, et la barre
+  de progression (`components/ref/VideoProgress.tsx`). Ne jamais remettre le
+  bouton son en `sm:hidden` : `VideoPlayer` réaffirme `muted` à chaque rendu,
+  donc sans notre bouton le son est structurellement impossible.
+- Le plein écran vit sur `/ref/[slug]`, où l'embed garde ses contrôles natifs
+  (aucun appelant hors du feed ne passe `controls`).
+- Ne jamais rouvrir une bande **au lecteur** en bas de l'écran : c'est là que
+  les pouces démarrent un swipe, et c'est là que le bouton unmute de TikTok
+  redirige vers tiktok.com. La seule zone du bas qui n'accepte pas le swipe
+  vertical est notre barre de progression — 20px, en `swiper-no-swiping`, sans
+  quoi un scrub horizontal part en changement de ref dès que le doigt dévie.
 
 ### Feed mobile — geste et lecture
 
@@ -441,12 +444,40 @@ réintroduire :
 - **L'autoplay se joue dans l'URL de l'iframe, au montage.** Il faut `mute=1`
   ET `autoplay=1` dedans : `react-player` applique `playing` depuis un effet,
   qui n'est pas un geste utilisateur, et la lecture est refusée.
-- **TikTok ne répond pas à `unMute` venu de la page.** Le seul levier est
-  l'URL de l'iframe : le premier passage au son remonte l'élément (`key`) avec
+- **Commander le son ne suffit pas : il faut vérifier qu'il a suivi.** Un
+  ordre parti avant que le lecteur ne soit prêt est perdu sans bruit — c'est
+  ça, le son « irrégulier ». `VideoPlayer` redemande toutes les 200 ms jusqu'à
+  ce que le lecteur **rapporte** le bon état (`sonObserve`), puis s'arrête.
+  Lire cet état demande des précautions : YouTube ne renvoie `api.isMuted()`
+  qu'une fois `isLoaded`, sinon il rend l'attribut, c'est-à-dire notre propre
+  écho ; TikTok initialise son `muted` interne à `false` et ne le corrige qu'au
+  premier message `onMute`, donc avant ça il annonce « son actif » alors que
+  l'iframe démarre muette (d'où l'attente d'un `volumechange`).
+- **TikTok ignore parfois `unMute` venu de la page.** Dernier recours, et
+  seulement après 1,5 s sans convergence : remonter l'élément (`key`) avec
   `autoplay=1&muted=0`, dans la foulée du clic — l'activation utilisateur est
-  encore valide. La vidéo repart du début, une seule fois. Voir
-  `PLATEFORMES_SANS_API_SON` dans `lib/utils/playerSound.ts` : si l'API TikTok
-  se met à répondre, retirer l'entrée suffit.
+  encore valide. La vidéo repart du début. Ne jamais le faire
+  systématiquement : la version précédente remontait l'iframe dès qu'une ref
+  TikTok s'affichait avec le son actif, soit un rechargement visible à chaque
+  swipe. Voir `PLATEFORMES_SANS_API_SON` dans `lib/utils/playerSound.ts`.
+
+### Feed — barre de progression
+
+`components/ref/VideoProgress.tsx`. Elle n'existe que parce que le feed coupe
+les contrôles natifs : sans elle, aucun moyen d'avancer dans une vidéo.
+
+- 2px au repos, 5px sous le doigt, encre `var(--accent5)` avec son halo néon,
+  piste en `bg-white/20`. Le halo est en style inline : Tailwind ne compose pas
+  une ombre à partir d'une variable CSS sans la figer dans la config.
+- Le temps est lu à intervalle fixe (250 ms) sur `currentTime` / `duration`,
+  qui sont des getters synchrones sur les deux web components. La transition
+  CSS est `linear` et calée sur la même durée — la barre glisse au lieu de
+  sauter. Ne pas s'en remettre à `timeupdate` seul : les deux lecteurs
+  l'émettent à leur propre rythme.
+- Le `seek` ne part qu'au relâcher. Un `seekTo` à chaque mouvement rebufferise
+  YouTube en continu.
+- Rien ne s'affiche tant que la durée est inconnue, plutôt qu'une barre morte
+  à zéro.
 
 ### Feed — plein écran
 

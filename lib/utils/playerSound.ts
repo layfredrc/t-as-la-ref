@@ -20,15 +20,15 @@ type PlayerApi = {
 
 export type MediaElement = HTMLVideoElement & {
   api?: PlayerApi | null
+  /** Vrai une fois le lecteur prêt — avant ça, `muted` ne dit rien d'utile. */
+  readonly isLoaded?: boolean
 }
 
 /**
- * Plateformes dont l'API ne répond pas aux ordres venus de la page.
- *
- * TikTok en fait partie : `unMute` envoyé depuis le parent reste sans effet
- * (constaté sur appareil). Pour elles, le seul moyen sûr d'obtenir le son est
- * de reconstruire l'iframe avec l'autoplay sonore, dans la foulée du clic —
- * voir `VideoPlayer`. Si TikTok se met à répondre, retirer l'entrée suffit.
+ * Plateformes dont l'API n'est pas garantie de répondre aux ordres venus de la
+ * page. Pour elles, et **seulement si l'état observé refuse de suivre**, le
+ * dernier levier est de reconstruire l'iframe avec l'autoplay sonore (voir
+ * `VideoPlayer`). TikTok y est parce qu'on l'a vu ignorer `unMute`.
  */
 export const PLATEFORMES_SANS_API_SON: readonly MediaType[] = ['tiktok']
 
@@ -37,22 +37,19 @@ export function pilotableParApi(mediaType?: MediaType): boolean {
 }
 
 /**
- * Applique l'état du son à l'élément média.
+ * Donne l'ordre au lecteur.
  *
  * `youtube-video-element` compare l'état demandé à ce que lui répond l'API
  * avant d'agir (`if (this.muted == val) return`, où le getter appelle
- * `api.isMuted()`). Au démarrage cette réponse n'est pas fiable : la vidéo
- * peut partir avec le son malgré `mute=1` dans l'URL, et surtout le bouton
- * son devient sans effet, le setter estimant qu'il n'y a rien à faire. On
+ * `api.isMuted()`). Au démarrage cette réponse n'est pas fiable, et le setter
+ * conclut qu'il n'y a rien à faire — le bouton son devenait sans effet. On
  * passe donc par l'API dès qu'elle est là. `tiktok-video-element` n'a pas ce
- * garde-fou : la propriété suffit.
+ * garde-fou : la propriété suffit à poster le message.
  *
- * @returns `true` quand l'ordre a pu être donné pour de bon — il n'y a plus
- * rien à réessayer. `false` quand l'élément déclare une API mais ne l'a pas
- * encore construite : l'appelant doit repasser.
+ * Donner l'ordre n'est pas la même chose que l'obtenir : voir `sonObserve`.
  */
-export function applyMutedTo(node: MediaElement | null, muted: boolean): boolean {
-  if (!node) return false
+export function commanderSon(node: MediaElement | null, muted: boolean): void {
+  if (!node) return
 
   const api = node.api
   if (api?.mute && api?.unMute) {
@@ -62,16 +59,36 @@ export function applyMutedTo(node: MediaElement | null, muted: boolean): boolean
       api.unMute()
       api.setVolume?.(100)
     }
-    return true
+    return
   }
 
   node.muted = muted
+}
 
-  // Y a-t-il encore quelque chose à attendre ? Seuls les lecteurs qui exposent
-  // une API en ont une à attendre (`api` est déclaré, à null, dès la
-  // construction de l'élément YouTube). TikTok n'en expose pas : la propriété
-  // a déjà fait son effet, il n'y a rien à réessayer. Sans cette distinction
-  // la boucle de rattrapage tournait indéfiniment et renvoyait un `unMute`
-  // toutes les 150 ms au lecteur — le son hachait.
-  return !('api' in node)
+/**
+ * État du son réellement rapporté par le lecteur, ou `null` tant qu'on ne peut
+ * pas s'y fier.
+ *
+ * C'est la pièce qui manquait : on commandait le son sans jamais vérifier
+ * qu'il avait suivi. D'où un son « irrégulier » — un ordre parti trop tôt,
+ * avant que le lecteur ne finisse de s'initialiser, est silencieusement perdu,
+ * et rien ne le rattrapait.
+ *
+ * Les deux lecteurs savent répondre, mais pas tout de suite :
+ *
+ * - YouTube : `muted` interroge `api.isMuted()` **une fois chargé** ; avant ça
+ *   il renvoie l'attribut, c'est-à-dire ce qu'on a écrit nous-mêmes. Sans
+ *   `isLoaded`, on se contenterait de lire son propre écho.
+ * - TikTok : `muted` renvoie un champ interne initialisé à `false` et mis à
+ *   jour par les messages `onMute` du player. Avant le premier de ces
+ *   messages, il annonce donc « son actif » alors que l'iframe démarre muette.
+ *   D'où `sonRapporte`, que `VideoPlayer` lève au premier `volumechange`.
+ */
+export function sonObserve(
+  node: MediaElement | null,
+  { sonRapporte }: { sonRapporte: boolean },
+): boolean | null {
+  if (!node) return null
+  if ('api' in node) return node.isLoaded ? Boolean(node.muted) : null
+  return sonRapporte ? Boolean(node.muted) : null
 }
