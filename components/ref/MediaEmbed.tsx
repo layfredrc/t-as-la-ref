@@ -146,18 +146,33 @@ type MediaEmbedProps = {
   url: string
   mediaType: MediaType
   playing?: boolean
+  /** Démarrage muet — voir VideoPlayer, c'est ce qui rend l'autoplay légal. */
+  muted?: boolean
   className?: string
   /** Transmis au lecteur vidéo pour le contrôle direct (voir VideoPlayer). */
   playerRef?: RefObject<HTMLVideoElement | null>
 }
 
-export function MediaEmbed({ url, mediaType, playing, className, playerRef }: MediaEmbedProps) {
+export function MediaEmbed({
+  url,
+  mediaType,
+  playing,
+  muted,
+  className,
+  playerRef,
+}: MediaEmbedProps) {
   switch (mediaType) {
     case 'youtube':
     case 'tiktok':
     case 'video':
       return (
-        <VideoPlayer url={url} playing={playing} className={className} playerRef={playerRef} />
+        <VideoPlayer
+          url={url}
+          playing={playing}
+          muted={muted}
+          className={className}
+          playerRef={playerRef}
+        />
       )
 
     case 'twitter':

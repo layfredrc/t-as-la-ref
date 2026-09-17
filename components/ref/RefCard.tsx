@@ -3,7 +3,15 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRef, useState } from 'react'
-import { ChevronDown, ChevronUp, MessageCircle, Play, PlusCircle } from 'lucide-react'
+import {
+  ChevronDown,
+  ChevronUp,
+  MessageCircle,
+  Play,
+  PlusCircle,
+  Volume2,
+  VolumeX,
+} from 'lucide-react'
 import type { AddRefFormData, Ref, Tag, TagsByType } from '@/lib/types'
 import { mediaTypeLabels } from '@/lib/utils/detectMediaType'
 import { MediaEmbed } from './MediaEmbed'
@@ -22,9 +30,15 @@ const scoreCultureLabel: Record<string, string> = {
 type RefCardProps = {
   ref_data: Ref
   isActive?: boolean
+  /**
+   * Le son est une préférence de session, pas un état de carte : on la
+   * remonte au feed pour qu'elle survive au passage à la ref suivante.
+   */
+  muted?: boolean
+  onToggleMuted?: () => void
 }
 
-export function RefCard({ ref_data, isActive = true }: RefCardProps) {
+export function RefCard({ ref_data, isActive = true, muted = true, onToggleMuted }: RefCardProps) {
   const tagTypeRef = ref_data.tags?.find((t: Tag) => t.type === 'type_ref')
   const tagOrigine = ref_data.tags?.find((t: Tag) => t.type === 'origine')
   const tagVibe = ref_data.tags?.find((t: Tag) => t.type === 'vibe')
@@ -49,11 +63,17 @@ export function RefCard({ ref_data, isActive = true }: RefCardProps) {
 
   // Tap sur la vidéo : referme le panneau s'il est ouvert, sinon play/pause.
   // C'est le « quand on laisse, ça se replie ».
-  const handleTap = (event: React.MouseEvent) => {
+  const handleTap = (event: React.MouseEvent<HTMLButtonElement>) => {
     // Un drag se termine lui aussi par un `click`. Swiper le neutralise
     // (`preventClicks`) dès qu'il a reconnu un swipe : sans ce garde-fou,
     // chaque changement de ref basculerait aussi la lecture.
     if (event.defaultPrevented) return
+
+    // Ne pas laisser le focus sur une cible qui couvre tout l'écran : Swiper
+    // refuse de démarrer un drag sur l'élément déjà focus (voir
+    // `focusableElements` côté feed). `detail > 0` distingue le tap du clavier,
+    // dont on ne veut pas voler le focus.
+    if (event.detail > 0) event.currentTarget.blur()
 
     if (expanded) {
       setExpanded(false)
@@ -85,6 +105,7 @@ export function RefCard({ ref_data, isActive = true }: RefCardProps) {
           url={ref_data.media_url}
           mediaType={ref_data.media_type}
           playing={isActive && !paused}
+          muted={muted}
           playerRef={playerRef}
           // Voir la couche de tap ci-dessous : c'est ce `pointer-events-none`
           // qui débloque le swipe sur mobile.
@@ -265,6 +286,27 @@ export function RefCard({ ref_data, isActive = true }: RefCardProps) {
           Resserrée sur mobile : c'est elle qui dictait la largeur perdue par
           la carte, et le libellé « Découvrir » l'élargissait à 91px. */}
       <div className='glass absolute right-3 bottom-8 z-20 flex flex-col gap-4 rounded-2xl p-2 sm:right-4 sm:gap-6 sm:p-3 xl:right-12'>
+        {/*
+          Le son, seulement sur mobile. Ailleurs, les contrôles du lecteur
+          restent atteignables et c'est lui qui gère — ici la couche de tap
+          les recouvre, il faut donc une prise.
+        */}
+        <button
+          type='button'
+          onClick={onToggleMuted}
+          aria-label={muted ? 'Activer le son' : 'Couper le son'}
+          aria-pressed={!muted}
+          className='flex flex-col items-center gap-1 sm:hidden'
+        >
+          <div className='flex h-9 w-9 items-center justify-center rounded-full transition-all hover:scale-110 hover:bg-white/15'>
+            {muted ? (
+              <VolumeX className='h-6 w-6 text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.45)]' />
+            ) : (
+              <Volume2 className='h-6 w-6 text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.45)]' />
+            )}
+          </div>
+        </button>
+
         <LikeButton refId={ref_data.id} initialCount={ref_data.likes_count} variant='overlay' />
 
         <Link href={`/ref/${ref_data.slug}#comments`} aria-label='Voir le débat'>

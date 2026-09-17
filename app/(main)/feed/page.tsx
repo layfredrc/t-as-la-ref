@@ -18,6 +18,10 @@ export default function FeedPage() {
   const refs: Ref[] = data?.pages.flatMap((p) => p.data) ?? []
   const [activeIndex, setActiveIndex] = useState(0)
   const [swiper, setSwiper] = useState<SwiperType | null>(null)
+  // Les vidéos démarrent muettes — seule lecture qu'un mobile autorise sans
+  // geste (voir VideoPlayer). Le choix de l'utilisateur vaut ensuite pour
+  // tout le feed, pas seulement pour la ref où il a appuyé.
+  const [muted, setMuted] = useState(true)
   const pendingNext = useRef(false)
 
   // When new refs load and we were waiting to advance, slide to next
@@ -89,6 +93,14 @@ export default function FeedPage() {
           // Swiper annule le pointerdown par défaut, ce qui supprime le click
           // qui suit : le tap play/pause de la RefCard ne partait jamais.
           touchStartPreventDefault={false}
+          // Swiper abandonne un drag qui démarre sur l'élément déjà focus,
+          // s'il fait partie de `focusableElements` — le garde-fou pensé pour
+          // ne pas voler le geste d'un champ texte. `button` étant dans la
+          // liste par défaut, un seul tap sur la couche de tap play/pause (ou
+          // sur le bouton son, ou sur le like) la laissait focus et TUAIT tous
+          // les swipes suivants partant de là. Aucun champ texte dans le feed :
+          // on sort `button` de la liste.
+          focusableElements='input, select, option, textarea, video, label'
           modules={[Mousewheel, Keyboard]}
           className='h-full'
           onSwiper={setSwiper}
@@ -96,7 +108,12 @@ export default function FeedPage() {
         >
           {refs.map((ref, index) => (
             <SwiperSlide key={ref.id}>
-              <RefCard ref_data={ref} isActive={index === activeIndex} />
+              <RefCard
+                ref_data={ref}
+                isActive={index === activeIndex}
+                muted={muted}
+                onToggleMuted={() => setMuted((m) => !m)}
+              />
             </SwiperSlide>
           ))}
 

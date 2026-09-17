@@ -391,6 +391,29 @@ Utiliser les classes utilitaires Tailwind custom : `.bg-bg`, `.bg-fg`, `.text-fg
 - Pattern isActive → mount dans RefCard pour éviter les CSP violations
 - react-player v3 : prop `src` (pas `url`), web components à importer
   explicitement (`youtube-video-element`, `tiktok-video-element`...)
-- Ne jamais contrôler le son depuis le parent — laisser le widget gérer
+- Laisser le widget gérer le son **partout où ses contrôles sont
+  atteignables**. Exception : le feed sur mobile, où la couche de tap les
+  recouvre — un bouton son dans la barre d'actions pilote alors la propriété
+  `muted` de l'élément média, que le widget traduit lui-même en `mute()` /
+  `unMute()`. Nulle part ailleurs.
 
-_Mars 2026_
+### Feed mobile — geste et lecture
+
+Trois pièges, tous vérifiés au navigateur tactile. Ne pas les réintroduire :
+
+- **L'embed est un iframe cross-origin** : un geste qui démarre au-dessus de
+  lui ne quitte jamais son document. D'où `pointer-events-none` sur l'embed en
+  mobile — le geste atteint la slide et c'est Swiper qui le traite. Ne pas
+  remplacer ça par une couche qui remesure le swipe à la main : sur un vrai
+  téléphone le geste est régulièrement interrompu (`touchcancel`) et un
+  recognizer maison le perd en silence.
+- **`focusableElements` de Swiper contient `button` par défaut.** Swiper
+  abandonne tout drag qui démarre sur l'élément déjà focus s'il est dans cette
+  liste. Un seul tap sur la couche de tap suffisait donc à tuer tous les
+  swipes suivants. Le feed retire `button` de la liste.
+- **L'autoplay se joue dans l'URL de l'iframe, au montage.** Il faut `mute=1`
+  ET `autoplay=1` dedans : `react-player` applique `playing` depuis un effet,
+  qui n'est pas un geste utilisateur, et la lecture est refusée. Le son
+  s'active ensuite via la propriété `muted`, sans reconstruire l'iframe.
+
+_Septembre 2026_
