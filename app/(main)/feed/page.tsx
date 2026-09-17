@@ -8,6 +8,7 @@ import 'swiper/css'
 import { ChevronUp, ChevronDown } from 'lucide-react'
 import OnboardingGuard from '@/components/OnboardingGuard'
 import { RefCard } from '@/components/ref/RefCard'
+import { FeedDebug } from '@/components/ref/FeedDebug'
 import { useInfiniteRefs } from '@/queryOptions/getRefs'
 import type { Ref } from '@/lib/types'
 
@@ -85,6 +86,7 @@ export default function FeedPage() {
         son tour sur cette zone — le geste appartient à Swiper.
       */}
       <div data-lenis-prevent className='relative h-[calc(100dvh-4rem)] md:h-dvh'>
+        <FeedDebug swiper={swiper} />
         <Swiper
           direction='vertical'
           slidesPerView={1}
