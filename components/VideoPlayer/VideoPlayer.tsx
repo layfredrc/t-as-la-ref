@@ -6,6 +6,7 @@ import type { Config } from 'react-player/types'
 import 'youtube-video-element'
 import 'tiktok-video-element'
 import type { MediaType } from '@/lib/types'
+import { extractYoutubeId } from '@/lib/utils/detectMediaType'
 import {
   commanderSon,
   pilotableParApi,
@@ -79,6 +80,11 @@ type ShortsPlayerProps = {
   playerRef?: RefObject<HTMLVideoElement | null>
 }
 
+function posterYoutube(url: string): string | null {
+  const id = extractYoutubeId(url)
+  return id ? `https://i.ytimg.com/vi/${id}/hqdefault.jpg` : null
+}
+
 export const VideoPlayer = ({
   url,
   mediaType,
@@ -98,6 +104,17 @@ export const VideoPlayer = ({
   const autoPlayIntent = useRef(externalPlaying)
 
   const nodeRef = useRef<MediaElement | null>(null)
+
+  /**
+   * Affiche sur la vidéo, en attendant que l'iframe joue.
+   *
+   * Un iframe YouTube met une à deux secondes à démarrer sur mobile ; pendant
+   * ce temps le feed montrait un rectangle noir, ce qui donnait au swipe une
+   * impression de lenteur qui n'était pas la sienne. La miniature (≈ 20 Ko,
+   * servie par YouTube) arrive avant, et s'efface au premier `play`.
+   */
+  const poster = mediaType === 'youtube' ? posterYoutube(url) : null
+  const [posterVisible, setPosterVisible] = useState(Boolean(poster))
 
   /**
    * Génération de l'iframe, dernier recours quand le lecteur refuse l'ordre.
@@ -160,6 +177,11 @@ export const VideoPlayer = ({
 
   /** Ré-affirme l'état du son. Appelé aussi quand la lecture (re)démarre. */
   const commande = useCallback(() => commanderSon(nodeRef.current, muted), [muted])
+
+  const onPlay = useCallback(() => {
+    setPosterVisible(false)
+    commande()
+  }, [commande])
 
   /**
    * Converger sur l'état **observé**, pas sur l'ordre donné.
@@ -250,12 +272,26 @@ export const VideoPlayer = ({
         // Sans ça, iOS passe la vidéo en plein écran au lieu de la jouer
         // dans la carte.
         playsInline
-        onPlay={commande}
+        onPlay={onPlay}
         loop
         width='100%'
         height='100%'
         className='!absolute !top-0 !left-0 z-0'
       />
+
+      {poster && (
+        // eslint-disable-next-line @next/next/no-img-element -- hôte externe (i.ytimg.com), pas d'optimisation à en attendre
+        <img
+          src={poster}
+          alt=''
+          aria-hidden
+          decoding='async'
+          className={cn(
+            'pointer-events-none absolute inset-0 z-[1] h-full w-full object-cover transition-opacity duration-300',
+            posterVisible ? 'opacity-100' : 'opacity-0',
+          )}
+        />
+      )}
     </div>
   )
 }
