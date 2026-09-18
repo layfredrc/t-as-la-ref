@@ -104,9 +104,7 @@ export function FeedDebug({ swiper }: { swiper: SwiperInterne | null }) {
       const sousLeDoigt = document.elementFromPoint(t.clientX, t.clientY)
       const cible = sousLeDoigt ?? (e.target as Element)
       const ta = sousLeDoigt ? getComputedStyle(sousLeDoigt).touchAction : '?'
-      ajoute(
-        `↓ ${cible.tagName.toLowerCase()} ${cible.getAttribute('aria-label') ?? ''} ta=${ta}`,
-      )
+      ajoute(`↓ ${cible.tagName.toLowerCase()} ${cible.getAttribute('aria-label') ?? ''} ta=${ta}`)
     }
     const onMove = () => {
       moves++

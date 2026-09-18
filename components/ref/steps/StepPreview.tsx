@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
 import { RefCardPreview } from '@/components/ref/RefCard'
-import type { AddRefFormData, TagsByType } from '@/lib/types'
+import type { AddRefFormData } from '@/lib/types'
 import { useTags } from '@/queryOptions/getTags'
 
 type StepPreviewProps = {

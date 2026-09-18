@@ -194,9 +194,7 @@ export function HashtagInput({ value, onChange, maxTags = 10 }: HashtagInputProp
         )}
       </div>
 
-      {atMax && (
-        <p className='text-xs text-[var(--fg)]/40'>Maximum {maxTags} hashtags atteint.</p>
-      )}
+      {atMax && <p className='text-xs text-[var(--fg)]/40'>Maximum {maxTags} hashtags atteint.</p>}
     </div>
   )
 }

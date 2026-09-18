@@ -1,12 +1,13 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { toast } from 'sonner'
 import { Field, FieldLabel } from './ui/field'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { userProfileKey } from '@/queryOptions/getUserProfile'
 
 export default function ProfileSetupModal({ onComplete }: { onComplete: () => void }) {
   const [username, setUsername] = useState('')
@@ -22,17 +23,28 @@ export default function ProfileSetupModal({ onComplete }: { onComplete: () => vo
       return
     }
 
-    const fileName = `${Date.now()}-${file.name}`
+    // Nom de fichier neutre : seule l'extension du fichier d'origine est
+    // conservée, pas son nom (espaces, accents, chemins…).
+    const extension =
+      file.name
+        .split('.')
+        .pop()
+        ?.toLowerCase()
+        .replace(/[^a-z0-9]/g, '') || 'jpg'
+    const fileName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${extension}`
     const { data, error } = await supabase.storage
       .from('user_profile_picture')
       .upload(fileName, file)
 
-    if (!error && data?.path) {
-      const { data: publicUrl } = supabase.storage
-        .from('user_profile_picture')
-        .getPublicUrl(data.path)
-      setAvatarUrl(publicUrl.publicUrl)
+    if (error || !data?.path) {
+      toast.error("L'envoi de la photo a échoué. Réessaie.")
+      return
     }
+
+    const { data: publicUrl } = supabase.storage
+      .from('user_profile_picture')
+      .getPublicUrl(data.path)
+    setAvatarUrl(publicUrl.publicUrl)
   }
 
   const isValidUsername = (value: string) => /^[a-zA-Z0-9_]{2,20}$/.test(value)
@@ -49,7 +61,7 @@ export default function ProfileSetupModal({ onComplete }: { onComplete: () => vo
 
       const { data: existingUser } = await supabase
         .from('users')
-        .select('*')
+        .select('id')
         .eq('username', username)
         .maybeSingle()
 
@@ -78,11 +90,10 @@ export default function ProfileSetupModal({ onComplete }: { onComplete: () => vo
     },
     onSuccess: async () => {
       toast.info('Votre profil a été complété !')
-      await queryClient.invalidateQueries({ queryKey: ['user-profile'] })
+      await queryClient.invalidateQueries({ queryKey: userProfileKey })
       onComplete()
     },
-    onError: (error: any) => {
-      console.log({ error })
+    onError: (error: Error) => {
       toast.error(error.message)
     },
   })
@@ -101,11 +112,7 @@ export default function ProfileSetupModal({ onComplete }: { onComplete: () => vo
         {/* Ligne avatar + bouton */}
         <div className='flex items-center gap-4 mb-6'>
           <Avatar className='h-24 w-24 rounded-full'>
-            <AvatarImage
-              src={!!avatarUrl ? avatarUrl : username}
-              alt={username}
-              className='object-cover object-center'
-            />
+            <AvatarImage src={avatarUrl} alt={username} className='object-cover object-center' />
             <AvatarFallback className='rounded-lg'>REF</AvatarFallback>
           </Avatar>
           <div>
@@ -124,17 +131,17 @@ export default function ProfileSetupModal({ onComplete }: { onComplete: () => vo
 
         {/* Input username */}
         <Field className='flex flex-col gap-3'>
-          <FieldLabel htmlFor='email'>Nom d'utilisateur</FieldLabel>
+          <FieldLabel htmlFor='username'>Nom d&apos;utilisateur</FieldLabel>
           <Input
+            id='username'
             placeholder="Nom d'utilisateur"
             value={username}
-            accept='image/png, image/jpeg, image/jpg, image/webp'
+            autoComplete='username'
             onChange={(e) => setUsername(e.target.value)}
           />
           {!isValidUsername(username) && username.length > 0 && (
             <p className='text-sm text-red-500'>
-              Les noms d'utilisateur ne peuvent contenir que des lettres, des chiffres, des traits
-              de soulignement et des points. Avec (2 - 20) caractères.
+              Lettres, chiffres et _ uniquement, entre 2 et 20 caractères.
             </p>
           )}
           <Button onClick={handleSubmit} disabled={!username || updateUserMutation.isPending}>
