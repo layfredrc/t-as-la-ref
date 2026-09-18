@@ -1,10 +1,13 @@
 .meme-vortex {
   position: relative;
   height: 100svh;
-  width: 100vw;
+  width: 100%;
   overflow: hidden;
-  inline-size: 100%;
-  overflow-x: hidden;
+  /* Tant que la section est loin sous le pli, le navigateur ne la met pas en
+     page et ne télécharge pas ses seize GIF Tenor : sur mobile, c'est plusieurs
+     Mo d'animations qui partaient dès l'arrivée sur la home. */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 100svh;
 }
 .cursor {
   position: fixed;
@@ -12,6 +15,9 @@
   left: 0;
   z-index: 99999;
   pointer-events: none;
+  /* Invisible tant que la souris n'a pas bougé : sinon il traîne en haut à
+     gauche de l'écran au chargement. */
+  opacity: 0;
 }
 
 .cursor img {
@@ -22,14 +28,17 @@
 
 .gallery {
   position: absolute;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   background: var(--fg);
   transform-style: preserve-3d;
   perspective: 2000px;
 }
 
-.block {
+/* Préfixé : `.block` est aussi l'utilitaire Tailwind `display: block`, et cette
+   règle globale l'écrasait dans toute l'app (un lien `block` de la navbar
+   devenait un rectangle gris de 200×120 en absolu). */
+.vortex-block {
   position: absolute;
   width: 200px;
   height: 120px;
@@ -38,14 +47,14 @@
   transform: translateZ(1750px);
 }
 
-.block-1 {
+.vortex-block-1 {
   top: 30%;
   left: 55%;
   background: url('https://c.tenor.com/21815GBBccoAAAAC/tenor.gif') no-repeat 50% 50%;
   background-size: cover;
 }
 
-.block-2 {
+.vortex-block-2 {
   top: 20%;
   left: 25%;
   background: url('https://media1.tenor.com/m/xDyPA9tx-pAAAAAd/cavapeter-peter.gif') no-repeat 50%
@@ -53,7 +62,7 @@
   background-size: cover;
 }
 
-.block-3 {
+.vortex-block-3 {
   top: 50%;
   left: 10%;
   background: url('https://media1.tenor.com/m/bRIZQF6zQb4AAAAC/kaaris-or-noir.gif') no-repeat 50%
@@ -61,7 +70,7 @@
   background-size: cover;
 }
 
-.block-4 {
+.vortex-block-4 {
   top: 60%;
   left: 40%;
   background: url('https://media1.tenor.com/m/6SxpB0xDCz0AAAAd/oh-putain-laurent-laurent.gif')
@@ -69,14 +78,14 @@
   background-size: cover;
 }
 
-.block-5 {
+.vortex-block-5 {
   top: 30%;
   left: 30%;
   background: url('https://media1.tenor.com/m/ASGuOCPGrKEAAAAd/kekw-kek.gif') no-repeat 50% 50%;
   background-size: cover;
 }
 
-.block-6 {
+.vortex-block-6 {
   top: 60%;
   left: 60%;
   background: url('https://media1.tenor.com/m/tznGQ_YQGzIAAAAd/angry-tracksuit.gif') no-repeat 50%
@@ -84,14 +93,14 @@
   background-size: cover;
 }
 
-.block-7 {
+.vortex-block-7 {
   top: 20%;
   left: 50%;
   background: url('https://media1.tenor.com/m/Z42Fo4WKPrQAAAAC/dog-driving.gif') no-repeat 50% 50%;
   background-size: cover;
 }
 
-.block-8 {
+.vortex-block-8 {
   top: 60%;
   left: 10%;
   background: url('https://media1.tenor.com/m/XL5DYi3tLSwAAAAC/woody-toy-story-sturdy.gif')
@@ -99,7 +108,7 @@
   background-size: cover;
 }
 
-.block-9 {
+.vortex-block-9 {
   top: 20%;
   left: 40%;
   background: url('https://media1.tenor.com/m/wb_rblUTxVAAAAAd/boat-kid-aura-farming-pacu-jalur.gif')
@@ -107,7 +116,7 @@
   background-size: cover;
 }
 
-.block-10 {
+.vortex-block-10 {
   top: 40%;
   left: 60%;
   background: url('https://media1.tenor.com/m/4-odaCiEXeUAAAAd/dancing-coffin-coffin-dance.gif')
@@ -115,7 +124,7 @@
   background-size: cover;
 }
 
-.block-11 {
+.vortex-block-11 {
   top: 60%;
   left: 25%;
   background: url('https://media1.tenor.com/m/vgQ373N5YtsAAAAC/speed-ishowspeed.gif') no-repeat 50%
@@ -123,33 +132,33 @@
   background-size: cover;
 }
 
-.block-12 {
+.vortex-block-12 {
   top: 30%;
   left: 50%;
   background: url('https://media1.tenor.com/m/ftLcQ8mFR3AAAAAd/aiscream-love-live-aiscream-ruby.gif')
     no-repeat 50% 50%;
   background-size: cover;
 }
-.block-13 {
+.vortex-block-13 {
   top: 60%;
   left: 25%;
   background: url('https://media1.tenor.com/m/PGjYziyQqkoAAAAd/fried-chicken-chicken.gif') no-repeat
     50% 50%;
   background-size: cover;
 }
-.block-14 {
+.vortex-block-14 {
   top: 25%;
   left: 25%;
   background: url('https://media1.tenor.com/m/Vo7DmpYoYCgAAAAd/future.gif') no-repeat 50% 50%;
   background-size: cover;
 }
-.block-15 {
+.vortex-block-15 {
   top: 50%;
   left: 10%;
   background: url('https://media1.tenor.com/m/wC1SbgEZLVcAAAAd/training-day.gif') no-repeat 50% 50%;
   background-size: cover;
 }
-.block-16 {
+.vortex-block-16 {
   top: 60%;
   left: 40%;
   background: url('https://media1.tenor.com/m/Y847f62IGbEAAAAd/feliz-cumplea%C3%B1os.gif') no-repeat
@@ -169,7 +178,6 @@
 
 .header h1 {
   text-transform: uppercase;
-  font-weight: 00;
   font-size: 12vw;
   text-align: center;
   line-height: 1;
@@ -197,9 +205,14 @@
   }
 
   /* Blocs réduits pour ne pas déborder */
-  .block {
+  .vortex-block {
     width: 120px;
     height: 80px;
+  }
+
+  /* Le CTA au-dessus de la barre système du bas. */
+  .meme-vortex > .absolute {
+    bottom: max(12%, env(safe-area-inset-bottom) + 2rem);
   }
 
   /* Titre plus lisible */
