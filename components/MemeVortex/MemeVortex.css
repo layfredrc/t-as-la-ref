@@ -211,7 +211,7 @@
   }
 
   /* Le CTA au-dessus de la barre système du bas. */
-  .meme-vortex > .absolute {
+  .meme-vortex-cta {
     bottom: max(12%, env(safe-area-inset-bottom) + 2rem);
   }
 

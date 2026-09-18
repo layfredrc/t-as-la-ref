@@ -9,6 +9,14 @@ import { Field, FieldLabel } from './ui/field'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { userProfileKey } from '@/queryOptions/getUserProfile'
 
+const EXTENSION_PAR_TYPE: Record<string, string> = {
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/webp': 'webp',
+  'image/gif': 'gif',
+  'image/avif': 'avif',
+}
+
 export default function ProfileSetupModal({ onComplete }: { onComplete: () => void }) {
   const [username, setUsername] = useState('')
   const [avatarUrl, setAvatarUrl] = useState('/default-avatar.png')
@@ -23,14 +31,9 @@ export default function ProfileSetupModal({ onComplete }: { onComplete: () => vo
       return
     }
 
-    // Nom de fichier neutre : seule l'extension du fichier d'origine est
-    // conservée, pas son nom (espaces, accents, chemins…).
-    const extension =
-      file.name
-        .split('.')
-        .pop()
-        ?.toLowerCase()
-        .replace(/[^a-z0-9]/g, '') || 'jpg'
+    // Nom de fichier neutre, extension déduite du type MIME : le nom d'origine
+    // (espaces, accents, ou pas d'extension du tout) n'entre pas dans le chemin.
+    const extension = EXTENSION_PAR_TYPE[file.type] ?? 'jpg'
     const fileName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${extension}`
     const { data, error } = await supabase.storage
       .from('user_profile_picture')

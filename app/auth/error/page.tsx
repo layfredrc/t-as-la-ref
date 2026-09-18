@@ -9,7 +9,7 @@ export default function AuthErrorPage() {
       </p>
       <Link
         href='/login'
-        className='rounded-lg border-2 border-black bg-accent5 px-4 py-2 font-supplymono text-sm shadow-[-4px_4px_0_#000] transition-transform hover:translate-y-0.5'
+        className='rounded-lg border-2 border-black bg-accent5 px-4 py-2 font-supplymono text-sm shadow-[-4px_4px_0_var(--fg)] transition-transform hover:translate-y-0.5'
       >
         Retour à la connexion
       </Link>

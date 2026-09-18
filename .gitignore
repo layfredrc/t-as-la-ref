@@ -47,7 +47,3 @@ supabase/seed_refs.sql
 # Python
 __pycache__/
 *.pyc
-
-# Python
-__pycache__/
-*.pyc

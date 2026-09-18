@@ -1,5 +1,5 @@
 'use client'
-import { ReactNode, useEffect, useMemo, useState } from 'react'
+import { ReactNode } from 'react'
 import { usePathname } from 'next/navigation'
 import { ReactLenis } from 'lenis/react'
 import type { LenisOptions } from 'lenis'
@@ -13,14 +13,14 @@ gsap.registerPlugin(ScrollTrigger)
  * `direction`, `gestureDirection` n'existent plus dans Lenis 1.x et étaient
  * ignorées en silence).
  *
- * Sur mobile, Lenis ne touche plus au geste : `syncTouch` était actif, donc
- * chaque `touchmove` était annulé et rejoué par JavaScript avec un lissage à
- * 0.05 — c'est ce défilement mou, en retard sur le doigt, qui rendait la home
- * « pas ouf » au téléphone. Le défilement natif est ce que le système fait de
- * mieux ; Lenis garde le lissage de la molette sur desktop, là où il apporte
- * quelque chose.
+ * Lenis ne touche pas au geste tactile : `syncTouch` était actif sur mobile,
+ * donc chaque `touchmove` était annulé et rejoué par JavaScript avec un
+ * lissage à 0.05 — c'est ce défilement mou, en retard sur le doigt, qui
+ * rendait la home « pas ouf » au téléphone. Le défilement natif est ce que le
+ * système fait de mieux ; Lenis ne garde que le lissage de la molette, qui
+ * n'existe pas sur mobile. Un seul jeu d'options suffit donc.
  */
-const OPTIONS_DESKTOP: LenisOptions = {
+const OPTIONS: LenisOptions = {
   duration: 1.2,
   easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
   orientation: 'vertical',
@@ -30,24 +30,8 @@ const OPTIONS_DESKTOP: LenisOptions = {
   syncTouch: false,
 }
 
-const OPTIONS_MOBILE: LenisOptions = {
-  ...OPTIONS_DESKTOP,
-  duration: 1,
-}
-
 export default function ClientLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname()
-  const [isMobile, setIsMobile] = useState(false)
-
-  useEffect(() => {
-    const mql = window.matchMedia('(max-width: 900px)')
-    const sync = () => setIsMobile(mql.matches)
-    sync()
-    mql.addEventListener('change', sync)
-    return () => mql.removeEventListener('change', sync)
-  }, [])
-
-  const scrollSettings = useMemo(() => (isMobile ? OPTIONS_MOBILE : OPTIONS_DESKTOP), [isMobile])
 
   /**
    * Le feed est hors de Lenis, pas seulement marqué `data-lenis-prevent`.
@@ -59,7 +43,7 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
   if (pathname?.startsWith('/feed')) return <>{children}</>
 
   return (
-    <ReactLenis root options={scrollSettings}>
+    <ReactLenis root options={OPTIONS}>
       {children}
     </ReactLenis>
   )
