@@ -1,7 +1,7 @@
 /* home - hero */
 .hero {
   position: relative;
-  width: 100vw;
+  width: 100%;
   height: 100svh;
   padding: 2em;
   display: flex;
@@ -12,7 +12,7 @@
 }
 
 .hero .hero-header h1 {
-  font-size: 18vw !important    ;
+  font-size: 18vw !important;
   line-height: 0.9;
 }
 
@@ -43,14 +43,10 @@
   transform: translateX(-50%);
 }
 
-.hero .hero-footer .hero-footer-symbols img {
-  height: 1rem;
-}
-
 /* home - hero img holder */
 .hero-img-holder {
   position: relative;
-  width: 100vw;
+  width: 100%;
   height: 100svh;
   padding: 2em;
 }
@@ -64,10 +60,56 @@
   border-radius: 2em;
   overflow: hidden;
   z-index: -1;
+  will-change: transform;
 }
 
 .hero-img img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* ---- Mobile ---- */
+@media (max-width: 1000px) {
+  .hero {
+    padding: 1.25em;
+  }
+
+  /* Les deux lignes restent décalées, mais moins : à 18vw, un décalage de
+     20 % faisait sortir « la ref ? » de l'écran. */
+  .hero .hero-header.hero-header-1 {
+    transform: translateX(-8%);
+  }
+  .hero .hero-header.hero-header-2 {
+    transform: translateX(8%);
+  }
+
+  .hero .hero-footer {
+    padding: 1.25em;
+    /* Sous la barre système du bas sur iPhone. */
+    padding-bottom: max(1.25em, env(safe-area-inset-bottom));
+  }
+
+  .hero .hero-footer .hero-footer-symbols {
+    display: none;
+  }
+
+  .hero .hero-footer .hero-footer-scroll-down {
+    position: static;
+    transform: none;
+  }
+
+  .hero .hero-footer p {
+    font-size: 0.75rem;
+  }
+
+  .hero-img-holder {
+    height: 70svh;
+    padding: 1.25em;
+  }
+
+  .hero-img-holder .hero-img {
+    border-width: 0.2em;
+    border-radius: 1.25em;
+  }
 }

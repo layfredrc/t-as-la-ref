@@ -52,11 +52,19 @@
 
 .sticky-card-header {
   width: 100%;
-  font-size: 3rem !important;
+  font-size: clamp(1.75rem, 2.5vw + 1rem, 3rem) !important;
+}
+
+.sticky-card-img {
+  border-radius: 1em;
+  overflow: hidden;
 }
 
 .sticky-card-img img {
+  width: 100%;
+  height: auto;
   aspect-ratio: 5/3;
+  object-fit: cover;
 }
 
 .sticky-card-copy {
@@ -70,6 +78,8 @@
 
 .sticky-card-copy-description {
   flex: 4;
+  font-size: clamp(0.95rem, 0.5vw + 0.75rem, 1.125rem);
+  line-height: 1.35;
 }
 
 .sticky-card-copy-title p {
@@ -77,14 +87,39 @@
   font-weight: 650;
 }
 
+/* ---- Mobile / tablette : plus d'épinglage, les cartes défilent à leur
+   hauteur naturelle (voir StickyCards.tsx). ---- */
 @media (max-width: 1000px) {
   .sticky-card {
+    height: auto;
+    min-height: 0;
     flex-direction: column;
-    gap: 0;
+    gap: 0.5rem;
+    padding: 1.5rem 1.25rem 2.5rem;
+    border-top-left-radius: 1.5em;
+    border-top-right-radius: 1.5em;
+    /* Chaque carte mord légèrement sur la précédente : l'empilement reste
+       lisible sans épinglage. */
+    margin-top: -1.5em;
+    will-change: auto;
+  }
+
+  .sticky-card:first-child {
+    margin-top: 0;
+  }
+
+  .sticky-card-index h1 {
+    font-size: 3rem;
+    opacity: 0.6;
+  }
+
+  .sticky-card-content {
+    padding-top: 0.5rem;
   }
 
   .sticky-card-content-wrapper {
     width: 100%;
+    gap: 1.25rem;
   }
 
   .sticky-card-copy {
@@ -93,6 +128,6 @@
   }
 
   .sticky-card-index {
-    flex: 1;
+    flex: none;
   }
 }
