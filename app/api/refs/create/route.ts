@@ -2,8 +2,11 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createClient } from '@/utils/supabase/server'
 import { generateSlug } from '@/lib/utils/generateSlug'
+import { MEDIA_TYPES } from '@/lib/utils/detectMediaType'
 
-const MediaTypeEnum = z.enum(['youtube', 'tiktok', 'twitter', 'instagram', 'video'])
+// Même liste que `detectMediaType` et que la contrainte CHECK (migration 007) :
+// une plateforme reconnue côté formulaire doit pouvoir être publiée.
+const MediaTypeEnum = z.enum(MEDIA_TYPES)
 
 const CreateRefSchema = z.object({
   titre: z.string().min(1).max(60),
@@ -12,6 +15,7 @@ const CreateRefSchema = z.object({
   thumbnail: z.url().optional(),
   contexte: z.string().max(500).optional(),
   score_culture: z.enum(['inconnu', 'gen-z', 'cultissime']).optional(),
+  // Un tag par axe (type / origine / vibe) — voir le flow d'ajout.
   tag_ids: z.array(z.uuid()).min(1).max(3),
   derives: z.array(z.url()).max(3).optional(),
   hashtags: z.array(z.string().min(1).max(50)).max(10).optional(),

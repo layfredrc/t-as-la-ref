@@ -12,7 +12,9 @@ function slugify(text: string): string {
 }
 
 export async function generateSlug(titre: string, supabase: SupabaseClient): Promise<string> {
-  const base = slugify(titre)
+  // Un titre fait uniquement d'emojis ou de ponctuation donne une chaîne vide :
+  // sans repli, la ref aurait pour URL /ref/ (et la suivante /ref/-2).
+  const base = slugify(titre) || 'ref'
 
   // Check base slug
   const { data: existing } = await supabase
