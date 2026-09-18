@@ -87,7 +87,9 @@ export function LikeButton({ refId, initialCount, variant = 'overlay' }: LikeBut
         <Heart
           className={cn(
             'transition-all duration-200',
-            isOverlay ? 'h-6 w-6 drop-shadow-[0_1px_3px_rgba(0,0,0,0.45)] sm:h-7 sm:w-7' : 'h-5 w-5',
+            isOverlay
+              ? 'h-6 w-6 drop-shadow-[0_1px_3px_rgba(0,0,0,0.45)] sm:h-7 sm:w-7'
+              : 'h-5 w-5',
             liked
               ? 'scale-110 fill-[var(--accent1)] text-[var(--accent1)]'
               : isOverlay

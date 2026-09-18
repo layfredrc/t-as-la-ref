@@ -25,9 +25,13 @@ const loadTwitterWidgets = () => {
 
     if (existingScript) {
       existingScript.addEventListener('load', () => resolve(), { once: true })
-      existingScript.addEventListener('error', () => reject(new Error('Twitter widgets failed to load')), {
-        once: true,
-      })
+      existingScript.addEventListener(
+        'error',
+        () => reject(new Error('Twitter widgets failed to load')),
+        {
+          once: true,
+        },
+      )
       return
     }
 
@@ -137,9 +141,7 @@ export const TweetEmbed = ({ url, className }: TweetEmbedProps) => {
 
     return () => {
       isCancelled = true
-      if (containerRef.current) {
-        containerRef.current.innerHTML = ''
-      }
+      container.innerHTML = ''
     }
   }, [tweetId, url])
 

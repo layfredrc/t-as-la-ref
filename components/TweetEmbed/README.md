@@ -7,7 +7,7 @@ Composant client React pour prévisualiser un tweet/X à partir d'une URL collé
 ```tsx
 import { TweetEmbed } from '@/components/TweetEmbed/TweetEmbed'
 
-<TweetEmbed url="https://x.com/username/status/123456" />
+;<TweetEmbed url='https://x.com/username/status/123456' />
 ```
 
 - `url` : lien complet du tweet à afficher (`https://x.com/.../status/<id>` ou `https://twitter.com/.../status/<id>`).
@@ -26,7 +26,7 @@ Le composant `TweetEmbedField` couple un champ "Coller le lien du post" et la pr
 ```tsx
 import { TweetEmbedField } from '@/components/TweetEmbed/TweetEmbedField'
 
-<TweetEmbedField onSubmit={(url) => console.log('URL soumise', url)} />
+;<TweetEmbedField onSubmit={(url) => console.log('URL soumise', url)} />
 ```
 
 Ce composant est utilisé sur la page `/embed` (voir `app/embed/page.tsx`) pour valider l'intégration visuelle et l'UX.

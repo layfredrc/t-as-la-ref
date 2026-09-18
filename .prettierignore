@@ -1,0 +1,9 @@
+components/ui/
+.next/
+node_modules/
+package-lock.json
+.claude/
+supabase/
+*.md
+components.json
+tsconfig.json

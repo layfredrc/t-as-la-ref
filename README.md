@@ -1,48 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# T'as la ref ?
 
-## Tweet/X embed preview
+La bibliothèque vivante des références internet francophones. Next.js 15 (App
+Router), Tailwind v4 + ShadCN, TanStack Query, Supabase. Les règles du projet
+sont dans `CLAUDE.md`.
 
-- `components/TweetEmbed/TweetEmbed.tsx` exposes a reusable client component that turns a Twitter/X URL into the official embed. It loads the widget script lazily, shows a loader, and surfaces clear error messages for invalid, private, or missing tweets.
-- `components/TweetEmbed/TweetEmbedField.tsx` provides a ready-made field with the label "Coller le lien du post" and live preview handling. The page `app/embed/page.tsx` renders this field so you can test the flow end to end.
-
-Manual checks:
-
-1. Paste a valid, public tweet URL (e.g., `https://x.com/TwitterDev/status/560070183650213889`) and verify the embed renders.
-2. Paste a non-Twitter/X URL to see the validation error.
-3. Paste a private or removed tweet URL to trigger the "Ce tweet ne peut pas être affiché" message.
-4. Observe the loader while the widget script initializes.
-
-## Getting Started
-
-First, run the development server:
+## Démarrer
 
 ```bash
+npm install
+cp .env.local.example .env.local   # voir les variables ci-dessous
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Variables d'environnement (`.env.local`) :
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+META_OEMBED_APP_TOKEN=            # optionnel — embeds Instagram / Facebook
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Scripts
 
-## Learn More
+| Commande             | Rôle                                                   |
+| -------------------- | ------------------------------------------------------ |
+| `npm run dev`        | Serveur de dev (Turbopack)                             |
+| `npm run build`      | Build de production — TypeScript et ESLint bloquants   |
+| `npm run lint`       | ESLint (règles Next + Prettier)                        |
+| `npm run seed:check` | Vérifie les URLs de `supabase/seed-refs.json` (oEmbed) |
+| `npm run seed:build` | Génère `supabase/seed_refs.sql` si tout est vert       |
 
-To learn more about Next.js, take a look at the following resources:
+## Base de données
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Les migrations sont dans `supabase/migrations/`, à exécuter dans l'ordre
+depuis le SQL Editor de Supabase. La dernière (`007_media_types.sql`) élargit
+les types de média acceptés — sans elle, publier une ref Spotify, SoundCloud,
+Facebook ou Google Maps échoue.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Feed
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+`/feed?debug=1` affiche un panneau de diagnostic (élément sous le doigt,
+paramètres de l'iframe, état du son, état interne de Swiper) pour lire sur un
+vrai téléphone ce qu'aucune émulation ne dit.

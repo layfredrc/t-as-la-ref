@@ -26,23 +26,31 @@ export default function Navbar() {
               />
             </Link>
           </div>
+          {/* `li` directement sous `ul` : un lien entre les deux n'est pas du
+              HTML valide, et le navigateur recompose l'arbre à sa façon. */}
           <ul className='flex flex-row items-center gap-2 sm:gap-5 z-10'>
-            <Link
-              href='/feed'
-              className='bg-fg text-white border-1 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg border-black'
-            >
-              <li className='font-supplymono text-white text-xs sm:text-sm'>Explorer les refs</li>
-            </Link>
+            <li>
+              <Link
+                href='/feed'
+                className='block bg-fg border-1 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg border-black font-supplymono text-white text-xs sm:text-sm'
+              >
+                Explorer les refs
+              </Link>
+            </li>
             {!userProfile && (
-              <Dialog>
-                <DialogTrigger
-                  asChild
-                  className='bg-accent5 px-3 py-1.5 sm:px-4 sm:py-2 border-1 rounded-lg hover:translate-y-1 transition-all ease-in delay-100'
-                >
-                  <li className='font-supplymono text-xs sm:text-sm'>Connexion</li>
-                </DialogTrigger>
-                <LoginForm />
-              </Dialog>
+              <li>
+                <Dialog>
+                  <DialogTrigger
+                    asChild
+                    className='bg-accent5 px-3 py-1.5 sm:px-4 sm:py-2 border-1 rounded-lg hover:translate-y-1 transition-all ease-in delay-100'
+                  >
+                    <button type='button' className='font-supplymono text-xs sm:text-sm'>
+                      Connexion
+                    </button>
+                  </DialogTrigger>
+                  <LoginForm />
+                </Dialog>
+              </li>
             )}
           </ul>
         </div>

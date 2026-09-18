@@ -23,11 +23,6 @@ import { useUserProfile } from '@/queryOptions/getUserProfile'
 import Link from 'next/link'
 
 const staticData = {
-  user: {
-    name: 'shadcn',
-    email: 'm@example.com',
-    avatar: '/avatars/shadcn.jpg',
-  },
   navMain: [
     {
       title: 'Ajouter une ref',
@@ -82,20 +77,13 @@ const staticData = {
   ],
 }
 
-type Profile = {
-  username?: string
-  profile_picture?: string
-  email?: string
-}
-
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: userProfile, isLoading } = useUserProfile()
 
-  // build the user object to pass to NavUser: prefer userProfile data, fall back to staticData
   const userForNav = {
-    name: userProfile?.username || staticData.user.name,
+    name: userProfile?.username || 'anonyme',
     email: userProfile?.email,
-    avatar: userProfile?.profile_picture || staticData.user.avatar,
+    avatar: userProfile?.profile_picture || undefined,
   }
 
   return (

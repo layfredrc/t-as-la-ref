@@ -1,5 +1,5 @@
 'use client'
-import React, { ReactNode, useRef } from 'react'
+import React, { type ReactElement, type ReactNode, type Ref, useRef } from 'react'
 
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -8,142 +8,132 @@ import { useGSAP } from '@gsap/react'
 
 gsap.registerPlugin(ScrollTrigger, SplitText)
 
+type AnimatedCopyProps = {
+  children: ReactNode
+  colorInitial?: string
+  colorAccent?: string
+  colorFinal?: string
+}
+
+type Split = { wordSplit: SplitText; charSplit: SplitText }
+
+/** Délai avant qu'un caractère passe de la couleur d'accent à sa couleur finale. */
+const ACCENT_MS = 100
+
+/**
+ * Texte qui se colore caractère par caractère au fil du scroll.
+ *
+ * L'ancienne version repassait sur TOUS les caractères à chaque tick de
+ * ScrollTrigger (un `gsap.set` par caractère, ~250 par paragraphe, quatre
+ * paragraphes sur la home) : plusieurs milliers d'écritures de style par
+ * image pendant le scroll, ce qui saccadait sur mobile. Ici on ne touche que
+ * les caractères dont l'état a changé depuis le tick précédent.
+ */
 export default function AnimatedCopy({
   children,
   colorInitial = '#dddddd',
   colorAccent = '#abff02',
   colorFinal = '#000000',
-}: {
-  children: ReactNode | Element | Element[]
-  colorInitial: string
-  colorAccent: string
-  colorFinal: string
-}) {
-  const containerRef = useRef(null)
-  const splitRefs = useRef([])
-  const lastScrollProgress = useRef(0)
-  const colorTransitionTimers = useRef(new Map())
-  const completedChars = useRef(new Set())
+}: AnimatedCopyProps) {
+  const containerRef = useRef<HTMLElement | null>(null)
 
   useGSAP(
     () => {
-      if (!containerRef.current) return
+      const container = containerRef.current
+      if (!container) return
 
-      splitRefs.current = []
-      lastScrollProgress.current = 0
-      colorTransitionTimers.current.clear()
-      completedChars.current.clear()
+      const elements: Element[] = container.hasAttribute('data-copy-wrapper')
+        ? Array.from(container.children)
+        : [container]
 
-      let elements = []
-      if (containerRef.current.hasAttribute('data-copy-wrapper')) {
-        elements = Array.from(containerRef.current.children)
-      } else {
-        elements = [containerRef.current]
-      }
-
-      elements.forEach((element) => {
-        const wordSplit = SplitText.create(element, {
-          type: 'words',
-          wordsClass: 'word',
-        })
-
-        const charSplit = SplitText.create(wordSplit.words, {
-          type: 'chars',
-          charsClass: 'char',
-        })
-
-        splitRefs.current.push({ wordSplit, charSplit })
+      const splits: Split[] = elements.map((element) => {
+        const wordSplit = SplitText.create(element, { type: 'words', wordsClass: 'word' })
+        const charSplit = SplitText.create(wordSplit.words, { type: 'chars', charsClass: 'char' })
+        return { wordSplit, charSplit }
       })
 
-      const allChars = splitRefs.current.flatMap(({ charSplit }) => charSplit.chars)
+      const chars = splits.flatMap(({ charSplit }) => charSplit.chars)
+      const timers = new Map<number, number>()
+      const completed = new Set<number>()
+      // Index du dernier caractère « atteint » au tick précédent.
+      let reached = -1
 
-      gsap.set(allChars, { color: colorInitial })
+      gsap.set(chars, { color: colorInitial })
 
-      const scheduleFinalTransition = (char, index) => {
-        if (colorTransitionTimers.current.has(index)) {
-          clearTimeout(colorTransitionTimers.current.get(index))
-        }
-
-        const timer = setTimeout(() => {
-          if (!completedChars.current.has(index)) {
-            gsap.to(char, {
+      const scheduleFinal = (index: number) => {
+        const existing = timers.get(index)
+        if (existing) window.clearTimeout(existing)
+        timers.set(
+          index,
+          window.setTimeout(() => {
+            timers.delete(index)
+            if (completed.has(index)) return
+            gsap.to(chars[index], {
               duration: 0.1,
               ease: 'none',
               color: colorFinal,
               onComplete: () => {
-                completedChars.current.add(index)
+                completed.add(index)
               },
             })
-          }
-          colorTransitionTimers.current.delete(index)
-        }, 100)
-
-        colorTransitionTimers.current.set(index, timer)
+          }, ACCENT_MS),
+        )
       }
 
-      ScrollTrigger.create({
-        trigger: containerRef.current,
+      const reset = (index: number) => {
+        const existing = timers.get(index)
+        if (existing) {
+          window.clearTimeout(existing)
+          timers.delete(index)
+        }
+        completed.delete(index)
+        gsap.set(chars[index], { color: colorInitial })
+      }
+
+      const trigger = ScrollTrigger.create({
+        trigger: container,
         start: 'top 90%',
         end: 'top 10%',
         scrub: 1,
         onUpdate: (self) => {
-          const progress = self.progress
-          const totalChars = allChars.length
-          const isScrollingDown = progress >= lastScrollProgress.current
-          const currentCharIndex = Math.floor(progress * totalChars)
+          const target = Math.min(chars.length - 1, Math.floor(self.progress * chars.length))
+          if (target === reached) return
 
-          allChars.forEach((char, index) => {
-            if (!isScrollingDown && index >= currentCharIndex) {
-              if (colorTransitionTimers.current.has(index)) {
-                clearTimeout(colorTransitionTimers.current.get(index))
-                colorTransitionTimers.current.delete(index)
-              }
-              completedChars.current.delete(index)
-              gsap.set(char, { color: colorInitial })
-              return
+          if (target > reached) {
+            for (let i = reached + 1; i <= target; i++) {
+              if (completed.has(i) || timers.has(i)) continue
+              gsap.set(chars[i], { color: colorAccent })
+              scheduleFinal(i)
             }
+          } else {
+            for (let i = reached; i > target; i--) reset(i)
+          }
 
-            if (completedChars.current.has(index)) {
-              return
-            }
-
-            if (index <= currentCharIndex) {
-              gsap.set(char, { color: colorAccent })
-              if (!colorTransitionTimers.current.has(index)) {
-                scheduleFinalTransition(char, index)
-              }
-            } else {
-              gsap.set(char, { color: colorInitial })
-            }
-          })
-
-          lastScrollProgress.current = progress
+          reached = target
         },
       })
 
       return () => {
-        colorTransitionTimers.current.forEach((timer) => clearTimeout(timer))
-        colorTransitionTimers.current.clear()
-        completedChars.current.clear()
-
-        splitRefs.current.forEach(({ wordSplit, charSplit }) => {
-          if (charSplit) charSplit.revert()
-          if (wordSplit) wordSplit.revert()
+        trigger.kill()
+        timers.forEach((timer) => window.clearTimeout(timer))
+        timers.clear()
+        splits.forEach(({ wordSplit, charSplit }) => {
+          charSplit.revert()
+          wordSplit.revert()
         })
       }
     },
-    {
-      scope: containerRef,
-      dependencies: [colorInitial, colorAccent, colorFinal],
-    },
+    { scope: containerRef, dependencies: [colorInitial, colorAccent, colorFinal] },
   )
 
-  if (React.Children.count(children) === 1) {
-    return React.cloneElement(children, { ref: containerRef })
+  if (React.isValidElement(children) && React.Children.count(children) === 1) {
+    return React.cloneElement(children as ReactElement<{ ref?: Ref<HTMLElement> }>, {
+      ref: containerRef,
+    })
   }
 
   return (
-    <div ref={containerRef} data-copy-wrapper='true'>
+    <div ref={containerRef as Ref<HTMLDivElement>} data-copy-wrapper='true'>
       {children}
     </div>
   )

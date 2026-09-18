@@ -104,11 +104,11 @@ export const MetaEmbed = ({ url, className }: MetaEmbedProps) => {
         script.src = 'https://www.instagram.com/embed.js'
         script.async = true
         script.onload = () => {
-          ;(window as any)?.instgrm?.Embeds?.process?.()
+          window.instgrm?.Embeds?.process?.()
         }
         document.body.appendChild(script)
       } else {
-        ;(window as any)?.instgrm?.Embeds?.process?.()
+        window.instgrm?.Embeds?.process?.()
       }
     }
 
@@ -124,11 +124,11 @@ export const MetaEmbed = ({ url, className }: MetaEmbedProps) => {
         script.defer = true
         script.crossOrigin = 'anonymous'
         script.onload = () => {
-          ;(window as any)?.FB?.XFBML?.parse?.()
+          window.FB?.XFBML?.parse?.()
         }
         document.body.appendChild(script)
       } else {
-        ;(window as any)?.FB?.XFBML?.parse?.()
+        window.FB?.XFBML?.parse?.()
       }
     }
   }, [embed])
@@ -195,8 +195,8 @@ export const MetaEmbedField = ({ className, defaultUrl = '', onSubmit }: MetaEmb
       <CardHeader>
         <CardTitle>Coller le lien Instagram ou Facebook</CardTitle>
         <CardDescription>
-          Collez un post public Instagram ou Facebook. Nous interrogeons l&apos;API Meta oEmbed (avec jeton protégé côté serveur)
-          et affichons le rendu officiel.
+          Collez un post public Instagram ou Facebook. Nous interrogeons l&apos;API Meta oEmbed
+          (avec jeton protégé côté serveur) et affichons le rendu officiel.
         </CardDescription>
       </CardHeader>
 
@@ -217,7 +217,9 @@ export const MetaEmbedField = ({ className, defaultUrl = '', onSubmit }: MetaEmb
                 Prévisualiser
               </Button>
             </div>
-            <p className='text-xs text-muted-foreground'>Seuls les posts publics sont éligibles. Les comptes non autorisés voient une erreur.</p>
+            <p className='text-xs text-muted-foreground'>
+              Seuls les posts publics sont éligibles. Les comptes non autorisés voient une erreur.
+            </p>
           </div>
         </form>
 
@@ -232,4 +234,11 @@ export const MetaEmbedField = ({ className, defaultUrl = '', onSubmit }: MetaEmb
       </CardContent>
     </Card>
   )
+}
+
+declare global {
+  interface Window {
+    instgrm?: { Embeds?: { process?: () => void } }
+    FB?: { XFBML?: { parse?: () => void } }
+  }
 }

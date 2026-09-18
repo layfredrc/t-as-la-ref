@@ -92,7 +92,7 @@ export function StepMedia({ formData, onNext }: StepMediaProps) {
   return (
     <div className='flex flex-col gap-6'>
       <div className='space-y-1'>
-        <h2 className='text-2xl font-bold'>Ça vient d'où ?</h2>
+        <h2 className='text-2xl font-bold'>Ça vient d&apos;où ?</h2>
         <p className='text-muted-foreground text-sm'>
           Choisis le type de média, puis colle le lien.
         </p>
