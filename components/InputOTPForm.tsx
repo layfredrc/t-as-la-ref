@@ -18,6 +18,9 @@ import {
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
+import { useQueryClient } from '@tanstack/react-query'
+import { userProfileKey } from '@/queryOptions/getUserProfile'
+import { myLikesKey } from '@/queryOptions/getLikes'
 
 const FormSchema = z.object({
   pin: z.string().min(6, {
@@ -32,6 +35,7 @@ type InputOTPFormProps = {
 
 export function InputOTPForm({ email, next }: InputOTPFormProps) {
   const router = useRouter()
+  const queryClient = useQueryClient()
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -58,6 +62,12 @@ export function InputOTPForm({ email, next }: InputOTPFormProps) {
       toast.error(error.message || 'Invalid OTP.')
     } else {
       toast.success('Vous êtes connecté !')
+      // Navigation client, pas de rechargement : le profil (null) et les likes
+      // de la session anonyme sont encore en cache pour 5 min sans ça.
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: userProfileKey }),
+        queryClient.invalidateQueries({ queryKey: myLikesKey }),
+      ])
       router.push(next ?? '/feed')
     }
   }

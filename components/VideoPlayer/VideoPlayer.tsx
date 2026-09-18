@@ -112,8 +112,12 @@ export const VideoPlayer = ({
    * ce temps le feed montrait un rectangle noir, ce qui donnait au swipe une
    * impression de lenteur qui n'était pas la sienne. La miniature (≈ 20 Ko,
    * servie par YouTube) arrive avant, et s'efface au premier `play`.
+   *
+   * Seulement quand la lecture démarre d'elle-même (le feed) : sur /ref et
+   * dans la preview du formulaire, l'iframe montre sa propre miniature avec
+   * son bouton play, que ce calque recouvrirait.
    */
-  const poster = mediaType === 'youtube' ? posterYoutube(url) : null
+  const poster = autoPlayIntent.current && mediaType === 'youtube' ? posterYoutube(url) : null
   const [posterVisible, setPosterVisible] = useState(Boolean(poster))
 
   /**

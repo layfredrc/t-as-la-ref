@@ -87,6 +87,9 @@ export default function AnimatedCopy({
           timers.delete(index)
         }
         completed.delete(index)
+        // Un tween vers la couleur finale peut être en cours : sans ça il
+        // finirait après le reset et remettrait le caractère dans `completed`.
+        gsap.killTweensOf(chars[index])
         gsap.set(chars[index], { color: colorInitial })
       }
 

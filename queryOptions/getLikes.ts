@@ -1,6 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { createClient } from '@/utils/supabase/client'
 import type { LikeState } from '@/lib/types'
+import { refsQueryKey, type RefsPage } from '@/lib/refs/fetchRefsPage'
+import type { InfiniteData } from '@tanstack/react-query'
 
 export const myLikesKey = ['my-likes'] as const
 
@@ -66,6 +68,22 @@ export const useToggleLike = () => {
       queryClient.setQueryData<string[]>(myLikesKey, (old) => {
         const current = (old ?? []).filter((id) => id !== refId)
         return data.liked ? [...current, refId] : current
+      })
+
+      // Le compteur du feed aussi : une carte qui se remonte (le feed ne
+      // rend que les slides voisines) repart de `likes_count` en cache —
+      // sans ça elle réaffichait l'ancien nombre avec le cœur plein.
+      queryClient.setQueryData<InfiniteData<RefsPage>>(refsQueryKey, (old) => {
+        if (!old) return old
+        return {
+          ...old,
+          pages: old.pages.map((page) => ({
+            ...page,
+            data: page.data.map((ref) =>
+              ref.id === refId ? { ...ref, likes_count: data.likes_count } : ref,
+            ),
+          })),
+        }
       })
     },
   })
