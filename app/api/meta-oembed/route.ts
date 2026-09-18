@@ -43,7 +43,7 @@ export async function POST(request: Request) {
 
   if (!metaAccessToken) {
     return NextResponse.json(
-      { error: "Jeton oEmbed Meta non configuré côté serveur. Ajoutez META_OEMBED_APP_TOKEN." },
+      { error: 'Jeton oEmbed Meta non configuré côté serveur. Ajoutez META_OEMBED_APP_TOKEN.' },
       { status: 500 },
     )
   }
@@ -56,7 +56,10 @@ export async function POST(request: Request) {
 
     if (!user) {
       return NextResponse.json(
-        { error: 'Fonctionnalité limitée aux comptes testeurs connectés pendant la phase de validation.' },
+        {
+          error:
+            'Fonctionnalité limitée aux comptes testeurs connectés pendant la phase de validation.',
+        },
         { status: 403 },
       )
     }
@@ -67,7 +70,7 @@ export async function POST(request: Request) {
         return NextResponse.json(
           {
             error:
-              'Accès restreint aux testeurs ajoutés dans META_OEMBED_TESTER_EMAILS tant que la review Meta n\'est pas validée.',
+              "Accès restreint aux testeurs ajoutés dans META_OEMBED_TESTER_EMAILS tant que la review Meta n'est pas validée.",
           },
           { status: 403 },
         )

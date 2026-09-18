@@ -27,7 +27,10 @@ export function LoginFormContent({ className, next, ...props }: LoginFormContent
   const handleSendOtp = async () => {
     setLoading(true)
     setError('')
-    const redirectTo = `${window.location.origin}/auth/otp${next ? `?next=${encodeURIComponent(next)}` : ''}`
+    // Le lien magique de l'e-mail revient avec un `code` PKCE : seul
+    // /auth/callback sait l'échanger contre une session. Il pointait sur
+    // /auth/otp, qui l'ignorait — cliquer le lien ne connectait personne.
+    const redirectTo = `${window.location.origin}/auth/callback${next ? `?next=${encodeURIComponent(next)}` : ''}`
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {

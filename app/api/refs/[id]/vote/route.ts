@@ -51,7 +51,10 @@ export async function POST(req: Request, { params }: Params) {
 
   const { error: upsertError } = await supabase
     .from('ref_votes')
-    .upsert({ ref_id: refId, user_id: user.id, drole, importance }, { onConflict: 'user_id,ref_id' })
+    .upsert(
+      { ref_id: refId, user_id: user.id, drole, importance },
+      { onConflict: 'user_id,ref_id' },
+    )
 
   if (upsertError) {
     console.error('ref_votes upsert error', upsertError)

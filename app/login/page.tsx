@@ -1,12 +1,14 @@
 import Image from 'next/image'
 import { LoginFormContent } from '@/components/login-form-content'
+import { safeNextPath } from '@/lib/utils/safeNextPath'
 
 type Props = {
   searchParams: Promise<{ next?: string }>
 }
 
 export default async function LoginPage({ searchParams }: Props) {
-  const { next } = await searchParams
+  // Assaini ici, à l'entrée : tout ce qui suit (OAuth, OTP) le reçoit propre.
+  const next = safeNextPath((await searchParams).next)
 
   return (
     <main className='bg-background min-h-screen flex items-center justify-center px-4'>
