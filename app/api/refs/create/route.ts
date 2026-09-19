@@ -92,6 +92,29 @@ export async function POST(req: NextRequest) {
 
   if (refError || !ref) {
     console.error('refs insert error', refError)
+
+    /**
+     * 23514 = `check_violation`.
+     *
+     * Le schéma zod couvre déjà tous les CHECK de la table (titre, contexte,
+     * score_culture, baromètres) sauf un : `refs_media_type_check`, qui
+     * n'accepte les neuf plateformes qu'une fois la migration 007 appliquée.
+     * Sans ce cas, une base en retard d'une migration ne renvoyait qu'un
+     * « Erreur lors de la création de la ref. » impossible à diagnostiquer
+     * depuis le navigateur.
+     */
+    if (refError?.code === '23514' && refError.message?.includes('media_type')) {
+      console.error(
+        `media_type « ${media_type} » refusé par la base : applique supabase/migrations/007_media_types.sql`,
+      )
+      return NextResponse.json(
+        {
+          error: `Les refs « ${media_type} » ne sont pas encore acceptées par la base de données. Migration 007 à appliquer.`,
+        },
+        { status: 500 },
+      )
+    }
+
     return NextResponse.json({ error: 'Erreur lors de la création de la ref.' }, { status: 500 })
   }
 
