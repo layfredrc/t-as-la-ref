@@ -39,7 +39,7 @@ export default function Example() {
 ```tsx
 import { MetaEmbed } from '@/components/MetaEmbed/MetaEmbed'
 
-<MetaEmbed url="https://www.instagram.com/p/abc123/" />
+;<MetaEmbed url='https://www.instagram.com/p/abc123/' />
 ```
 
 ## Notes de debug

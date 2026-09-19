@@ -42,7 +42,10 @@ export function StepDerives({ formData, onNext, onBack }: StepDerivesProps) {
   return (
     <div className='flex flex-col gap-6'>
       <div className='space-y-1'>
-        <h2 className='text-2xl font-bold'>Des dérivés ? <span className='text-muted-foreground font-normal text-lg'>(optionnel)</span></h2>
+        <h2 className='text-2xl font-bold'>
+          Des dérivés ?{' '}
+          <span className='text-muted-foreground font-normal text-lg'>(optionnel)</span>
+        </h2>
         <p className='text-muted-foreground text-sm'>
           D&apos;autres formats de cette ref : version meme, remix, réaction… Max 3 URLs.
         </p>

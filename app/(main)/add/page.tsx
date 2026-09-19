@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
 import { AddRefForm } from '@/components/ref/AddRefForm'
+
 export default async function AjouterPage() {
   const supabase = await createClient()
   const {
@@ -8,7 +9,8 @@ export default async function AjouterPage() {
   } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect('/login')
+    // Retour ici une fois connecté, pas sur le feed.
+    redirect('/login?next=/add')
   }
 
   return (

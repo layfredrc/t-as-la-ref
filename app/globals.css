@@ -3,33 +3,33 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Polices en WOFF2 (≈ 3× plus léger que le TTF d'origine). Les fichiers
+   Satoshi portaient un espace dans leur nom, que le CSS n'avait pas : la police
+   ne se chargeait jamais et le corps de texte tombait sur la police système. */
 @font-face {
   font-family: 'PPRader';
-  src: url('/fonts/rader/PPRader-Regular.ttf') format('truetype');
+  src: url('/fonts/rader/PPRader-Regular.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
-
 @font-face {
   font-family: 'PPRader';
-  src: url('/fonts/rader/PPRader-Italic.ttf') format('truetype');
+  src: url('/fonts/rader/PPRader-Italic.woff2') format('woff2');
   font-weight: 400;
   font-style: italic;
   font-display: swap;
 }
-
 @font-face {
   font-family: 'PPRader';
-  src: url('/fonts/rader/PPRader-Bold.ttf') format('truetype');
+  src: url('/fonts/rader/PPRader-Bold.woff2') format('woff2');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
-
 @font-face {
   font-family: 'PPRader';
-  src: url('/fonts/rader/PPRader-BoldItalic.ttf') format('truetype');
+  src: url('/fonts/rader/PPRader-BoldItalic.woff2') format('woff2');
   font-weight: 700;
   font-style: italic;
   font-display: swap;
@@ -38,71 +38,62 @@
 /* ==== SATOSHI ==== */
 @font-face {
   font-family: 'Satoshi';
-  src: url('/fonts/satoshi/Satoshi-Regular.otf') format('opentype');
+  src: url('/fonts/satoshi/Satoshi-Regular.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'Satoshi';
-  src: url('/fonts/satoshi/Satoshi-Italic.otf') format('opentype');
+  src: url('/fonts/satoshi/Satoshi-Italic.woff2') format('woff2');
   font-weight: 400;
   font-style: italic;
   font-display: swap;
 }
 @font-face {
   font-family: 'Satoshi';
-  src: url('/fonts/satoshi/Satoshi-Medium.otf') format('opentype');
-  font-weight: 500;
+  src: url('/fonts/satoshi/Satoshi-Medium.woff2') format('woff2');
+  font-weight: 500 700;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'Satoshi';
-  src: url('/fonts/satoshi/Satoshi-BoldItalic.otf') format('opentype');
+  src: url('/fonts/satoshi/Satoshi-BoldItalic.woff2') format('woff2');
   font-weight: 700;
   font-style: italic;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Satoshi';
-  src: url('/fonts/satoshi/Satoshi-Bold.otf') format('opentype');
-  font-weight: 700;
-  font-style: normal;
   font-display: swap;
 }
 
 /* ==== SUPPLY MONO ==== */
 @font-face {
   font-family: 'Supply Mono';
-  src: url('/fonts/supply-mono/PPSupplyMono-Regular.ttf') format('truetype');
+  src: url('/fonts/supply-mono/PPSupplyMono-Regular.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'Supply Mono';
-  src: url('/fonts/supply-mono/PPSupplyMono-Medium.ttf') format('truetype');
+  src: url('/fonts/supply-mono/PPSupplyMono-Medium.woff2') format('woff2');
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'Supply Mono';
-  src: url('/fonts/supply-mono/PPSupplyMono-Bold.ttf') format('truetype');
+  src: url('/fonts/supply-mono/PPSupplyMono-Bold.woff2') format('woff2');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'Supply Mono';
-  src: url('/fonts/supply-mono/PPSupplyMono-UltraLight.ttf') format('truetype');
+  src: url('/fonts/supply-mono/PPSupplyMono-Ultralight.woff2') format('woff2');
   font-weight: 200;
   font-style: normal;
   font-display: swap;
 }
-
-/* ... et ainsi de suite pour Medium, Thin, Hairline */
 
 :root {
   --bg: #edf1e8;
@@ -187,14 +178,15 @@
     letter-spacing: var(--track-tightish);
     font-weight: 700;
   }
+  /* Tailles fluides : les 5rem fixes débordaient d'un écran de 375px. */
   h1 {
-    font-size: 5rem;
+    font-size: clamp(2.5rem, 10vw, 5rem);
   }
   h2 {
-    font-size: 4rem;
+    font-size: clamp(2rem, 8vw, 4rem);
   }
   h3 {
-    font-size: 2rem;
+    font-size: clamp(1.5rem, 5vw, 2rem);
   }
 }
 
@@ -465,15 +457,15 @@ body {
 }
 
 .page h1 {
-  font-size: 5rem;
+  font-size: clamp(2.5rem, 10vw, 5rem);
 }
 
 .page h2 {
-  font-size: 4rem;
+  font-size: clamp(2rem, 8vw, 4rem);
 }
 
 .page h3 {
-  font-size: 2rem;
+  font-size: clamp(1.5rem, 5vw, 2rem);
 }
 
 a {
@@ -543,6 +535,9 @@ html.lenis {
 }
 
 @theme inline {
+  /* Corps de texte en Satoshi (voir CLAUDE.md) — Tailwind v4 dérive la police
+     par défaut de `--font-sans`. */
+  --font-sans: 'Satoshi', ui-sans-serif, system-ui, sans-serif;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);

@@ -123,11 +123,9 @@ export function BarometerVote({
           Connecte-toi pour donner ton avis et faire bouger la note.
         </p>
 
-        <Link href={loginHref} className='w-full sm:w-fit'>
-          <Button size='sm' className='w-full rounded-lg'>
-            Connexion
-          </Button>
-        </Link>
+        <Button asChild size='sm' className='w-full rounded-lg sm:w-fit'>
+          <Link href={loginHref}>Connexion</Link>
+        </Button>
       </section>
     )
   }

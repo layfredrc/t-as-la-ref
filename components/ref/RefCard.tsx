@@ -127,9 +127,12 @@ export function RefCard({ ref_data, isActive = true, muted = true, onToggleMuted
   }
 
   return (
-    <div className='relative flex justify-center items-center w-full h-full overflow-hidden bg-[var(--bg)]'>
-      {/* Ambient blur bg */}
-      <div className='absolute inset-0 backdrop-blur-xl bg-[var(--bg2)]/60 pointer-events-none z-0' />
+    <div className='relative flex justify-center items-center w-full h-full overflow-hidden bg-[var(--bg2)]'>
+      {/*
+        Plus de calque `backdrop-blur-xl` plein cadre ici : il floutait un fond
+        uni — même rendu, mais une couche de compositing plein écran par slide,
+        que le GPU du téléphone payait à chaque swipe.
+      */}
 
       {/* Centered player — only mounted for the active slide */}
       {isActive && (
@@ -286,12 +289,14 @@ export function RefCard({ ref_data, isActive = true, muted = true, onToggleMuted
                   </p>
                 )}
 
-                <Link href={`/ref/${ref_data.slug}`}>
-                  <Button size='sm' className='rounded-lg w-full'>
+                {/* `asChild` : le lien EST le bouton — un `<button>` dans un
+                    `<a>` n'est pas du HTML valide. */}
+                <Button asChild size='sm' className='rounded-lg w-full'>
+                  <Link href={`/ref/${ref_data.slug}`}>
                     <PlusCircle className='w-4 h-4' />
                     Enrichir la ref
-                  </Button>
-                </Link>
+                  </Link>
+                </Button>
 
                 <button
                   type='button'

@@ -276,9 +276,7 @@ export function BarometerReadout({
         {typeof votesCount === 'number' && (
           <span className='normal-case tracking-normal'>
             {' · '}
-            {votesCount === 0
-              ? 'aucun vote'
-              : `${votesCount} vote${votesCount > 1 ? 's' : ''}`}
+            {votesCount === 0 ? 'aucun vote' : `${votesCount} vote${votesCount > 1 ? 's' : ''}`}
           </span>
         )}
       </span>

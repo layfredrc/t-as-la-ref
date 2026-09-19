@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
 import { getRequestOrigin } from '@/lib/utils/getRequestOrigin'
+import { safeNextPath } from '@/lib/utils/safeNextPath'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -8,8 +9,7 @@ export async function GET(request: Request) {
 
   // `next` vient de l'URL : on n'accepte qu'un chemin relatif, sinon un
   // paramètre forgé transformerait le callback en redirection ouverte.
-  let next = searchParams.get('next') ?? '/feed'
-  if (!next.startsWith('/') || next.startsWith('//')) next = '/feed'
+  const next = safeNextPath(searchParams.get('next'))
 
   // L'hôte réel de la requête — pas NODE_ENV, qui renvoie l'URL de prod
   // depuis une preview Vercel.

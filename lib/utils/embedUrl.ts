@@ -1,9 +1,4 @@
-import type { MediaType } from './detectMediaType'
-
-function extractYoutubeId(url: string): string | null {
-  const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&?/]+)/)
-  return match?.[1] ?? null
-}
+import { extractYoutubeId, type MediaType } from './detectMediaType'
 
 export type EmbedConfig =
   | { type: 'iframe'; src: string }

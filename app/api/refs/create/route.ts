@@ -2,8 +2,11 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createClient } from '@/utils/supabase/server'
 import { generateSlug } from '@/lib/utils/generateSlug'
+import { MEDIA_TYPES } from '@/lib/utils/detectMediaType'
 
-const MediaTypeEnum = z.enum(['youtube', 'tiktok', 'twitter', 'instagram', 'video'])
+// Même liste que `detectMediaType` et que la contrainte CHECK (migration 007) :
+// une plateforme reconnue côté formulaire doit pouvoir être publiée.
+const MediaTypeEnum = z.enum(MEDIA_TYPES)
 
 const CreateRefSchema = z.object({
   titre: z.string().min(1).max(60),
@@ -12,6 +15,7 @@ const CreateRefSchema = z.object({
   thumbnail: z.url().optional(),
   contexte: z.string().max(500).optional(),
   score_culture: z.enum(['inconnu', 'gen-z', 'cultissime']).optional(),
+  // Un tag par axe (type / origine / vibe) — voir le flow d'ajout.
   tag_ids: z.array(z.uuid()).min(1).max(3),
   derives: z.array(z.url()).max(3).optional(),
   hashtags: z.array(z.string().min(1).max(50)).max(10).optional(),
@@ -88,6 +92,29 @@ export async function POST(req: NextRequest) {
 
   if (refError || !ref) {
     console.error('refs insert error', refError)
+
+    /**
+     * 23514 = `check_violation`.
+     *
+     * Le schéma zod couvre déjà tous les CHECK de la table (titre, contexte,
+     * score_culture, baromètres) sauf un : `refs_media_type_check`, qui
+     * n'accepte les neuf plateformes qu'une fois la migration 007 appliquée.
+     * Sans ce cas, une base en retard d'une migration ne renvoyait qu'un
+     * « Erreur lors de la création de la ref. » impossible à diagnostiquer
+     * depuis le navigateur.
+     */
+    if (refError?.code === '23514' && refError.message?.includes('media_type')) {
+      console.error(
+        `media_type « ${media_type} » refusé par la base : applique supabase/migrations/007_media_types.sql`,
+      )
+      return NextResponse.json(
+        {
+          error: `Les refs « ${media_type} » ne sont pas encore acceptées par la base de données. Migration 007 à appliquer.`,
+        },
+        { status: 500 },
+      )
+    }
+
     return NextResponse.json({ error: 'Erreur lors de la création de la ref.' }, { status: 500 })
   }
 

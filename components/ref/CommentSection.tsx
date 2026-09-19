@@ -45,11 +45,9 @@ export function CommentSection({ refId, commentsCount }: CommentSectionProps) {
           <p className='font-supplymono text-sm text-[var(--fg)]'>
             T&apos;as un truc à dire sur cette ref ?
           </p>
-          <Link href='/login'>
-            <Button size='sm' className='rounded-lg w-full sm:w-auto'>
-              Se connecter
-            </Button>
-          </Link>
+          <Button asChild size='sm' className='rounded-lg w-full sm:w-auto'>
+            <Link href='/login'>Se connecter</Link>
+          </Button>
         </div>
       )}
 

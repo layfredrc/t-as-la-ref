@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import type { BarometerVote, BarometerVoteState } from '@/lib/types'
+import { refsQueryKey } from '@/lib/refs/fetchRefsPage'
 
 /**
  * Pose ou met à jour le vote de l'utilisateur sur les baromètres d'une ref.
@@ -25,7 +26,7 @@ export const useVoteBarometre = (refId: string) => {
 
     // Le feed affiche les mêmes moyennes : il doit repartir de la base.
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['refs'] })
+      queryClient.invalidateQueries({ queryKey: refsQueryKey })
     },
   })
 }

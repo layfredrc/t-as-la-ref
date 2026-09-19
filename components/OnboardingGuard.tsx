@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import ProfileSetupModal from './ProfileSetupModal'
-import { useUserProfile } from '@/queryOptions/getUserProfile'
+import { userProfileKey, useUserProfile } from '@/queryOptions/getUserProfile'
 import { useQueryClient } from '@tanstack/react-query'
 
 const OnboardingGuard: React.FC = () => {
@@ -26,7 +26,7 @@ const OnboardingGuard: React.FC = () => {
   // Called when ProfileSetupModal completes (user saved username/avatar)
   const handleComplete = async () => {
     // invalidate so useUserProfile refetches and the whole UI updates
-    await queryClient.invalidateQueries({ queryKey: ['user-profile'] })
+    await queryClient.invalidateQueries({ queryKey: userProfileKey })
     setShowModal(false)
   }
 
