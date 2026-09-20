@@ -391,14 +391,17 @@ Utiliser les classes utilitaires Tailwind custom : `.bg-bg`, `.bg-fg`, `.text-fg
 - Pattern isActive → mount dans RefCard pour éviter les CSP violations
 - react-player v3 : prop `src` (pas `url`), web components à importer
   explicitement (`youtube-video-element`, `tiktok-video-element`...)
-### Feed — l'embed est une image, pas une surface de contrôle
+### Feed — la vidéo est une image, pas une surface de contrôle
 
-**La règle qui prime sur toutes les autres.** Un iframe cross-origin avale tous
-les gestes qui démarrent au-dessus de lui. On ne peut donc pas à la fois le
-recouvrir (pour que Swiper voie le swipe) et le laisser atteignable (pour que
-ses contrôles marchent). Dix commits ont oscillé entre les deux ; c'est tranché :
+**La règle qui prime sur toutes les autres, et elle ne concerne que la vidéo.**
+Un iframe cross-origin avale tous les gestes qui démarrent au-dessus de lui. On
+ne peut donc pas à la fois le recouvrir (pour que Swiper voie le swipe) et le
+laisser atteignable (pour que ses contrôles marchent). Dix commits ont oscillé
+entre les deux ; c'est tranché pour `youtube`, `tiktok` et `video` — la liste
+`MEDIAS_VIDEO` de `lib/utils/detectMediaType.ts`, qui décide du gabarit dans
+`RefCard` :
 
-- Dans le feed, l'embed est recouvert **à 100 %, sur tous les breakpoints**, et
+- Dans le feed, l'embed vidéo est recouvert **à 100 %, sur tous les breakpoints**, et
   ses contrôles natifs sont coupés (`controls={false}`). Les deux web components
   traduisent l'absence d'attribut `controls` par `controls=0` dans l'URL de
   l'iframe : la barre n'existe même plus.
@@ -414,6 +417,31 @@ ses contrôles marchent). Dix commits ont oscillé entre les deux ; c'est tranch
   redirige vers tiktok.com. La seule zone du bas qui n'accepte pas le swipe
   vertical est notre barre de progression — 20px, en `swiper-no-swiping`, sans
   quoi un scrub horizontal part en changement de ref dès que le doigt dévie.
+
+### Feed — l'embed autonome, lui, reste cliquable
+
+Tout ce qui n'est pas vidéo — Spotify, SoundCloud, un tweet, une carte — apporte
+son propre lecteur. Le recouvrir ne protège aucun geste, ça rend juste le bouton
+play inatteignable : c'est exactement ce qui est arrivé aux refs audio, dont le
+lecteur était couvert par la couche de tap et dont le cadre `w-full` s'étirait
+sur toute la largeur en desktop.
+
+`RefCard` aiguille donc vers `CarteStatique` :
+
+- **L'embed garde ses commandes** : ni couche de tap, ni `pointer-events-none`,
+  ni `controls={false}`. Il est cliquable, et un geste qui démarre dessus lui
+  appartient — Swiper ne le voit pas, et c'est assumé.
+- **La mise en page ménage le swipe** au lieu de le capter : colonne encadrée et
+  centrée, embed contraint en largeur, gouttière de 76px à droite. Au-dessus, en
+  dessous et sur le côté, il reste largement de quoi swiper. C'est possible ici
+  parce que l'embed fait 152 à 352px de haut, là où une vidéo occupe l'écran.
+- **Pas de chrome vidéo** : ni bouton son, ni `VideoProgress`, ni overlay play —
+  ils ne piloteraient rien, `playerRef` n'existe pas pour ces embeds.
+- **La barre d'actions passe en `solide`** : le verre dépoli est pensé pour une
+  vidéo sombre, il donne des icônes blanches sur fond clair.
+- L'embed n'est monté que pour la ref active, avec une hauteur minimale
+  réservée : sinon le son d'une ref quittée continue, et la colonne des slides
+  voisines se recompose pendant le swipe.
 
 ### Feed mobile — geste et lecture
 

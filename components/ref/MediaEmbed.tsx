@@ -6,6 +6,7 @@ import type { MediaType } from '@/lib/types'
 import { VideoPlayer } from '@/components/VideoPlayer/VideoPlayer'
 import { TweetEmbed } from '@/components/TweetEmbed/TweetEmbed'
 import { MetaEmbed } from '@/components/MetaEmbed/MetaEmbed'
+import { cn } from '@/lib/utils'
 
 // ─── URL transformers ─────────────────────────────────────────────────────────
 
@@ -83,11 +84,13 @@ function AudioFrame({
   height,
   title,
   allow,
+  className,
 }: {
   src: string
   height: number
   title: string
   allow: string
+  className?: string
 }) {
   const [chargement, setChargement] = useState(true)
   const [erreur, setErreur] = useState(false)
@@ -98,7 +101,7 @@ function AudioFrame({
     )
 
   return (
-    <div className='relative w-full overflow-hidden rounded-xl'>
+    <div className={cn('relative w-full overflow-hidden rounded-xl', className)}>
       <iframe
         src={src}
         width='100%'
@@ -136,7 +139,7 @@ function EmbedError({ message }: { message: string }) {
   )
 }
 
-function SpotifyEmbed({ url }: { url: string }) {
+function SpotifyEmbed({ url, className }: { url: string; className?: string }) {
   const parsed = parseSpotifyUrl(url)
 
   if (!parsed) {
@@ -145,6 +148,7 @@ function SpotifyEmbed({ url }: { url: string }) {
 
   return (
     <AudioFrame
+      className={className}
       src={`https://open.spotify.com/embed/${parsed.type}/${parsed.id}`}
       // Un morceau tient dans la barre compacte ; un album, une playlist ou un
       // épisode affichent une liste, que 152px tronquaient.
@@ -155,7 +159,7 @@ function SpotifyEmbed({ url }: { url: string }) {
   )
 }
 
-function SoundCloudEmbed({ url }: { url: string }) {
+function SoundCloudEmbed({ url, className }: { url: string; className?: string }) {
   const normalized = parseSoundcloudUrl(url)
 
   if (!normalized) {
@@ -164,6 +168,7 @@ function SoundCloudEmbed({ url }: { url: string }) {
 
   return (
     <AudioFrame
+      className={className}
       src={soundcloudEmbedUrl(normalized)}
       height={166}
       title='SoundCloud'
@@ -172,17 +177,19 @@ function SoundCloudEmbed({ url }: { url: string }) {
   )
 }
 
-function FacebookEmbed({ url }: { url: string }) {
+function FacebookEmbed({ url, className }: { url: string; className?: string }) {
   return (
-    <iframe
-      src={facebookEmbedUrl(url)}
-      width='100%'
-      height='314'
-      allow='autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share'
-      allowFullScreen
-      loading='lazy'
-      style={{ border: 'none' }}
-    />
+    <div className={cn('w-full', className)}>
+      <iframe
+        src={facebookEmbedUrl(url)}
+        width='100%'
+        height='314'
+        allow='autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share'
+        allowFullScreen
+        loading='lazy'
+        style={{ border: 'none' }}
+      />
+    </div>
   )
 }
 
@@ -206,7 +213,7 @@ function mapsEmbedUrl(url: string): string | null {
   return null
 }
 
-function MapsEmbed({ url }: { url: string }) {
+function MapsEmbed({ url, className }: { url: string; className?: string }) {
   const embedSrc = mapsEmbedUrl(url)
 
   if (!embedSrc) {
@@ -216,7 +223,10 @@ function MapsEmbed({ url }: { url: string }) {
         href={url}
         target='_blank'
         rel='noopener noreferrer'
-        className='flex items-center gap-3 p-4 rounded-xl border border-border bg-[var(--bg2)] hover:bg-[var(--bg)] transition-colors group'
+        className={cn(
+          'flex items-center gap-3 p-4 rounded-xl border border-border bg-[var(--bg2)] hover:bg-[var(--bg)] transition-colors group',
+          className,
+        )}
       >
         <div className='w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center shrink-0'>
           <MapPin className='w-5 h-5 text-blue-600' />
@@ -233,7 +243,7 @@ function MapsEmbed({ url }: { url: string }) {
   }
 
   return (
-    <div className='flex flex-col gap-2'>
+    <div className={cn('flex flex-col gap-2', className)}>
       <iframe
         src={embedSrc}
         width='100%'
@@ -307,16 +317,16 @@ export function MediaEmbed({
       return <MetaEmbed url={url} className={className} />
 
     case 'facebook':
-      return <FacebookEmbed url={url} />
+      return <FacebookEmbed url={url} className={className} />
 
     case 'spotify':
-      return <SpotifyEmbed url={url} />
+      return <SpotifyEmbed url={url} className={className} />
 
     case 'soundcloud':
-      return <SoundCloudEmbed url={url} />
+      return <SoundCloudEmbed url={url} className={className} />
 
     case 'maps':
-      return <MapsEmbed url={url} />
+      return <MapsEmbed url={url} className={className} />
 
     default:
       return <EmbedError message='Type de média non supporté.' />
