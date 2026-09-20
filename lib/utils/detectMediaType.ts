@@ -28,6 +28,23 @@ const patterns: Record<MediaType, RegExp> = {
   video: /\.(mp4|webm|ogg)(\?.*)?$/i,
 }
 
+/**
+ * Plateformes dont l'embed est une vidéo que la carte pilote elle-même.
+ *
+ * C'est la frontière qui décide du gabarit dans le feed. Pour celles-ci,
+ * `VideoPlayer` expose un élément média : la `RefCard` recouvre l'iframe,
+ * coupe ses contrôles natifs et fournit les siens (tap, son, progression).
+ *
+ * Tout le reste — Spotify, SoundCloud, un tweet, une carte — est un embed
+ * autonome, qui apporte ses propres commandes et doit rester cliquable. Les
+ * recouvrir rendait leur bouton « play » inatteignable.
+ */
+export const MEDIAS_VIDEO: readonly MediaType[] = ['youtube', 'tiktok', 'video']
+
+export function estVideoMedia(mediaType: MediaType): boolean {
+  return MEDIAS_VIDEO.includes(mediaType)
+}
+
 export function detectMediaType(url: string): MediaType | null {
   for (const type of MEDIA_TYPES) {
     if (patterns[type].test(url)) return type

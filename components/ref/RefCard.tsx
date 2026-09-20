@@ -13,7 +13,7 @@ import {
   VolumeX,
 } from 'lucide-react'
 import type { AddRefFormData, Ref, Tag, TagsByType } from '@/lib/types'
-import { mediaTypeLabels } from '@/lib/utils/detectMediaType'
+import { estVideoMedia, mediaTypeLabels } from '@/lib/utils/detectMediaType'
 import { MediaEmbed } from './MediaEmbed'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -40,27 +40,304 @@ type RefCardProps = {
   onToggleMuted?: () => void
 }
 
-/*
- * L'embed est une image, pas une surface de contrôle.
+/**
+ * Deux gabarits, parce qu'il y a deux natures d'embed.
  *
- * Un iframe cross-origin avale tous les gestes qui démarrent au-dessus de lui.
- * On ne peut donc pas à la fois le recouvrir (pour que Swiper voie le swipe)
- * et le laisser atteignable (pour que ses contrôles marchent) : il faut
- * trancher. Ici, il est recouvert à 100 %, sur tous les breakpoints, et c'est
- * la carte qui fournit les commandes — tap pour play/pause, bouton pour le
- * son, barre de progression au ras du bord (`VideoProgress`). Le plein écran
- * reste sur `/ref/[slug]`, où l'embed garde ses contrôles natifs.
+ * **Vidéo** (`CarteVideo`) : l'embed est une image, pas une surface de
+ * contrôle. Un iframe cross-origin avale tous les gestes qui démarrent au-
+ * dessus de lui ; on ne peut donc pas à la fois le recouvrir (pour que Swiper
+ * voie le swipe) et le laisser atteignable. Il est recouvert à 100 %, ses
+ * contrôles natifs sont coupés, et la carte fournit les siens.
  *
- * La tentative inverse (une bande de 64px laissée au lecteur en bas) a coûté
- * le swipe — c'est là que les pouces démarrent — et exposait le bouton unmute
- * de TikTok, qui redirige vers tiktok.com au lieu de rendre le son.
+ * **Embed autonome** (`CarteStatique`) : Spotify, SoundCloud, un tweet, une
+ * carte. Il n'y a rien à piloter — le lecteur apporte son propre bouton play,
+ * et le recouvrir le rendait simplement inutilisable. Il reste donc cliquable,
+ * et c'est la mise en page qui lui ménage de quoi swiper autour : cadre
+ * contraint, colonne centrée, et pas de chrome vidéo (ni tap plein cadre, ni
+ * bouton son, ni barre de progression — ils ne pilotent rien ici).
  */
+export function RefCard(props: RefCardProps) {
+  if (!estVideoMedia(props.ref_data.media_type)) return <CarteStatique {...props} />
+  return <CarteVideo {...props} />
+}
 
-export function RefCard({ ref_data, isActive = true, muted = true, onToggleMuted }: RefCardProps) {
+// ─── Contenu partagé par les deux gabarits ───────────────────────────────────
+
+type DetailsRefProps = {
+  ref_data: Ref
+  /**
+   * Le texte est-il posé sur la vidéo ? Sur mobile il passe alors en blanc
+   * avec une ombre portée. Sur un fond uni il reste à l'encre du design
+   * system, qui serait illisible en blanc.
+   */
+  surImage: boolean
+  onReplier: () => void
+}
+
+/** Bloc détaillé de la ref — même contenu dans les deux gabarits. */
+function DetailsRef({ ref_data, surImage, onReplier }: DetailsRefProps) {
   const tagTypeRef = ref_data.tags?.find((t: Tag) => t.type === 'type_ref')
   const tagOrigine = ref_data.tags?.find((t: Tag) => t.type === 'origine')
   const tagVibe = ref_data.tags?.find((t: Tag) => t.type === 'vibe')
 
+  return (
+    <div className='flex flex-col gap-3 sm:gap-4'>
+      <BarometerReadout
+        drole={ref_data.drole_score}
+        importance={ref_data.importance_score}
+        variant='compact'
+        votesCount={ref_data.votes_count}
+      />
+
+      <div className='flex items-center gap-2'>
+        {/* Le libellé disparaît sur mobile : le badge se suffit. */}
+        <span className='hidden text-xs font-supplymono text-[var(--fg)]/70 sm:inline'>
+          Score Culture 🔥
+        </span>
+        <Badge variant='secondary' className='text-xs'>
+          {scoreCultureLabel[ref_data.score_culture] ?? ref_data.score_culture}
+        </Badge>
+      </div>
+
+      {/* Une seule ligne défilante sur mobile : trois tags qui passent à la
+          ligne, c'est 60px de contenu masqué en plus. */}
+      <div className='no-scrollbar flex flex-row gap-2 overflow-x-auto sm:flex-wrap sm:overflow-visible'>
+        {tagTypeRef && (
+          <Badge className='shrink-0 bg-[var(--accent1)] text-[var(--fg)]'>
+            {tagTypeRef.emoji} {tagTypeRef.label}
+          </Badge>
+        )}
+        {tagOrigine && (
+          <Badge className='shrink-0 bg-[var(--accent5)] text-[var(--fg)]'>
+            {tagOrigine.emoji} {tagOrigine.label}
+          </Badge>
+        )}
+        {tagVibe && (
+          <Badge className='shrink-0 bg-[var(--accent3)] text-[var(--fg)]'>
+            {tagVibe.emoji} {tagVibe.label}
+          </Badge>
+        )}
+      </div>
+
+      {ref_data.contexte && (
+        <p
+          className={cn(
+            'line-clamp-3 text-sm',
+            surImage
+              ? 'text-white/85 drop-shadow-[0_1px_3px_rgba(20,20,20,0.8)] sm:text-[var(--fg)]/70 sm:drop-shadow-none'
+              : 'text-[var(--fg)]/70',
+          )}
+        >
+          {ref_data.contexte}
+        </p>
+      )}
+
+      {/* `asChild` : le lien EST le bouton — un `<button>` dans un `<a>` n'est
+          pas du HTML valide. */}
+      <Button asChild size='sm' className='rounded-lg w-full'>
+        <Link href={`/ref/${ref_data.slug}`}>
+          <PlusCircle className='w-4 h-4' />
+          Enrichir la ref
+        </Link>
+      </Button>
+
+      <button
+        type='button'
+        onClick={onReplier}
+        aria-expanded
+        className={cn(
+          'flex w-fit items-center gap-1 font-supplymono text-[11px] sm:hidden',
+          surImage
+            ? 'text-white/90 drop-shadow-[0_1px_3px_rgba(20,20,20,0.8)]'
+            : 'text-[var(--fg)]/70',
+        )}
+      >
+        <ChevronUp className='h-3.5 w-3.5' />
+        moins
+      </button>
+    </div>
+  )
+}
+
+type BarreActionsProps = {
+  ref_data: Ref
+  /**
+   * Sur fond uni, le verre dépoli — pensé pour flotter sur une vidéo sombre —
+   * donne des icônes blanches sur gris clair. La barre passe alors aux
+   * bordures franches du design system.
+   */
+  solide: boolean
+  /** Bouton son : seulement là où il pilote quelque chose, donc en vidéo. */
+  boutonSon?: React.ReactNode
+}
+
+function BarreActions({ ref_data, solide, boutonSon }: BarreActionsProps) {
+  const rond = cn(
+    'flex h-9 w-9 items-center justify-center rounded-full transition-all hover:scale-110 sm:h-11 sm:w-11',
+    solide
+      ? 'border-2 border-black bg-[var(--bg2)] hover:bg-[var(--accent2)]'
+      : 'hover:bg-white/15',
+  )
+  const icone = solide
+    ? 'h-5 w-5 text-[var(--fg)]'
+    : 'h-6 w-6 fill-white text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.45)] sm:h-7 sm:w-7'
+  const compteur = cn(
+    'font-supplymono text-xs tabular-nums',
+    solide ? 'text-[var(--fg)]/70' : 'text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.45)]',
+  )
+
+  return (
+    <div
+      className={cn(
+        'absolute bottom-6 right-3 z-20 flex flex-col gap-4 rounded-2xl p-2 sm:bottom-8 sm:right-4 sm:gap-6 sm:p-3 xl:right-12',
+        !solide && 'glass',
+      )}
+    >
+      {boutonSon}
+
+      <LikeButton
+        refId={ref_data.id}
+        initialCount={ref_data.likes_count}
+        variant={solide ? 'solid' : 'overlay'}
+      />
+
+      <Link href={`/ref/${ref_data.slug}#comments`} aria-label='Voir le débat'>
+        <div className='flex flex-col items-center gap-1'>
+          <div className={rond}>
+            <MessageCircle className={icone} />
+          </div>
+          <span className={compteur}>{ref_data.comments_count}</span>
+        </div>
+      </Link>
+
+      <Link href={`/ref/${ref_data.slug}`} aria-label='Découvrir la ref'>
+        <div className='flex flex-col items-center gap-1'>
+          <div className={rond}>
+            <Image
+              src={solide ? '/logo.png' : '/logo-white.png'}
+              alt=''
+              width={36}
+              height={36}
+              className={cn(
+                'rounded-xl',
+                solide
+                  ? 'h-6 w-6 sm:h-7 sm:w-7'
+                  : 'h-7 w-7 drop-shadow-[0_1px_3px_rgba(0,0,0,0.45)] sm:h-9 sm:w-9',
+              )}
+              priority
+            />
+          </div>
+          <span className={cn('hidden sm:inline', compteur)}>Découvrir</span>
+        </div>
+      </Link>
+    </div>
+  )
+}
+
+// ─── Gabarit « embed autonome » : audio, tweet, carte… ───────────────────────
+
+/**
+ * Colonne centrée, embed cliquable.
+ *
+ * Le lecteur garde ses propres commandes : il n'est ni recouvert, ni sorti du
+ * hit-testing. Contrepartie assumée — un geste qui démarre sur l'iframe lui
+ * appartient, Swiper ne le voit pas. C'est pour ça que l'embed est contraint
+ * en largeur et que la colonne garde ses marges : au-dessus, en dessous et
+ * dans la gouttière de droite, il reste largement de quoi swiper. Rien à voir
+ * avec le cas vidéo, où l'embed occupe tout l'écran et ne laisse aucune prise.
+ */
+function CarteStatique({ ref_data, isActive = true }: RefCardProps) {
+  const [expanded, setExpanded] = useState(false)
+
+  // Chaque ref se présente repliée : les slides sont recyclées par Swiper.
+  const [prevActive, setPrevActive] = useState(isActive)
+  if (isActive !== prevActive) {
+    setPrevActive(isActive)
+    setExpanded(false)
+  }
+
+  const plateforme = mediaTypeLabels[ref_data.media_type]
+
+  return (
+    <div className='relative flex h-full w-full items-center justify-center overflow-hidden bg-[var(--bg2)] py-6 pl-4 pr-[76px] sm:pl-6 sm:pr-24'>
+      {/*
+        Encadré, comme tous les blocs du design system : sans bordure, la
+        colonne flottait au milieu d'un aplat et ne se lisait pas comme une
+        carte. C'est le même traitement que le panneau d'infos de la carte
+        vidéo à partir de `sm`.
+      */}
+      <div className='flex w-full max-w-md flex-col gap-3 rounded-2xl border-2 border-black bg-[var(--bg)] p-4 sm:max-w-lg sm:gap-4 sm:p-6'>
+        {plateforme && (
+          <span
+            className={cn(
+              'w-fit rounded-full px-2.5 py-1 font-supplymono text-xs text-white',
+              plateforme.color,
+            )}
+          >
+            {plateforme.emoji} {plateforme.label}
+          </span>
+        )}
+
+        <Link href={`/ref/${ref_data.slug}`}>
+          <h1 className='line-clamp-3 font-rader text-2xl uppercase leading-[0.95] text-[var(--fg)] sm:text-3xl xl:text-4xl'>
+            {ref_data.titre}
+          </h1>
+        </Link>
+
+        {/*
+          Hauteur minimale réservée : l'embed n'est monté que pour la ref
+          active — sinon plusieurs lecteurs coexistent et le son d'une ref
+          quittée continue. Sans ce plancher, la colonne des slides voisines
+          se recomposait pendant le swipe.
+        */}
+        <div className='min-h-[152px]'>
+          {isActive && (
+            <MediaEmbed
+              url={ref_data.media_url}
+              mediaType={ref_data.media_type}
+              className='w-full'
+            />
+          )}
+        </div>
+
+        {/* État replié : une seule ligne, et l'invite pour déployer. */}
+        {!expanded && (
+          <button
+            type='button'
+            onClick={() => setExpanded(true)}
+            aria-expanded={false}
+            className='flex w-fit items-center gap-2 sm:hidden'
+          >
+            <BarometerReadout
+              drole={ref_data.drole_score}
+              importance={ref_data.importance_score}
+              variant='mini'
+            />
+            <span className='font-supplymono text-[11px] text-[var(--fg)]/70'>plus</span>
+            <ChevronDown className='h-3.5 w-3.5 text-[var(--fg)]/70' />
+          </button>
+        )}
+
+        <div
+          className={cn(
+            'grid transition-all duration-300 ease-out sm:grid-rows-[1fr] sm:opacity-100',
+            expanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
+          )}
+        >
+          <div className='overflow-hidden'>
+            <DetailsRef ref_data={ref_data} surImage={false} onReplier={() => setExpanded(false)} />
+          </div>
+        </div>
+      </div>
+
+      <BarreActions ref_data={ref_data} solide />
+    </div>
+  )
+}
+
+// ─── Gabarit vidéo ───────────────────────────────────────────────────────────
+
+function CarteVideo({ ref_data, isActive = true, muted = true, onToggleMuted }: RefCardProps) {
   // Mobile uniquement : le panneau d'infos part replié, à la façon des
   // descriptions TikTok / Reels / Shorts. Sur `sm` et plus il est toujours
   // déployé — la carte latérale ne gêne rien sur grand écran.
@@ -245,69 +522,7 @@ export function RefCard({ ref_data, isActive = true, muted = true, onToggleMuted
             )}
           >
             <div className='overflow-hidden'>
-              <div className='flex flex-col gap-3 sm:gap-4'>
-                <BarometerReadout
-                  drole={ref_data.drole_score}
-                  importance={ref_data.importance_score}
-                  variant='compact'
-                  votesCount={ref_data.votes_count}
-                />
-
-                <div className='flex items-center gap-2'>
-                  {/* Le libellé disparaît sur mobile : le badge se suffit. */}
-                  <span className='hidden text-xs font-supplymono text-[var(--fg)]/70 sm:inline'>
-                    Score Culture 🔥
-                  </span>
-                  <Badge variant='secondary' className='text-xs'>
-                    {scoreCultureLabel[ref_data.score_culture] ?? ref_data.score_culture}
-                  </Badge>
-                </div>
-
-                {/* Une seule ligne défilante sur mobile : trois tags qui
-                    passent à la ligne, c'est 60px de vidéo masquée en plus. */}
-                <div className='no-scrollbar flex flex-row gap-2 overflow-x-auto sm:flex-wrap sm:overflow-visible'>
-                  {tagTypeRef && (
-                    <Badge className='shrink-0 bg-[var(--accent1)] text-[var(--fg)]'>
-                      {tagTypeRef.emoji} {tagTypeRef.label}
-                    </Badge>
-                  )}
-                  {tagOrigine && (
-                    <Badge className='shrink-0 bg-[var(--accent5)] text-[var(--fg)]'>
-                      {tagOrigine.emoji} {tagOrigine.label}
-                    </Badge>
-                  )}
-                  {tagVibe && (
-                    <Badge className='shrink-0 bg-[var(--accent3)] text-[var(--fg)]'>
-                      {tagVibe.emoji} {tagVibe.label}
-                    </Badge>
-                  )}
-                </div>
-
-                {ref_data.contexte && (
-                  <p className='line-clamp-3 text-sm text-white/85 drop-shadow-[0_1px_3px_rgba(20,20,20,0.8)] sm:text-[var(--fg)]/70 sm:drop-shadow-none'>
-                    {ref_data.contexte}
-                  </p>
-                )}
-
-                {/* `asChild` : le lien EST le bouton — un `<button>` dans un
-                    `<a>` n'est pas du HTML valide. */}
-                <Button asChild size='sm' className='rounded-lg w-full'>
-                  <Link href={`/ref/${ref_data.slug}`}>
-                    <PlusCircle className='w-4 h-4' />
-                    Enrichir la ref
-                  </Link>
-                </Button>
-
-                <button
-                  type='button'
-                  onClick={() => setExpanded(false)}
-                  aria-expanded
-                  className='flex w-fit items-center gap-1 font-supplymono text-[11px] text-white/90 drop-shadow-[0_1px_3px_rgba(20,20,20,0.8)] sm:hidden'
-                >
-                  <ChevronUp className='h-3.5 w-3.5' />
-                  moins
-                </button>
-              </div>
+              <DetailsRef ref_data={ref_data} surImage onReplier={() => setExpanded(false)} />
             </div>
           </div>
         </div>
@@ -326,66 +541,41 @@ export function RefCard({ ref_data, isActive = true, muted = true, onToggleMuted
       {/* Right action panel — barre en verre, icônes pleines façon Instagram.
           Resserrée sur mobile : c'est elle qui dictait la largeur perdue par
           la carte, et le libellé « Découvrir » l'élargissait à 91px. */}
-      <div className='glass absolute bottom-6 right-3 z-20 flex flex-col gap-4 rounded-2xl p-2 sm:bottom-8 sm:right-4 sm:gap-6 sm:p-3 xl:right-12'>
-        {/*
-          Le son, sur tous les breakpoints.
+      <BarreActions
+        ref_data={ref_data}
+        solide={false}
+        boutonSon={
+          /*
+            Le son, sur tous les breakpoints.
 
-          Il était en `sm:hidden`, ce qui ne laissait sur desktop que les
-          contrôles natifs du lecteur — sans effet, puisque `VideoPlayer`
-          réaffirme `muted` à chaque rendu et re-coupait aussitôt. Le son y
-          était donc structurellement impossible. Maintenant que ce bouton est
-          le seul chemin, la réaffirmation ne combat plus personne.
-        */}
-        <button
-          type='button'
-          onClick={handleToggleMuted}
-          aria-label={muted ? 'Activer le son' : 'Couper le son'}
-          aria-pressed={!muted}
-          className='flex flex-col items-center gap-1'
-        >
-          <div className='flex h-9 w-9 items-center justify-center rounded-full transition-all hover:scale-110 hover:bg-white/15 sm:h-11 sm:w-11'>
-            {muted ? (
-              <VolumeX className='h-6 w-6 text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.45)] sm:h-7 sm:w-7' />
-            ) : (
-              <Volume2 className='h-6 w-6 text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.45)] sm:h-7 sm:w-7' />
-            )}
-          </div>
-        </button>
-
-        <LikeButton refId={ref_data.id} initialCount={ref_data.likes_count} variant='overlay' />
-
-        <Link href={`/ref/${ref_data.slug}#comments`} aria-label='Voir le débat'>
-          <div className='flex flex-col items-center gap-1'>
+            Il était en `sm:hidden`, ce qui ne laissait sur desktop que les
+            contrôles natifs du lecteur — sans effet, puisque `VideoPlayer`
+            réaffirme `muted` à chaque rendu et re-coupait aussitôt. Le son y
+            était donc structurellement impossible. Maintenant que ce bouton
+            est le seul chemin, la réaffirmation ne combat plus personne.
+          */
+          <button
+            type='button'
+            onClick={handleToggleMuted}
+            aria-label={muted ? 'Activer le son' : 'Couper le son'}
+            aria-pressed={!muted}
+            className='flex flex-col items-center gap-1'
+          >
             <div className='flex h-9 w-9 items-center justify-center rounded-full transition-all hover:scale-110 hover:bg-white/15 sm:h-11 sm:w-11'>
-              <MessageCircle className='h-6 w-6 fill-white text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.45)] sm:h-7 sm:w-7' />
+              {muted ? (
+                <VolumeX className='h-6 w-6 text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.45)] sm:h-7 sm:w-7' />
+              ) : (
+                <Volume2 className='h-6 w-6 text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.45)] sm:h-7 sm:w-7' />
+              )}
             </div>
-            <span className='font-supplymono text-xs tabular-nums text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.45)]'>
-              {ref_data.comments_count}
-            </span>
-          </div>
-        </Link>
-
-        <Link href={`/ref/${ref_data.slug}`} aria-label='Découvrir la ref'>
-          <div className='flex flex-col items-center gap-1'>
-            <div className='flex h-9 w-9 items-center justify-center rounded-full transition-all hover:scale-110 hover:bg-white/15 sm:h-11 sm:w-11'>
-              <Image
-                src='/logo-white.png'
-                alt=''
-                width={36}
-                height={36}
-                className='h-7 w-7 rounded-xl drop-shadow-[0_1px_3px_rgba(0,0,0,0.45)] sm:h-9 sm:w-9'
-                priority
-              />
-            </div>
-            <span className='hidden font-supplymono text-xs text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.45)] sm:inline'>
-              Découvrir
-            </span>
-          </div>
-        </Link>
-      </div>
+          </button>
+        }
+      />
     </div>
   )
 }
+
+// ─── Aperçu du flow d'ajout ──────────────────────────────────────────────────
 
 type RefCardPreviewProps = {
   formData: AddRefFormData
