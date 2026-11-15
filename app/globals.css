@@ -158,7 +158,7 @@
   }
 
   body {
-    background: var(--bg);
+    background: var(--page-bg, var(--bg));
     color: var(--fg);
     overflow-x: hidden;
   }
@@ -443,7 +443,7 @@ button:not(:disabled),
 }
 
 body {
-  background-color: var(--bg);
+  background-color: var(--page-bg, var(--bg));
   color: var(--fg);
 }
 
@@ -466,6 +466,57 @@ body {
 
 .page h3 {
   font-size: clamp(1.5rem, 5vw, 2rem);
+}
+
+/* Bouton de la home (« Ajouter une ref » du manifeste) : contour avec
+   l'ombre décalée du design system. 44px de haut : la cible tactile
+   minimale. */
+.cta-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 1.25rem;
+  border: 2px solid var(--fg);
+  border-radius: 0.5rem;
+  font-family: 'Supply Mono', monospace;
+  font-size: 0.875rem;
+  white-space: nowrap;
+  transition: transform 150ms ease-out;
+}
+
+.cta-btn--secondary {
+  background-color: #ffffff;
+  color: var(--fg);
+  box-shadow: -4px 4px 0 var(--fg);
+}
+
+.cta-btn:hover {
+  transform: translateY(-2px);
+}
+
+.cta-btn:active {
+  transform: translateY(0);
+}
+
+.cta-btn:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+.cta-btn--secondary:focus-visible {
+  outline-color: var(--fg);
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+  .cta-btn {
+    transition: none;
+  }
+
+  .cta-btn:hover {
+    transform: none;
+  }
 }
 
 a {

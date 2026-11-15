@@ -1,47 +1,352 @@
-/* home - manifeste : en-tête */
-.services-header {
+/* home - manifeste
+   Mesures de tasteskill (layout-v4) : bande de 1280px max, gouttière
+   80 / 48 / 24, titre à 120px du haut de l'écran (96 sur téléphone). */
+.statement,
+.chapters {
+  --padt: 120px;
+  --padb: 72px;
+  --gut: 80px;
   position: relative;
   width: 100%;
-  min-height: 100svh;
-  padding: 2em;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
+  /* Pas de fond propre : la page (--page-bg) passe au noir derrière, et
+     l'encre suit (--m-ink), voir ManifestNight.tsx. */
+  color: var(--m-ink, var(--fg));
 }
 
-.services-header .services-header-content {
+.statement-wrap,
+.chapters-wrap {
+  width: min(100% - 2 * var(--gut), 1280px);
+  margin-inline: auto;
+}
+
+/* ---- 1. La déclaration ---- */
+/* Le titre tient le haut de l'écran, la phrase en ferme le bas : l'écran
+   est composé, pas à moitié vide. */
+.statement {
+  display: flex;
+  min-height: 100svh;
+  padding: var(--padt) 0 var(--padb);
+}
+
+.statement-wrap {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 1em;
 }
 
-.services-header-content p {
-  font-size: clamp(1rem, 1.5vw + 0.5rem, 1.5rem);
-  max-width: 40ch;
+.statement-label {
+  font-family: 'Supply Mono', monospace;
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  color: var(--m-accent, var(--accent4));
 }
 
-.services-header .services-header-title {
-  margin-bottom: 6em;
+.liquid-title-host {
+  margin-top: 1.5rem;
 }
 
-/* Le titre passe en `.page h1` (clamp) ; ici seulement la césure : sur un
-   écran étroit, « divertissement. » doit pouvoir se couper plutôt que de
-   sortir du cadre. */
-.services-header .services-header-title h1 {
-  overflow-wrap: anywhere;
-  hyphens: auto;
+/* Le titre en très grand, dans la police de titre de la marque. */
+.statement .statement-title {
+  max-width: 11em;
+  font-size: clamp(3.25rem, 9vw, 9.375rem);
+  line-height: 0.92;
+  cursor: default;
 }
 
-@media (max-width: 1000px) {
-  .services-header {
-    min-height: 60svh;
-    padding: 4em 1.25em;
+/* La phrase qui s'allume (word-highlight) : grande, en Satoshi, elle ferme
+   le bas de l'écran. Au repos, chaque mot est à mi-encre (lisible) ; il
+   passe à l'encre quand le scroll l'atteint, « son origine » à l'accent.
+   Les couleurs suivent la bascule au noir (--m-ink, --m-accent). */
+.statement-lead {
+  margin-top: auto;
+  padding-top: 2rem;
+  max-width: 30ch;
+  font-size: clamp(1.375rem, 0.9rem + 1.6vw, 2.5rem);
+  font-weight: 500;
+  line-height: 1.22;
+  text-wrap: pretty;
+}
+
+.word-hl-w.is-strong {
+  color: var(--m-accent, var(--accent4));
+}
+
+.word-hl.is-live .word-hl-w {
+  color: color-mix(in oklab, var(--m-ink, var(--fg)) 42%, transparent);
+  transition: color 160ms ease;
+}
+
+.word-hl.is-live .word-hl-w.is-on {
+  color: var(--m-ink, var(--fg));
+}
+
+.word-hl.is-live .word-hl-w.is-strong.is-on {
+  color: var(--m-accent, var(--accent4));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .word-hl-w {
+    transition: none;
+  }
+}
+
+/* ---- 2. Les chapitres ---- */
+.chapters-stage {
+  padding: var(--padt) 0 var(--padb);
+}
+
+.chapters .chapters-text h2 {
+  max-width: 18ch;
+  font-size: clamp(1.875rem, 1rem + 2.5vw, 3rem);
+}
+
+/* `minmax(0, 1fr)` : sans ça, la colonne prend la largeur minimale de son
+   contenu, et une vidéo bornée en hauteur la poussait à 390px sur un
+   écran de 390 (défilement latéral). */
+.chapters-steps {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2rem;
+  margin-top: 3rem;
+}
+
+.chapters-step {
+  min-width: 0;
+}
+
+.chapters-step-index {
+  font-family: 'Supply Mono', monospace;
+  font-size: 0.8125rem;
+  color: var(--m-accent, var(--accent4));
+}
+
+.chapters .chapters-step h3 {
+  margin-top: 0.25rem;
+  font-size: clamp(1.375rem, 1rem + 0.8vw, 1.75rem);
+}
+
+.chapters-step-text {
+  margin-top: 0.5rem;
+  max-width: 46ch;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.chapters-step-text > span {
+  display: block;
+}
+
+.chapters-actions {
+  margin-top: 3rem;
+}
+
+/* Le bouton suit la bascule : son ombre décalée passe du violet sombre au
+   lavande, son anneau de focus à l'encre de la section. */
+.chapters .cta-btn--secondary {
+  box-shadow: -4px 4px 0 var(--m-accent, var(--fg));
+}
+
+.chapters .cta-btn--secondary:focus-visible {
+  outline-color: var(--m-ink, var(--fg));
+}
+
+/* La ref, cadrée comme la photo du hero : trait noir, coins arrondis.
+   Fond sombre le temps que l'image fixe arrive. */
+.ref-video {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--fg);
+}
+
+.ref-video video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ref-video-toggle {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 2px solid #ffffff;
+  border-radius: 9999px;
+  background-color: var(--fg);
+  color: #ffffff;
+}
+
+.ref-video-toggle:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+/* -- Au repos : une rangée par point, le texte à gauche, la ref à droite
+   (au plus 30 % de l'écran en hauteur), un filet entre les points. -- */
+.chapters:not(.is-live) .chapters-step {
+  padding-top: 2rem;
+  border-top: 1px solid color-mix(in srgb, currentColor 15%, transparent);
+}
+
+/* Sur téléphone, la ref en 16:9 sur toute la largeur : la hauteur suit,
+   rien ne la borne (une hauteur bornée imposait sa largeur). */
+.chapters-step-video {
+  width: 100%;
+  height: auto;
+  margin-top: 1.25rem;
+  aspect-ratio: 16 / 9;
+  border: 3px solid currentColor;
+  border-radius: 16px;
+}
+
+@media (min-width: 640px) {
+  .chapters:not(.is-live) .chapters-step {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto auto 1fr;
+    column-gap: 24px;
   }
 
-  .services-header .services-header-title {
-    margin-bottom: 2em;
+  .chapters:not(.is-live) .chapters-step > :not(.chapters-step-video) {
+    grid-column: 1;
+  }
+
+  .chapters:not(.is-live) .chapters-step-video {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    margin-top: 0;
+    aspect-ratio: 4 / 3;
+    max-height: 30svh;
+  }
+}
+
+/* -- En direct : deux écrans, la scène épinglée pendant un écran de
+   scroll ; le texte et le cadre sur la coupe 6/6. -- */
+.chapters.is-live {
+  height: 200svh;
+}
+
+.chapters.is-live .chapters-stage {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: clip;
+}
+
+.chapters.is-live .chapters-wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  column-gap: 24px;
+  align-items: start;
+}
+
+.chapters.is-live .chapters-steps {
+  gap: 1.5rem;
+}
+
+/* Le point ouvert : son filet passe à l'encre, son titre aussi, et son
+   texte se déplie (la rangée de grille passe de 0fr à 1fr). */
+.chapters.is-live .chapters-step {
+  padding-left: 1.5rem;
+  border-left: 2px solid color-mix(in srgb, currentColor 15%, transparent);
+  transition: border-color 300ms ease;
+}
+
+.chapters.is-live .chapters-step h3 {
+  color: color-mix(in srgb, currentColor 45%, transparent);
+  transition: color 300ms ease;
+}
+
+.chapters.is-live .chapters-step-text {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows 420ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    opacity 300ms ease;
+}
+
+.chapters.is-live .chapters-step-text > span {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.chapters.is-live .chapters-step.is-on {
+  border-left-color: currentColor;
+}
+
+.chapters.is-live .chapters-step.is-on h3 {
+  color: currentColor;
+}
+
+.chapters.is-live .chapters-step.is-on .chapters-step-text {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+/* Le cadre partagé : chaque ref y entre en fondu, avec un léger recul
+   (1,03 → 1) qui la pose. */
+.chapters-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  max-height: calc(100svh - var(--padt) - var(--padb));
+  border: 3px solid currentColor;
+  border-radius: 20px;
+  overflow: hidden;
+  background-color: var(--fg);
+}
+
+.chapters-frame-item {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transform: scale(1.03);
+  transition:
+    opacity 480ms ease,
+    transform 900ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.chapters-frame-item.is-on {
+  z-index: 1;
+  opacity: 1;
+  transform: none;
+}
+
+.chapters-frame-item.is-past {
+  transform: scale(1);
+}
+
+/* ---- Tablette ---- */
+@media (max-width: 1023px) {
+  .statement,
+  .chapters {
+    --gut: 48px;
+  }
+}
+
+/* ---- Téléphone ---- */
+@media (max-width: 639px) {
+  .statement,
+  .chapters {
+    --padt: 96px;
+    --padb: 48px;
+    --gut: 24px;
+  }
+
+  /* Le mot le plus long, « PATRIMOINE. », fait 5,29 em : la taille se cale
+     sur la largeur de la colonne pour qu'il tienne toujours (marge de 0,2 em
+     pour l'italique). À changer si le titre change. */
+  .statement .statement-title {
+    font-size: min(calc((100vw - 2 * var(--gut)) / 5.5), 5.25rem);
+  }
+
+  .chapters-actions .cta-btn {
+    width: 100%;
+    min-height: 48px;
   }
 }
