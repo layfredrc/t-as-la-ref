@@ -1,11 +1,19 @@
 'use client'
-import { useEffect, useRef, useState } from 'react'
+import { type CSSProperties, useRef, useState } from 'react'
 import './MemeVortex.css'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
 import Link from 'next/link'
-import { GlowingEffect } from '../ui/glowing-effect'
+import { PauseIcon, PlayIcon } from '@phosphor-icons/react'
+import {
+  ASCII_BRAND,
+  ASCII_BRAND_COLS,
+  ASCII_LOGO,
+  ASCII_LOGO_COLS,
+  ASCII_TITLE_LINE,
+  ASCII_TITLE_LINE_COLS,
+} from './asciiLogo'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -14,18 +22,11 @@ const BLOCKS = Array.from({ length: 16 }, (_, i) => i + 1)
 const MemeVortex = () => {
   const sectionRef = useRef<HTMLElement | null>(null)
   const cursorRef = useRef<HTMLDivElement | null>(null)
-
-  // L'effet de halo suit le pointeur : sur un écran tactile il n'y a rien à
-  // suivre, et son écouteur `pointermove` mesurait le bouton à chaque
-  // mouvement de doigt pendant le scroll.
-  const [pointeurFin, setPointeurFin] = useState(false)
-  useEffect(() => {
-    const mql = window.matchMedia('(hover: hover) and (pointer: fine)')
-    const sync = () => setPointeurFin(mql.matches)
-    sync()
-    mql.addEventListener('change', sync)
-    return () => mql.removeEventListener('change', sync)
-  }, [])
+  const tweenRef = useRef<gsap.core.Tween | null>(null)
+  const [paused, setPaused] = useState(false)
+  // Sous « réduire les animations », le vortex ne tourne pas : pas de bouton
+  // pour une animation qui n'existe pas.
+  const [animated, setAnimated] = useState(false)
 
   useGSAP(
     () => {
@@ -42,25 +43,35 @@ const MemeVortex = () => {
       document.addEventListener('mousemove', onMouseMove)
 
       // ---- vortex ----
-      // L'animation ne tourne que quand la section est à l'écran : elle
-      // bouclait auparavant en continu, sur `top`/`left` de 16 éléments,
-      // même pendant qu'on lisait le hero deux écrans plus haut.
-      const duration = 0.25
-      const repeatDelay = 0.075 * (blocks.length - 1)
+      // Il ne tourne que quand la section est à l'écran, et jamais sous
+      // « réduire les animations » : les blocs restent alors posés à leur
+      // place, en collage (voir le CSS).
+      const mm = gsap.matchMedia()
+      mm.add('(prefers-reduced-motion: no-preference)', () => {
+        const duration = 0.25
+        const repeatDelay = 0.075 * (blocks.length - 1)
 
-      const tween = gsap.from(blocks, {
-        duration: 5,
-        scale: 0,
-        top: '50%',
-        left: '50%',
-        transform: 'translateZ(-200px)',
-        stagger: { each: duration, repeat: -1, repeatDelay },
-        scrollTrigger: {
-          trigger: root,
-          start: 'top bottom',
-          end: 'bottom top',
-          toggleActions: 'play pause resume pause',
-        },
+        const tween = gsap.from(blocks, {
+          duration: 5,
+          scale: 0,
+          top: '50%',
+          left: '50%',
+          transform: 'translateZ(-200px)',
+          stagger: { each: duration, repeat: -1, repeatDelay },
+          scrollTrigger: {
+            trigger: root,
+            start: 'top bottom',
+            end: 'bottom top',
+            toggleActions: 'play pause resume pause',
+          },
+        })
+        tweenRef.current = tween
+        setAnimated(true)
+
+        return () => {
+          tweenRef.current = null
+          setAnimated(false)
+        }
       })
 
       // ---- clic → explosion + disparition temporaire ----
@@ -100,8 +111,7 @@ const MemeVortex = () => {
 
       return () => {
         document.removeEventListener('mousemove', onMouseMove)
-        tween.scrollTrigger?.kill()
-        tween.kill()
+        mm.revert()
         previousGif?.remove()
         blocks.forEach((block) => {
           const h = handlers.get(block)
@@ -111,6 +121,18 @@ const MemeVortex = () => {
     },
     { scope: sectionRef },
   )
+
+  // Pause du vortex : le tween s'arrête là où il est. Le ScrollTrigger ne
+  // le relance pas tant que le visiteur ne l'a pas demandé.
+  const togglePause = () => {
+    const tween = tweenRef.current
+    if (!tween) return
+    const next = !paused
+    tween.scrollTrigger?.[next ? 'disable' : 'enable'](false)
+    if (next) tween.pause()
+    else tween.resume()
+    setPaused(next)
+  }
 
   return (
     <>
@@ -123,61 +145,113 @@ const MemeVortex = () => {
         {/* eslint-disable-next-line @next/next/no-img-element -- curseur décoratif, 60px */}
         <img src='/cursor.png' alt='' width={60} height={60} />
       </div>
-      <section ref={sectionRef} className='meme-vortex'>
-        <div className='content'>
-          <div className='header'>
-            <h1>T&apos;as la ref ?</h1>
-            <p>La mémoire collective du chaos numérique</p>
-          </div>
-        </div>
-
-        <div className='container'>
+      <section ref={sectionRef} className='meme-vortex' aria-labelledby='vortex-title'>
+        <div className='container' aria-hidden='true'>
           <div className='gallery'>
             {BLOCKS.map((n) => (
               <div key={n} className={`vortex-block vortex-block-${n}`} />
             ))}
           </div>
         </div>
-        <div className='meme-vortex-cta absolute bottom-[15%] flex left-1/2 -translate-x-1/2 items-center text-white justify-center font-supplymono rounded-xl'>
-          {pointeurFin && (
-            <GlowingEffect
-              spread={40}
-              glow={true}
-              disabled={false}
-              proximity={280}
-              borderWidth={2.5}
-              inactiveZone={0.5}
-            />
-          )}
-          <Link
-            href='/feed'
-            className='group relative px-5 py-3 sm:px-6 rounded-xl text-white uppercase text-base whitespace-nowrap text-center sm:text-2xl
-             bg-black/50 backdrop-blur-md backdrop-saturate-150
-             border border-white/15
-             shadow-[0_8px_24px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.08)]
-             transition-colors duration-300 overflow-hidden
-             hover:bg-black/60 hover:shadow-[0_12px_28px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.10)]'
-          >
-            <span className='relative z-10'>👾 Accéder au chaos</span>
 
-            {/* Shine sweep */}
-            <span
-              className='absolute inset-0 rounded-xl pointer-events-none
-               bg-gradient-to-r from-transparent via-white/30 to-transparent
-               opacity-0 -translate-x-full
-               transition-all duration-700 ease-out
-               group-hover:opacity-100 group-hover:translate-x-full'
-            />
+        {/* Un terminal rétro au centre : fond plein, les GIF passent derrière,
+            jamais sous les mots. */}
+        <div className='meme-vortex-content'>
+          <div className='vortex-term'>
+            <div className='vortex-term-bar' aria-hidden='true'>
+              <span>■ chaos.sh</span>
+              <span>80×24</span>
+            </div>
+            <div className='vortex-term-body'>
+              {/* L'en-tête de k9s : le contexte à gauche, les raccourcis à
+                  droite. Décor : rien ici ne se clique. */}
+              <div className='vortex-term-head' aria-hidden='true'>
+                <dl className='vortex-term-ctx'>
+                  <div>
+                    <dt>Context:</dt>
+                    <dd>tas-la-ref</dd>
+                  </div>
+                  <div>
+                    <dt>Cluster:</dt>
+                    <dd>internet-fr</dd>
+                  </div>
+                  <div>
+                    <dt>User:</dt>
+                    <dd>visiteur</dd>
+                  </div>
+                </dl>
+                <ul className='vortex-term-keys'>
+                  <li>
+                    <kbd>&lt;0&gt;</kbd> tout
+                  </li>
+                  <li>
+                    <kbd>&lt;1&gt;</kbd> culte
+                  </li>
+                  <li>
+                    <kbd>&lt;2&gt;</kbd> gen-z
+                  </li>
+                  <li>
+                    <kbd>&lt;?&gt;</kbd> aide
+                  </li>
+                </ul>
+              </div>
 
-            {/* Polarized tint (subtle rainbow) */}
-            <span
-              className='absolute inset-0 rounded-xl pointer-events-none mix-blend-screen
-               opacity-0 transition-opacity duration-300
-               group-hover:opacity-70
-               [background:conic-gradient(from_0deg_at_50%_50%,rgba(255,0,102,.12),rgba(0,255,204,.12),rgba(0,128,255,.12),rgba(255,0,102,.12))]'
-            />
-          </Link>
+              <h2 id='vortex-title' className='sr-only'>
+                T&apos;as la ref&nbsp;?
+              </h2>
+              {/* Le logo @Ref puis le titre sur la même ligne, comme le logo
+                  dans l'en-tête de k9s. Large : le titre sur une ligne.
+                  Étroit : le titre sur deux lignes, toujours à côté du logo. */}
+              <div
+                className='vortex-term-art'
+                aria-hidden='true'
+                style={
+                  {
+                    '--cols-wide': ASCII_BRAND_COLS + 3 + ASCII_TITLE_LINE_COLS,
+                    '--cols-narrow': ASCII_BRAND_COLS + 3 + ASCII_LOGO_COLS,
+                  } as CSSProperties
+                }
+              >
+                <pre className='vortex-term-brand'>{ASCII_BRAND}</pre>
+                <pre className='vortex-term-logo vortex-term-logo--wide'>{ASCII_TITLE_LINE}</pre>
+                <div className='vortex-term-logo vortex-term-logo--narrow'>
+                  {ASCII_LOGO.map((block) => (
+                    <pre key={block}>{block}</pre>
+                  ))}
+                </div>
+              </div>
+
+              <p className='vortex-term-line'>
+                <span aria-hidden='true'>&gt; </span>La mémoire collective du chaos numérique
+                <span className='vortex-term-cursor' aria-hidden='true' />
+              </p>
+              <Link href='/feed' className='vortex-term-btn'>
+                <span aria-hidden='true'>[</span>
+                <span>Accéder au chaos</span>
+                <span aria-hidden='true'>]</span>
+              </Link>
+            </div>
+
+            {/* Le bas de l'écran : les miettes de k9s, le mode de vim. */}
+            <div className='vortex-term-status' aria-hidden='true'>
+              <span className='vortex-term-crumb'>&lt;refs&gt;</span>
+              <span className='vortex-term-crumb vortex-term-crumb--alt'>&lt;chaos&gt;</span>
+              <span className='vortex-term-mode'>-- NORMAL --</span>
+            </div>
+          </div>
         </div>
+
+        {animated && (
+          <button
+            type='button'
+            className='meme-vortex-toggle'
+            onClick={togglePause}
+            aria-pressed={paused}
+            aria-label={paused ? 'Relancer le vortex' : 'Mettre le vortex en pause'}
+          >
+            {paused ? <PlayIcon size={20} weight='fill' /> : <PauseIcon size={20} weight='fill' />}
+          </button>
+        )}
       </section>
     </>
   )

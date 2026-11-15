@@ -1,10 +1,11 @@
 'use client'
-import { ReactNode } from 'react'
+import { ReactNode, useMemo } from 'react'
 import { usePathname } from 'next/navigation'
 import { ReactLenis } from 'lenis/react'
 import type { LenisOptions } from 'lenis'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { useReducedMotion } from '@/hooks/use-reduced-motion'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -32,6 +33,10 @@ const OPTIONS: LenisOptions = {
 
 export default function ClientLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname()
+  // Le lissage de la molette prolonge chaque cran en glissade d'1,2 s :
+  // exactement ce que « réduire les animations » demande de couper.
+  const reduced = useReducedMotion()
+  const options = useMemo<LenisOptions>(() => ({ ...OPTIONS, smoothWheel: !reduced }), [reduced])
 
   /**
    * Le feed est hors de Lenis, pas seulement marqué `data-lenis-prevent`.
@@ -43,7 +48,7 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
   if (pathname?.startsWith('/feed')) return <>{children}</>
 
   return (
-    <ReactLenis root options={OPTIONS}>
+    <ReactLenis root options={options}>
       {children}
     </ReactLenis>
   )

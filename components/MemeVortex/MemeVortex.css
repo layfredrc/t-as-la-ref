@@ -30,7 +30,11 @@
   position: absolute;
   width: 100%;
   height: 100%;
-  background: var(--fg);
+  /* Une lueur violette au cœur du vortex, là d'où sortent les GIF. */
+  background:
+    radial-gradient(ellipse 55% 45% at 50% 50%, rgb(176 30 255 / 0.22), transparent 70%),
+    radial-gradient(ellipse 80% 70% at 50% 55%, rgb(54 114 248 / 0.12), transparent 75%),
+    var(--fg);
   transform-style: preserve-3d;
   perspective: 2000px;
 }
@@ -45,156 +49,493 @@
   background: #c0c0c0;
   transform-style: preserve-3d;
   transform: translateZ(1750px);
+  /* Chaque GIF cerclé de néon, les quatre teintes à tour de rôle. */
+  --glow: var(--neon-blue);
+  border: 2px solid var(--glow);
+  border-radius: 10px;
+  box-shadow:
+    0 0 14px var(--glow),
+    0 0 36px color-mix(in srgb, var(--glow) 45%, transparent);
+}
+
+.vortex-block:nth-child(4n + 2) {
+  --glow: var(--neon-violet);
+}
+.vortex-block:nth-child(4n + 3) {
+  --glow: var(--neon-pink);
+}
+.vortex-block:nth-child(4n + 4) {
+  --glow: var(--neon-cyan);
 }
 
 .vortex-block-1 {
   top: 30%;
   left: 55%;
-  background: url('https://c.tenor.com/21815GBBccoAAAAC/tenor.gif') no-repeat 50% 50%;
+  background: url('https://media1.tenor.com/m/21815GBBccoAAAAM/tenor.gif') no-repeat 50% 50%;
   background-size: cover;
+  --still: url('https://media1.tenor.com/m/21815GBBccoAAAAe/still.png');
 }
 
 .vortex-block-2 {
   top: 20%;
   left: 25%;
-  background: url('https://media1.tenor.com/m/xDyPA9tx-pAAAAAd/cavapeter-peter.gif') no-repeat 50%
+  background: url('https://media1.tenor.com/m/xDyPA9tx-pAAAAAM/cavapeter-peter.gif') no-repeat 50%
     50%;
   background-size: cover;
+  --still: url('https://media1.tenor.com/m/xDyPA9tx-pAAAAAe/still.png');
 }
 
 .vortex-block-3 {
   top: 50%;
   left: 10%;
-  background: url('https://media1.tenor.com/m/bRIZQF6zQb4AAAAC/kaaris-or-noir.gif') no-repeat 50%
+  background: url('https://media1.tenor.com/m/bRIZQF6zQb4AAAAM/kaaris-or-noir.gif') no-repeat 50%
     50%;
   background-size: cover;
+  --still: url('https://media1.tenor.com/m/bRIZQF6zQb4AAAAe/still.png');
 }
 
 .vortex-block-4 {
   top: 60%;
   left: 40%;
-  background: url('https://media1.tenor.com/m/6SxpB0xDCz0AAAAd/oh-putain-laurent-laurent.gif')
+  background: url('https://media1.tenor.com/m/6SxpB0xDCz0AAAAM/oh-putain-laurent-laurent.gif')
     no-repeat 50% 50%;
   background-size: cover;
+  --still: url('https://media1.tenor.com/m/6SxpB0xDCz0AAAAe/still.png');
 }
 
 .vortex-block-5 {
   top: 30%;
   left: 30%;
-  background: url('https://media1.tenor.com/m/ASGuOCPGrKEAAAAd/kekw-kek.gif') no-repeat 50% 50%;
+  background: url('https://media1.tenor.com/m/ASGuOCPGrKEAAAAM/kekw-kek.gif') no-repeat 50% 50%;
   background-size: cover;
+  --still: url('https://media1.tenor.com/m/ASGuOCPGrKEAAAAe/still.png');
 }
 
 .vortex-block-6 {
   top: 60%;
   left: 60%;
-  background: url('https://media1.tenor.com/m/tznGQ_YQGzIAAAAd/angry-tracksuit.gif') no-repeat 50%
+  background: url('https://media1.tenor.com/m/tznGQ_YQGzIAAAAM/angry-tracksuit.gif') no-repeat 50%
     50%;
   background-size: cover;
+  --still: url('https://media1.tenor.com/m/tznGQ_YQGzIAAAAe/still.png');
 }
 
 .vortex-block-7 {
   top: 20%;
   left: 50%;
-  background: url('https://media1.tenor.com/m/Z42Fo4WKPrQAAAAC/dog-driving.gif') no-repeat 50% 50%;
+  background: url('https://media1.tenor.com/m/Z42Fo4WKPrQAAAAM/dog-driving.gif') no-repeat 50% 50%;
   background-size: cover;
+  --still: url('https://media1.tenor.com/m/Z42Fo4WKPrQAAAAe/still.png');
 }
 
 .vortex-block-8 {
   top: 60%;
   left: 10%;
-  background: url('https://media1.tenor.com/m/XL5DYi3tLSwAAAAC/woody-toy-story-sturdy.gif')
+  background: url('https://media1.tenor.com/m/XL5DYi3tLSwAAAAM/woody-toy-story-sturdy.gif')
     no-repeat 50% 50%;
   background-size: cover;
+  --still: url('https://media1.tenor.com/m/XL5DYi3tLSwAAAAe/still.png');
 }
 
 .vortex-block-9 {
   top: 20%;
   left: 40%;
-  background: url('https://media1.tenor.com/m/wb_rblUTxVAAAAAd/boat-kid-aura-farming-pacu-jalur.gif')
+  background: url('https://media1.tenor.com/m/wb_rblUTxVAAAAAM/boat-kid-aura-farming-pacu-jalur.gif')
     no-repeat 50% 50%;
   background-size: cover;
+  --still: url('https://media1.tenor.com/m/wb_rblUTxVAAAAAe/still.png');
 }
 
 .vortex-block-10 {
   top: 40%;
   left: 60%;
-  background: url('https://media1.tenor.com/m/4-odaCiEXeUAAAAd/dancing-coffin-coffin-dance.gif')
+  background: url('https://media1.tenor.com/m/4-odaCiEXeUAAAAM/dancing-coffin-coffin-dance.gif')
     no-repeat 50% 50%;
   background-size: cover;
+  --still: url('https://media1.tenor.com/m/4-odaCiEXeUAAAAe/still.png');
 }
 
 .vortex-block-11 {
   top: 60%;
   left: 25%;
-  background: url('https://media1.tenor.com/m/vgQ373N5YtsAAAAC/speed-ishowspeed.gif') no-repeat 50%
+  background: url('https://media1.tenor.com/m/vgQ373N5YtsAAAAM/speed-ishowspeed.gif') no-repeat 50%
     50%;
   background-size: cover;
+  --still: url('https://media1.tenor.com/m/vgQ373N5YtsAAAAe/still.png');
 }
 
 .vortex-block-12 {
   top: 30%;
   left: 50%;
-  background: url('https://media1.tenor.com/m/ftLcQ8mFR3AAAAAd/aiscream-love-live-aiscream-ruby.gif')
+  background: url('https://media1.tenor.com/m/ftLcQ8mFR3AAAAAM/aiscream-love-live-aiscream-ruby.gif')
     no-repeat 50% 50%;
   background-size: cover;
+  --still: url('https://media1.tenor.com/m/ftLcQ8mFR3AAAAAe/still.png');
 }
 .vortex-block-13 {
   top: 60%;
   left: 25%;
-  background: url('https://media1.tenor.com/m/PGjYziyQqkoAAAAd/fried-chicken-chicken.gif') no-repeat
+  background: url('https://media1.tenor.com/m/PGjYziyQqkoAAAAM/fried-chicken-chicken.gif') no-repeat
     50% 50%;
   background-size: cover;
+  --still: url('https://media1.tenor.com/m/PGjYziyQqkoAAAAe/still.png');
 }
 .vortex-block-14 {
   top: 25%;
   left: 25%;
-  background: url('https://media1.tenor.com/m/Vo7DmpYoYCgAAAAd/future.gif') no-repeat 50% 50%;
+  background: url('https://media1.tenor.com/m/Vo7DmpYoYCgAAAAM/future.gif') no-repeat 50% 50%;
   background-size: cover;
+  --still: url('https://media1.tenor.com/m/Vo7DmpYoYCgAAAAe/still.png');
 }
 .vortex-block-15 {
   top: 50%;
   left: 10%;
-  background: url('https://media1.tenor.com/m/wC1SbgEZLVcAAAAd/training-day.gif') no-repeat 50% 50%;
+  background: url('https://media1.tenor.com/m/wC1SbgEZLVcAAAAM/training-day.gif') no-repeat 50% 50%;
   background-size: cover;
+  --still: url('https://media1.tenor.com/m/wC1SbgEZLVcAAAAe/still.png');
 }
 .vortex-block-16 {
   top: 60%;
   left: 40%;
-  background: url('https://media1.tenor.com/m/Y847f62IGbEAAAAd/feliz-cumplea%C3%B1os.gif') no-repeat
+  background: url('https://media1.tenor.com/m/Y847f62IGbEAAAAM/feliz-cumplea%C3%B1os.gif') no-repeat
     50% 50%;
   background-size: cover;
+  --still: url('https://media1.tenor.com/m/Y847f62IGbEAAAAe/still.png');
 }
 
-.header {
+/* Le contenu passe toujours au-dessus des blocs : la section isole son
+   empilement, la galerie reste au niveau 0, le contenu au niveau 2. */
+.meme-vortex {
+  isolation: isolate;
+}
+
+/* `container` est aussi l'utilitaire Tailwind (max-width par breakpoint) :
+   annulé, la galerie doit couvrir toute la section. */
+.meme-vortex .container {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+.meme-vortex-content {
+  position: absolute;
+  inset: 0;
   z-index: 2;
-  width: 80vw;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
   pointer-events: none;
 }
 
-.header h1 {
-  text-transform: uppercase;
-  font-size: 12vw;
-  text-align: center;
+/* Néon : le dégradé bleu → violet du titre d'origine, poussé vers le rose et
+   le cyan. Les quatre teintes, une fois. */
+.meme-vortex {
+  --neon-blue: #3672f8;
+  --neon-violet: #b01eff;
+  --neon-pink: #ff2bd6;
+  --neon-cyan: #00e5ff;
+}
+
+/* ---- Le terminal au centre ----
+   Une fenêtre de console à la k9s / vim (barre de titre, en-tête de
+   contexte, logo en blocs ANSI, barre d'état), en verre dépoli. Une seule
+   couleur : le violet du thème (--accent5). Le néon reste aux médias.
+
+   Le verre reprend la recette de `.glass` (barre d'actions du feed), plus
+   teinté : les GIF passent derrière en flou, jamais nets sous les mots.
+
+   La police est celle du terminal du visiteur (SF Mono, Menlo, Consolas,
+   DejaVu Sans Mono…), comme k9s et vim : rien à installer, et elle a les
+   caractères de blocs (█ ╗ ║) à la largeur exacte d'une lettre, ce dont le
+   logo a besoin pour s'aligner. */
+.vortex-term {
+  --term-font:
+    ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+    'DejaVu Sans Mono', monospace;
+  --term-dim: rgb(255 255 255 / 0.62);
+  --term-line: rgb(255 255 255 / 0.14);
+  position: relative;
+  width: min(100%, 46rem);
+  border: 1px solid rgb(255 255 255 / 0.22);
+  border-radius: 16px;
+  background-color: color-mix(in srgb, var(--fg) 62%, transparent);
+  /* La propriété standard seule : le build (Lightning CSS) ajoute lui-même
+     le préfixe -webkit- pour Safari. Écrire les deux lui fait garder le
+     préfixe seul, que Chrome ignore : plus de flou du tout. */
+  backdrop-filter: blur(24px) saturate(140%);
+  box-shadow:
+    0 24px 64px rgb(0 0 0 / 0.45),
+    inset 0 1px 0 rgb(255 255 255 / 0.2);
+  color: #f2f2f5;
+  font-family: var(--term-font);
+  text-align: left;
+  /* Le verre laisse passer les clics : un meme sous le terminal explose
+     comme les autres. Seuls les contrôles reprennent les clics (plus bas). */
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* Sans flou d'arrière-plan (vieux navigateur), le verre redevient un
+   fond plein : les mots ne tombent jamais sur un GIF net. */
+@supports not (backdrop-filter: blur(1px)) {
+  .vortex-term {
+    background-color: color-mix(in srgb, var(--fg) 94%, transparent);
+  }
+}
+
+/* Lignes de balayage, à peine : un souvenir d'écran cathodique sur le
+   verre. */
+.vortex-term::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 2px,
+    rgb(0 0 0 / 0.12) 3px
+  );
+  pointer-events: none;
+}
+
+.vortex-term-bar {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--term-line);
+  background-color: rgb(255 255 255 / 0.06);
+  color: var(--term-dim);
+  font-size: 0.8125rem;
+}
+
+.vortex-term-body {
+  /* Le logo se dimensionne sur la largeur de ce bloc (unités cqw). */
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.25rem;
+  padding: 1.5rem 2rem 2rem;
+}
+
+/* L'en-tête de k9s : le contexte en colonnes alignées, les raccourcis en
+   <touche> libellé. */
+.vortex-term-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 2rem;
+  width: 100%;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.vortex-term-ctx div {
+  display: flex;
+  gap: 1ch;
+}
+
+.vortex-term-ctx dt {
+  width: 9ch;
+  color: var(--accent5);
+}
+
+.vortex-term-ctx dd {
+  color: #ffffff;
+}
+
+.vortex-term-keys {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  column-gap: 2ch;
+  align-content: start;
+  color: var(--term-dim);
+}
+
+.vortex-term-keys kbd {
+  font-family: inherit;
+  color: var(--accent5);
+}
+
+/* Le logo @Ref puis le titre en blocs (violet), toujours sur la même ligne.
+   La taille de police fait tenir la rangée entière (--cols-wide colonnes)
+   dans la largeur disponible : un caractère mono fait environ 0,6 em de
+   large. Plafond à 15px : le titre reste un titre, pas une affiche. */
+.vortex-term-art {
+  display: flex;
+  align-items: center;
+  gap: 3ch;
+  font-size: min(calc(100cqw / (var(--cols-wide) * 0.62)), 15px);
+}
+
+.vortex-term-art pre {
+  margin: 0;
+  font-family: var(--term-font);
+  font-size: 1em;
   line-height: 1;
-  pointer-events: none;
-  /* Accent Violet */
-  background: linear-gradient(117.03deg, #3672f8 0%, #b01eff 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  white-space: pre;
 }
 
-.header p {
-  color: white;
-  font-family: 'Supply mono';
-  font-size: 32px;
-  text-align: center;
-  margin-top: 2rem;
+/* Le logo en retrait : blanc estompé, il signe sans voler la vedette au
+   titre. */
+.vortex-term-brand {
+  /* Estompé par `opacity` sur l'élément, jamais par une couleur
+     semi-transparente : les glyphes de blocs débordent un peu les uns sur
+     les autres, et une couleur à 50 % doublait l'alpha à chaque jointure,
+     d'où une grille. Avec l'opacité, le logo est peint opaque puis estompé
+     d'un bloc : un trait continu. Au-dessus des lignes de balayage. */
+  position: relative;
+  z-index: 1;
+  color: #ffffff;
+  opacity: 0.5;
+}
+
+.vortex-term-logo {
+  color: var(--accent5);
+}
+
+.vortex-term-logo pre + pre {
+  margin-top: 0.5em;
+}
+
+.vortex-term-logo--narrow {
+  display: none;
+}
+
+/* Fenêtre étroite (téléphone) : sur une ligne, le titre deviendrait
+   illisible. Il passe sur deux lignes, toujours à côté du logo, et la
+   taille se cale sur cette rangée plus courte (--cols-narrow). */
+@container (max-width: 560px) {
+  .vortex-term-art {
+    font-size: min(calc(100cqw / (var(--cols-narrow) * 0.62)), 15px);
+  }
+
+  .vortex-term-logo--wide {
+    display: none;
+  }
+
+  .vortex-term-logo--narrow {
+    display: block;
+  }
+}
+
+/* Les miettes de k9s à gauche, le mode de vim à droite. */
+.vortex-term-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 1rem;
+  border-top: 1px solid var(--term-line);
+  background-color: rgb(255 255 255 / 0.06);
+  font-size: 0.8125rem;
+}
+
+.vortex-term-crumb {
+  padding: 0 0.5ch;
+  background-color: var(--accent5);
+  color: var(--fg);
+  font-weight: 700;
+}
+
+/* La seconde miette en contour : une seule teinte, deux poids. */
+.vortex-term-crumb--alt {
+  background-color: transparent;
+  box-shadow: inset 0 0 0 1px var(--accent5);
+  color: var(--accent5);
+}
+
+.vortex-term-mode {
+  margin-left: auto;
+  color: var(--term-dim);
+  font-weight: 700;
+}
+
+.vortex-term-line {
+  font-size: clamp(1rem, 0.8vw + 0.7rem, 1.375rem);
+  color: #f2f2f5;
+}
+
+/* Le curseur bloc qui clignote au bout de la ligne. */
+.vortex-term-cursor {
+  display: inline-block;
+  width: 0.6em;
+  height: 1.1em;
+  margin-left: 0.25em;
+  vertical-align: text-bottom;
+  background-color: var(--accent5);
+  animation: vortex-term-blink 1.1s steps(1) infinite;
+}
+
+@keyframes vortex-term-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* La commande : contour violet au repos, vidéo inverse au survol. */
+.vortex-term-btn {
+  display: inline-flex;
+  align-items: center;
+  /* Les crochets à une espace mono du texte : un élément flex perd ses
+     espaces de bord, le `gap` les remplace. */
+  gap: 1ch;
+  min-height: 44px;
+  padding: 0 1rem;
+  border: 2px solid var(--accent5);
+  border-radius: 6px;
+  color: var(--accent5);
+  font-size: clamp(0.9375rem, 0.5vw + 0.8rem, 1.125rem);
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: auto;
+}
+
+.vortex-term-btn:hover {
+  background-color: var(--accent5);
+  color: var(--fg);
+}
+
+.vortex-term-btn:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 3px;
+}
+
+.meme-vortex-toggle {
+  position: absolute;
+  right: 1.5rem;
+  bottom: 1.5rem;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 2px solid #ffffff;
+  border-radius: 9999px;
+  background-color: var(--fg);
+  color: #ffffff;
+}
+
+.meme-vortex-toggle:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 3px;
+}
+
+/* « Réduire les animations » : pas de zoom. Les blocs restent posés à leur
+   place, en collage atténué derrière le titre. */
+@media (prefers-reduced-motion: reduce) {
+  .vortex-block {
+    transform: none;
+    opacity: 0.5;
+    /* L'image fixe de chaque ref (Tenor) à la place du GIF qui boucle. */
+    background-image: var(--still);
+  }
+
+  .vortex-term-cursor {
+    animation: none;
+  }
 }
 
 /* ---- Mobile ---- */
@@ -210,19 +551,26 @@
     height: 80px;
   }
 
-  /* Le CTA au-dessus de la barre système du bas. */
-  .meme-vortex-cta {
-    bottom: max(12%, env(safe-area-inset-bottom) + 2rem);
+  .vortex-term-body {
+    gap: 1rem;
+    padding: 1.25rem 1.25rem 1.5rem;
   }
 
-  /* Titre plus lisible */
-  .header h1 {
-    font-size: 18vw;
+  /* Pas la place pour les raccourcis : le contexte seul, comme k9s dans
+     une fenêtre étroite. */
+  .vortex-term-keys {
+    display: none;
   }
 
-  .header p {
-    font-size: 16px;
-    margin-top: 0.75rem;
+  .vortex-term-btn {
+    width: 100%;
+    min-height: 48px;
+    justify-content: center;
+  }
+
+  .meme-vortex-toggle {
+    right: 1rem;
+    bottom: max(1rem, env(safe-area-inset-bottom));
   }
 }
 

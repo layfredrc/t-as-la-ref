@@ -11,21 +11,44 @@
   overflow-x: hidden;
 }
 
-.hero .hero-header h1 {
-  font-size: 18vw !important;
+/* Un seul h1, sur deux lignes décalées. La taille passe devant `.page h1`
+   (clamp à 5rem) par la spécificité, sans !important. */
+.hero .hero-title {
+  font-size: 18vw;
   line-height: 0.9;
+  margin: 0;
+}
+
+.hero .hero-header {
+  display: block;
+  position: relative;
 }
 
 .hero .hero-header.hero-header-1 {
-  position: relative;
   transform: translateX(-20%);
   z-index: -1;
 }
 
 .hero .hero-header.hero-header-2 {
-  position: relative;
   transform: translateX(20%);
   z-index: 2;
+}
+
+/* Ce qu'est le site, en une ligne sous le titre. Sous la photo (qui est à
+   -1), comme « T'AS » : le diaporama passe par-dessus pendant son entrée,
+   jamais l'inverse. */
+.hero .hero-intro {
+  position: relative;
+  z-index: -2;
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.hero .hero-lead {
+  max-width: 34ch;
+  font-size: clamp(1rem, 0.6vw + 0.85rem, 1.25rem);
+  line-height: 1.5;
+  color: var(--fg);
 }
 
 .hero .hero-footer {
@@ -67,6 +90,45 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* Pause du diaporama : hors de `.hero-img` (en z-index -1, il ne recevrait
+   pas le clic), calé dans son coin bas droit. GSAP le montre quand l'image
+   est arrivée. */
+.hero-img-toggle {
+  position: absolute;
+  right: calc(2em + 1rem);
+  bottom: calc(2em + 1rem);
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 2px solid #ffffff;
+  border-radius: 9999px;
+  background-color: var(--fg);
+  color: #ffffff;
+  visibility: hidden;
+  opacity: 0;
+}
+
+.hero-img-toggle:focus-visible {
+  outline: 2px solid var(--fg);
+  outline-offset: 3px;
+}
+
+/* « Réduire les animations » : l'image est à sa place dès le départ, le
+   diaporama démarre figé (Hero.tsx) et son bouton est visible. */
+@media (prefers-reduced-motion: reduce) {
+  .hero-img-holder .hero-img {
+    transform: none;
+    will-change: auto;
+  }
+
+  .hero-img-toggle {
+    visibility: visible;
+    opacity: 1;
+  }
 }
 
 /* ---- Mobile ---- */
@@ -111,5 +173,10 @@
   .hero-img-holder .hero-img {
     border-width: 0.2em;
     border-radius: 1.25em;
+  }
+
+  .hero-img-toggle {
+    right: calc(1.25em + 0.75rem);
+    bottom: calc(1.25em + 0.75rem);
   }
 }
